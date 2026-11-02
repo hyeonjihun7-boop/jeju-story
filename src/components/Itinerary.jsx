@@ -37,6 +37,17 @@ export function parseItinerary(text) {
   return total >= 2 ? { days: days.filter((d) => d.rows.length), notes } : null
 }
 
+// 위치를 못 찾은 장소도 번호 핀이 빠지지 않게, 가장 가까운 찾은 장소 옆에 "대략" 위치로 둔다 (회색 핀으로 구분)
+function withApprox(list) {
+  const known = (p) => Number.isFinite(p.lat)
+  return list.map((p, i) => {
+    if (known(p)) return p
+    const ref = [...list.slice(0, i).reverse(), ...list.slice(i + 1)].find(known) ?? { lat: 33.4996, lon: 126.5312 } // 없으면 제주시
+    const a = i * 2.4
+    return { ...p, lat: ref.lat + 0.012 * Math.sin(a), lon: ref.lon + 0.015 * Math.cos(a), approx: true }
+  })
+}
+
 // 일정 한 장의 지도: 장소 이름을 위치로 바꿔 번호 핀으로 찍고 순서대로 잇는다 (버튼을 눌렀을 때만 불러온다)
 function TripMap({ plan, dayIndex, onLegs }) {
   const [state, setState] = useState({ loading: true })
@@ -60,12 +71,12 @@ function TripMap({ plan, dayIndex, onLegs }) {
   if (state.loading) return <div className="small sub py-3 text-center">장소 위치를 찾는 중…</div>
   if (state.error) return <div className="small text-danger py-2">지도를 불러오지 못했어요: {state.error}</div>
   const byName = Object.fromEntries(state.items.map((i) => [i.name, i]))
-  const points = rows.map((r, i) => ({ ...byName[r.place], id: i, name: r.place, n: i + 1, note: r.time })).filter((p) => Number.isFinite(p.lat))
-  const missing = rows.length - points.length
+  const points = withApprox(rows.map((r, i) => ({ ...byName[r.place], id: i, name: r.place, n: i + 1, note: r.time })))
+  const missing = points.filter((p) => p.approx).length
   return (
     <div className="trip-map">
-      {points.length ? <MapView points={points} route fit height={260} /> : <div className="small sub py-3 text-center">지도에 표시할 수 있는 위치를 찾지 못했어요</div>}
-      {missing > 0 && <div className="small sub mt-1">{missing}곳은 위치를 못 찾아 지도에 없어요 — 각 장소의 길찾기 버튼으로 찾아가세요.</div>}
+      <MapView points={points} route fit height={260} />
+      {missing > 0 && <div className="small sub mt-1">회색 핀 {missing}곳은 정확한 위치를 못 찾아 대략 표시했어요 — 각 장소의 길찾기 버튼으로 정확한 위치를 확인하세요.</div>}
     </div>
   )
 }

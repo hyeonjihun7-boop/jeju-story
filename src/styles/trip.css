@@ -26,3 +26,4 @@
 .trip.capturing .trip-capture-title { display: block; }
 .trip.capturing { padding: 12px; }
 .trip.capturing [data-nocapture], .trip.capturing i.bi { display: none !important; } /* 아이콘 글꼴은 사진에 안 들어가 네모로 깨진다 */
+.num-pin.approx span { background: #8d9a94; border-style: dashed; }
