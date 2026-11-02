@@ -3,6 +3,7 @@ import { getToday } from './today.js'
 import { findOreum, findOlleRoutes } from './osm.js'
 import { searchSpots } from './tour.js'
 import { INDOOR } from './data/curated.js'
+import { getIndoorAll } from './indoor.js'
 
 export async function getExplore({ place = '제주시', mode } = {}) {
   const today = await getToday({ place })
@@ -25,10 +26,10 @@ export async function getExplore({ place = '제주시', mode } = {}) {
       if (t.length) out.sections.push({ key: 'tour', title: '자연·관광지 (TourAPI)', source: '한국관광공사 TourAPI', items: t })
     }
   } else {
-    out.sections.push({ key: 'indoor', title: '비 오는 날 실내 명소', source: '큐레이션', items: INDOOR })
+    out.sections.push({ key: 'indoor', title: '여행객 추천 실내 명소 BEST', source: '큐레이션', items: INDOOR })
     if (process.env.DATA_GO_KR_KEY) {
-      const t = await searchSpots({ contentTypeId: '14' }).catch(() => [])
-      if (t.length) out.sections.push({ key: 'tour', title: '문화시설 (TourAPI)', source: '한국관광공사 TourAPI', items: t })
+      const all = await getIndoorAll().catch(() => [])
+      if (all.length) out.sections.push({ key: 'indoorAll', title: '제주 실내 명소 전체', source: '한국관광공사 TourAPI (문화시설 + 실내형 관광지)', items: all })
     }
   }
   out.center = { lat: today.weather.lat, lon: today.weather.lon, name: today.weather.place }

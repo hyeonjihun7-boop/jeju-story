@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', tour: '#ff9f2e', food: '#d6402f', center: '#17261f' }
+const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', tour: '#ff9f2e', food: '#d6402f', center: '#17261f' }
 
 // 지도: Leaflet + OpenStreetMap 타일 (키 불필요). points = [{ id, kind, name, lat, lon, note }]
 export default function MapView({ points, center, height = 340 }) {

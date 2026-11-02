@@ -167,6 +167,31 @@ function Festivals() {
   )
 }
 
+// 실내 명소 전체: 분류 칩 + 사진 카드 + 길찾기
+function IndoorAll({ sec }) {
+  const [kind, setKind] = useState('전체')
+  const [more, setMore] = useState(false)
+  const kinds = ['전체', ...new Set(sec.items.map((f) => f.kind))]
+  const list = sec.items.filter((f) => kind === '전체' || f.kind === kind)
+  const shown = more ? list : list.slice(0, 12)
+  return (
+    <div className="kcard">
+      <h3><i className="bi bi-house-heart" />{sec.title} <span className="chip ms-1">{sec.items.length}곳</span></h3>
+      <div className="d-flex gap-2 flex-wrap mb-3">
+        {kinds.map((k) => <button key={k} className={`chip ${kind === k ? 'on' : ''}`} onClick={() => { setKind(k); setMore(false) }}>{k}</button>)}
+      </div>
+      <div className="poster-grid">
+        {shown.map((f) => (
+          <Poster key={f.id} image={f.image} title={f.title} sub={f.sub} icon="bank" navi={{ name: f.title, lat: f.lat, lon: f.lon }}
+            fav={{ kind: 'indoor', id: f.id, title: f.title, note: f.sub }} />
+        ))}
+      </div>
+      {list.length > 12 && !more && <div className="text-center mt-3"><button className="pillbtn ghost" onClick={() => setMore(true)}>{list.length - 12}곳 더 보기</button></div>}
+      <div className="src">출처 {sec.source}</div>
+    </div>
+  )
+}
+
 // 문화생활: 문화시설(사진·길찾기) + 플레이제주 바로가기 + 전시·공연 소식
 function Culture() {
   const [state, setState] = useState({ loading: true })
@@ -289,7 +314,8 @@ export default function Explore() {
             <div className="d-flex gap-3 flex-wrap small sub px-2 pt-2">
               <span><i className="bi bi-circle-fill" style={{ color: '#2c6b55' }} /> 오름</span>
               <span><i className="bi bi-circle-fill" style={{ color: '#3a8fb7' }} /> 올레</span>
-              <span><i className="bi bi-circle-fill" style={{ color: '#7a5fb0' }} /> 실내 명소</span>
+              <span><i className="bi bi-circle-fill" style={{ color: '#7a5fb0' }} /> 실내 명소(추천)</span>
+              <span><i className="bi bi-circle-fill" style={{ color: '#9b7fd1' }} /> 실내 명소(전체)</span>
               <span><i className="bi bi-circle-fill" style={{ color: '#ff9f2e' }} /> 관광지</span>
               <span className="ms-auto">핀을 누르면 이름과 네이버 지도 링크가 나와요</span>
             </div>
@@ -297,14 +323,14 @@ export default function Explore() {
           {data.notes.map((n) => <div key={n} className="small text-danger mb-2">{n}</div>)}
           <Row className="g-3">
             {data.sections.map((sec) => (
-              <Col md={12} lg={sec.items.length > 6 ? 12 : 6} key={sec.key}>
-                <div className="kcard">
+              <Col md={12} lg={sec.items.length > 6 || sec.key === 'indoorAll' ? 12 : 6} key={sec.key}>
+                {sec.key === 'indoorAll' ? <IndoorAll sec={sec} /> : (<div className="kcard">
                   <h3><i className="bi bi-geo-alt" />{sec.title}</h3>
                   {sec.items.length === 0 ? <Empty /> : sec.items.map((it) => <Item key={it.id ?? it.name} sec={sec} it={it} />)}
                   {sec.key === 'oreum' && <div className="small mt-2"><a href="http://www.ormstory.kr/" target="_blank" rel="noreferrer">오름나들이 — 오름 이야기 더 보기 <i className="bi bi-box-arrow-up-right" /></a></div>}
                   {sec.key === 'olle' && <div className="small mt-2"><a href="https://www.jejuolle.org/trail#/" target="_blank" rel="noreferrer">제주올레 공식 사이트에서 전체 코스 보기 <i className="bi bi-box-arrow-up-right" /></a></div>}
                   <div className="src">출처 {sec.source}</div>
-                </div>
+                </div>)}
               </Col>
             ))}
           </Row>
