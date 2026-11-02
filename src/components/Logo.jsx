@@ -1,39 +1,38 @@
-// 탐험 제주 마스코트 "귤룡": 껍질 날개를 단 귀여운 귤 용 (직접 그린 SVG)
+// 탐험 제주 마스코트 "귤룡": 굵은 외곽선의 납작한 스티커 스타일 귤 용 (직접 그린 SVG)
+const LINE = { stroke: '#2a2623', strokeWidth: 3.4, strokeLinejoin: 'round', strokeLinecap: 'round' }
+
 export function Mascot({ size = 80, title = '귤룡' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={title}>
       {/* 꼬리 */}
-      <path d="M66 82 Q86 84 88 66 Q80 72 72 70 Q80 66 82 58 Q70 62 66 72Z" fill="#ff9a2e" />
+      <path d="M62 82 Q84 86 88 70 Q80 74 74 68 Q82 64 80 56 Q68 62 64 74 Z" fill="#ffa12f" {...LINE} />
       {/* 껍질 날개 */}
-      <path d="M33 58 Q10 50 8 66 Q18 62 22 70 Q26 62 34 66Z" fill="#ffc47a" />
-      <path d="M67 58 Q90 50 92 66 Q82 62 78 70 Q74 62 66 66Z" fill="#ffc47a" />
-      {/* 몸 */}
-      <ellipse cx="50" cy="68" rx="21" ry="22" fill="#ff9a2e" />
-      <ellipse cx="50" cy="70" rx="13.5" ry="16.5" fill="#ffe6bd" />
-      <path d="M50 54 V86 M42 58 Q38 70 43 84 M58 58 Q62 70 57 84" fill="none" stroke="#ffcf94" strokeWidth="1.6" strokeLinecap="round" />
-      {/* 팔·발 */}
-      <ellipse cx="31" cy="66" rx="5.5" ry="8" fill="#ff9a2e" transform="rotate(18 31 66)" />
-      <ellipse cx="69" cy="66" rx="5.5" ry="8" fill="#ff9a2e" transform="rotate(-18 69 66)" />
-      <ellipse cx="40" cy="89" rx="8" ry="4.6" fill="#ff8a1f" />
-      <ellipse cx="60" cy="89" rx="8" ry="4.6" fill="#ff8a1f" />
-      {/* 뿔·귀 */}
-      <ellipse cx="34" cy="18" rx="5" ry="8" fill="#ff9a2e" transform="rotate(-24 34 18)" />
-      <ellipse cx="66" cy="18" rx="5" ry="8" fill="#ff9a2e" transform="rotate(24 66 18)" />
+      <path d="M36 60 Q14 52 11 68 Q19 66 22 73 Q27 66 36 68 Z" fill="#ffd48a" {...LINE} />
+      <path d="M64 60 Q86 52 89 68 Q81 66 78 73 Q73 66 64 68 Z" fill="#ffd48a" {...LINE} />
+      {/* 다리 */}
+      <rect x="38" y="82" width="9" height="13" rx="4.5" fill="#ffa12f" {...LINE} />
+      <rect x="53" y="82" width="9" height="13" rx="4.5" fill="#ffa12f" {...LINE} />
+      {/* 팔 */}
+      <rect x="29" y="58" width="8" height="20" rx="4" fill="#ffa12f" {...LINE} />
+      <rect x="63" y="58" width="8" height="20" rx="4" fill="#ffa12f" {...LINE} />
+      {/* 몸 + 귤 조각 배 */}
+      <ellipse cx="50" cy="70" rx="18" ry="19" fill="#ffa12f" {...LINE} />
+      <ellipse cx="50" cy="73" rx="10.5" ry="13" fill="#fff1d6" stroke="#2a2623" strokeWidth="2.4" />
+      <path d="M50 60.5 V85.5 M43 64 Q41 73 44.5 83 M57 64 Q59 73 55.5 83" fill="none" stroke="#e8b676" strokeWidth="1.8" strokeLinecap="round" />
+      {/* 뿔 */}
+      <path d="M33 21 L28 7 L41 15 Z" fill="#ffa12f" {...LINE} />
+      <path d="M67 21 L72 7 L59 15 Z" fill="#ffa12f" {...LINE} />
       {/* 머리 */}
-      <circle cx="50" cy="35" r="20" fill="#ff9a2e" />
-      <ellipse cx="50" cy="42" rx="13" ry="9.5" fill="#ffe6bd" />
+      <circle cx="50" cy="37" r="24" fill="#ffa12f" {...LINE} />
       {/* 잎 */}
-      <path d="M50 16 Q47 7 55 5 Q56 12 50 16Z" fill="#4caf50" />
-      <path d="M50 16 Q54 10 60 11 Q58 17 50 16Z" fill="#6cc56a" />
-      {/* 얼굴 */}
-      <circle cx="42.5" cy="36" r="2.8" fill="#2b2a2a" />
-      <circle cx="57.5" cy="36" r="2.8" fill="#2b2a2a" />
-      <circle cx="43.4" cy="35" r=".9" fill="#fff" />
-      <circle cx="58.4" cy="35" r=".9" fill="#fff" />
-      <circle cx="35.5" cy="42" r="3" fill="#ff7f6b" opacity=".45" />
-      <circle cx="64.5" cy="42" r="3" fill="#ff7f6b" opacity=".45" />
-      <path d="M45.5 43.5 Q50 48.5 54.5 43.5" fill="none" stroke="#7a3b16" strokeWidth="1.8" strokeLinecap="round" />
-      <ellipse cx="50" cy="40.8" rx="2.4" ry="1.5" fill="#e98a52" />
+      <path d="M50 14 Q46 4 56 2 Q58 11 50 14 Z" fill="#58b85c" {...LINE} strokeWidth="2.8" />
+      {/* 얼굴: 짧은 눈썹 · 점 눈 · 작은 웃음 */}
+      <path d="M33 30 H42 M58 30 H67" fill="none" stroke="#2a2623" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="39" cy="38" r="2.6" fill="#2a2623" />
+      <circle cx="61" cy="38" r="2.6" fill="#2a2623" />
+      <path d="M44 46 Q50 52 56 46" fill="none" stroke="#2a2623" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="32" cy="45" r="3.2" fill="#ff7f6b" opacity=".55" />
+      <circle cx="68" cy="45" r="3.2" fill="#ff7f6b" opacity=".55" />
     </svg>
   )
 }
