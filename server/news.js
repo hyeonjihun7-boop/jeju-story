@@ -38,7 +38,11 @@ export async function searchNews({ query = '제주', limit = 12 } = {}) {
 }
 
 export async function searchBlogs({ query = '제주 맛집', limit = 8 } = {}) {
-  if (!hasNaver()) return { available: false, items: [], reason: 'NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 가 있으면 블로그 후기를 검색해요' }
+  if (process.env.KAKAO_REST_KEY) {
+    const k = await getJson(`https://dapi.kakao.com/v2/search/blog?query=${encodeURIComponent(query)}&size=${limit}`, { headers: { Authorization: 'KakaoAK ' + process.env.KAKAO_REST_KEY } })
+    return { available: true, source: '카카오(다음) 블로그 검색', items: k.documents.map((i) => ({ title: strip(i.title), summary: strip(i.contents), url: i.url, blogger: i.blogname, date: (i.datetime || '').slice(0, 10) })) }
+  }
+  if (!hasNaver()) return { available: false, items: [], reason: 'KAKAO_REST_KEY 가 있으면 블로그 후기를 검색해요' }
   const d = await getJson(`https://openapi.naver.com/v1/search/blog.json?query=${encodeURIComponent(query)}&display=${limit}&sort=sim`, { headers: naverHeaders() })
   return { available: true, source: '네이버 블로그 검색', items: d.items.map((i) => ({ title: strip(i.title), summary: strip(i.description), url: i.link, blogger: i.bloggername, date: i.postdate })) }
 }

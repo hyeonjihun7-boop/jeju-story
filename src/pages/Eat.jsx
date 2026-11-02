@@ -49,7 +49,7 @@ function Brands({ cat }) {
           </div>
         </div>
       ))}
-      <div className="src">큐레이션 목록 · 영업·재고는 방문 전 확인하세요{state.hasPhotos ? ' · 상품 사진: 네이버 쇼핑' : ' · 상품 사진은 네이버 API 키(NAVER_CLIENT_ID/SECRET)를 넣으면 나와요'}</div>
+      <div className="src">큐레이션 목록 · 영업·재고는 방문 전 확인하세요{state.hasPhotos ? ' · 사진: 카카오 이미지 검색' : ' · 브랜드 사진은 카카오 키(KAKAO_REST_KEY)를 넣으면 나와요'}</div>
     </div>
   )
 }
@@ -111,7 +111,7 @@ function Nearby() {
               {state.blogs.items.map((b) => <div key={b.url} className="mb-2 small"><a href={b.url} target="_blank" rel="noreferrer" className="fw-bold">{b.title}</a><div className="sub">{b.summary}</div></div>)}
             </>
           )}
-          {state.blogs && !state.blogs.available && <div className="src">블로그 후기: 네이버 API 키(NAVER_CLIENT_ID/SECRET)를 넣으면 표시돼요</div>}
+          {state.blogs && !state.blogs.available && <div className="src">블로그 후기: 카카오 키(KAKAO_REST_KEY)를 넣으면 표시돼요</div>}
         </div>
       )}
     </div>

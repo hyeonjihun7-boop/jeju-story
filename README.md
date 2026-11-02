@@ -82,8 +82,8 @@
 | 올레길 | 불필요 | 대표 코스 4개 + 제주올레 공식 사이트 링크 |
 | **축제·행사 / 관광지 (TourAPI)** | `DATA_GO_KR_KEY` | 안내 메시지 표시 |
 | 에어코리아 실측 | `DATA_GO_KR_KEY` | Open-Meteo 값 사용 |
-| 맛집(카카오)·블로그 후기(네이버) | `KAKAO_REST_KEY` · `NAVER_*` | OSM 주변 식당·카페 |
-| 추천 옷차림 **실제 상품 사진** (네이버 쇼핑) | `NAVER_CLIENT_ID/SECRET` | 옷 일러스트 카드 |
+| 맛집 검색(카카오 로컬) | `KAKAO_REST_KEY` | OSM 주변 식당·카페 → 대표 메뉴 검색 카드 |
+| 옷차림·브랜드 **실제 사진**, 블로그 후기 (카카오 이미지·블로그 검색) | `KAKAO_REST_KEY` | 옷 일러스트·카테고리 배너 |
 | **AI 비서** | `ANTHROPIC_API_KEY` | 안내 메시지 표시 |
 
 > ⚠ TourAPI는 **KorService2** 주소를 써야 합니다. 예전 `KorService1`은 폐기되어 `NO_OPENAPI_SERVICE_ERROR (코드 12)`가 납니다.
