@@ -1,12 +1,13 @@
-import Mascot from './Mascot'
-export { Mascot }
-
-// 사이드바 로고: 바다색 배지 안의 귤룡
+// 탐험 제주 로고: 한라산 + 감귤색 해 + 파도 (SVG)
 export default function Logo({ size = 34 }) {
   return (
-    <span className="logo-badge" style={{ width: size, height: size }}>
-      <Mascot size={size * 0.94} stars={false} />
-    </span>
+    <svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="탐험 제주 로고">
+      <rect width="48" height="48" rx="13" fill="#1f5a63" />
+      <circle cx="33" cy="15" r="6.5" fill="#ff9f2e" />
+      <path d="M2 36 L13 27 Q17 24 21 25 L24 22.5 Q27 21 30 23 L34 27 L46 36 Z" fill="#e9f3ee" />
+      <path d="M0 38 q6-4 12 0 t12 0 t12 0 t12 0 V48 H0Z" fill="#3a8fb7" />
+      <path d="M0 42.5 q6-4 12 0 t12 0 t12 0 t12 0 V48 H0Z" fill="#2c6b9a" opacity=".85" />
+    </svg>
   )
 }
 
