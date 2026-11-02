@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchFood, fetchShops } from '../api/client'
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
+import FavButton from '../components/FavButton'
 import Poster from '../components/Poster'
 import MapView from '../components/MapView'
 import { Empty, ErrorBox, Loading } from '../components/Status'
@@ -126,4 +127,5 @@ export default function Eat() {
     </>
   )
 }
+
 
