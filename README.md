@@ -1,12 +1,12 @@
 <div align="center">
 
-# 🌿 탐험 제주
+# 🍊 탐험 제주
 
-**날씨 보고 정하는 하루 — 옷차림부터 오름·올레, 축제, 로컬 브랜드, 이슈까지 한 화면에**
+**날씨 보고 정하는 하루 — 옷차림부터 실내·야외 탐험, 다크 투어리즘, 축제, 로컬 브랜드, 이슈, AI 여행 일정까지 한 곳에**
 
-`React 19` · `Vite` · `React Router` · `Zustand` · `Bootstrap 5` · `Supabase` · `Vercel` · `Claude Sonnet 5.5`
+`React 19` · `Vite` · `React Router` · `Zustand` · `Bootstrap 5` · `Leaflet` · `Supabase` · `Vercel` · `Gemini / Claude`
 
-[저장소](https://github.com/hyeonjihun7-boop/jeju-story) · 제주대 청년도약 부트캠프 1기 개별 과제
+[배포 주소](https://jeju-story.vercel.app) · [저장소](https://github.com/hyeonjihun7-boop/jeju-story) · 제주대 청년도약 부트캠프 1기 개별 과제
 
 </div>
 
@@ -15,23 +15,34 @@
 ## ✨ 기획 의도
 
 제주 여행의 하루는 **날씨가 반**입니다. 비 오는 날 오름에 올라가고, 바람 부는 날 해안도로에서 헤매고, 미세먼지가 짙은 날 야외 일정을 잡는 일이 반복됩니다.
-**탐험 제주**는 오늘의 날씨·미세먼지·황사를 먼저 읽고, 그 결과로 *입을 옷*, *갈 곳(실내/실외)*, *먹고 살 것*, *알아야 할 이슈*를 한 번에 정리해 주는 하루 비서입니다.
-
-> 비가 오면 **박물관·미술관**, 맑으면 **오름·올레**, 점심엔 **맛집·카페**, 저녁엔 **노을 산책** — 하루를 4칸으로 나눠 제안합니다.
+**탐험 제주**는 오늘의 날씨·미세먼지·황사를 먼저 읽고, 그 결과로 *입을 옷*, *갈 곳(실내/야외)*, *먹고 살 것*, *알아야 할 이슈*를 정리하고, AI 비서가 이를 모아 **시간표 일정**까지 만들어 주는 제주 여행 비서입니다.
 
 ## 🧭 주요 기능
 
 | 칸 | 하는 일 | 사용하는 데이터 |
 |---|---|---|
-| ☀️ **오늘** | 현재 날씨, 시간대별 기온·강수 변화 그래프, 미세먼지·초미세먼지·황사 등급, **옷차림(얇은/적당/두꺼운 옷 · 겉옷 유무)**, 하루 4칸 실내·실외 플랜 | Open-Meteo 예보 · Open-Meteo 대기질 |
-| 🧭 **탐험** | 날씨에 따라 자동 추천 — 맑음: **오름**(가까운 순, 고도·위키 설명), **올레길**, 비: **실내 명소**. 축제·행사 탭 | OpenStreetMap(Overpass) · 위키백과 · Open-Meteo 고도 · TourAPI |
-| 🛍 **먹거리·쇼핑** | 제주 로컬 브랜드(우무·귤메달·제주바솔트·한라산과자점·모제이·한림수직 …), 소품샵, 주변 맛집·카페, 구매·예약·대기 링크 | 큐레이션 · OSM / 카카오 로컬 · 네이버 블로그 |
-| 📰 **이슈** | 이슈제주 최신 기사 + 주제별 뉴스(4·3, 관광, 날씨, 축제) | 이슈제주 RSS · 네이버 뉴스 / Google 뉴스 RSS |
-| ✨ **AI 비서** | 질문하면 Claude가 **스스로 도구를 골라** 호출하고 답변. 화면에 *호출한 도구 목록* 표시 | 위 모든 API를 도구(17개)로 사용 |
-| 🔖 **북마크** | 마음에 든 곳을 담기, 닉네임별 저장, AI 대화 기록 | Supabase |
+| ☀️ **오늘** | 현재 날씨, 시간대별 기온·강수 그래프, 미세먼지·초미세먼지·황사 등급, **옷차림**(실제 사진), **오늘의 추천**(날마다 바뀜) | Open-Meteo 예보·대기질 · 카카오 이미지 |
+| 🧭 **탐험** | **실내 / 야외 / 다크 투어리즘 / 축제·행사 / 문화생활 / 오늘 날씨 추천** 탭, 검색, 지도(제주 범위), 카카오 길찾기 | TourAPI · OpenStreetMap(Overpass) · 위키백과 · Open-Meteo 고도 |
+| 🛍 **먹거리·쇼핑** | 로컬 브랜드(간식·디저트 / 의류 / 액세서리·소품), 지역별 맛집·카페, 실제 사진 | TourAPI · 카카오 이미지·블로그 |
+| 📰 **이슈** | 이슈제주 최신 기사 + 주제별 뉴스 | 이슈제주 RSS · Google 뉴스 RSS |
+| ✨ **AI 비서** | 질문하면 AI가 **스스로 도구를 골라** 호출하고 답변, *호출한 도구 목록* 표시. “1박 2일 일정 짜줘” → **시간표**로 보여주고 저장 | 위 모든 API를 도구(18개)로 사용 |
+| 🔖 **북마크** | 담은 곳을 종류별로 거르고 **지도에서 한꺼번에 보기**, 저장한 일정 목록, **공유 링크**, AI 대화 기록 | Supabase |
+
+### 🗓 AI 여행 일정
+- AI가 날씨·장소 API를 호출해 `## N일차` + `시간 | 장소 | 설명` 형식으로 일정을 만들면, 화면에서 **시간표**로 바꿔 보여줍니다.
+- 장소마다 **카카오 길찾기** 버튼, 하루 단위 **지도로 보기**(번호 핀 + 이동 경로).
+- **내 일정에 저장**(Supabase `trips`) → 북마크 탭에서 다시 보기 → **공유 링크**(`/trip/:id`)를 복사해 누구에게나 보여주기.
+- 장소 이름 → 좌표는 TourAPI 키워드 검색으로 찾되, 이름이 거의 같을 때만 받아들입니다. 못 찾으면 엉뚱한 곳에 찍지 않고 핀을 생략합니다.
+- AI가 바쁠 때(무료 한도)를 위해 **예시 일정 보기(AI 없이)** 버튼, 모델 폴백, 같은 질문 10분 캐시를 둡니다.
+
+### 🕯 다크 투어리즘
+4·3 유적 등 제주의 아픈 역사를 기억하는 장소 12곳과 프로그램(모바일 스탬프 투어, (사)제주다크투어)을 소개합니다. 사진은 TourAPI 우선, 없으면 카카오 이미지로 채웁니다.
 
 ### 🌦 옷차림은 이렇게 정해요
 체감온도 평균(9~20시)을 구간별로 나눠 *얇은 옷 / 적당한 옷 / 두꺼운 옷*을 고르고, 여기에 **일교차 ≥ 8°**, **풍속 ≥ 7m/s**, **강수**, **자외선 ≥ 6**, **미세먼지 나쁨·황사**를 얹어 겉옷·우산·바람막이·선크림·마스크를 덧붙입니다. (`server/outfit.js`)
+
+### 🎨 디자인
+제주 바다·한라산·감귤 모티프의 테마, 감귤 모양 마우스 커서(마우스가 있는 기기에서만), 데스크톱은 좌측 레일 / 모바일은 하단 탭바.
 
 ## 🏗 아키텍처
 
@@ -40,53 +51,53 @@
 │ router.jsx ─ AppLayout ─ pages/*          │
 │ store/useAppStore.js  (Zustand: 공유 상태) │
 │ api/client.js ─ fetch('/api/…')           │──┐
-│ lib/supabase.js ─ 북마크·대화기록           │  │
+│ lib/supabase.js ─ 북마크·일정·대화기록       │  │
 └───────────────────────────────────────────┘  │
                                                ▼
 ┌──────── Vercel 서버 함수 api/*.js ─────────────┐     ┌───────────┐
-│ today · explore · spot · festivals · shop      │     │ Supabase  │
-│ food · news · station · agent                  │     │ favorites │
-│   └─ server/*.js  (화면과 에이전트가 공용)       │     │ chat_logs │
+│ today · explore · spot · festivals · culture   │     │ Supabase  │
+│ shop · food-regions · news · outfit-photo      │     │ favorites │
+│ agent                                          │     │ chat_logs │
+│   └─ server/*.js  (화면과 에이전트가 공용)       │     │ trips     │
 │ 비밀 키(.env)는 여기에서만 사용                   │     └───────────┘
 └───────┬───────────────────────────────────────┘
         ▼
  Open-Meteo · OSM(Overpass) · 위키백과 · 이슈제주 RSS · Google 뉴스 RSS
- TourAPI · 에어코리아 · 네이버 · 카카오  (키가 있으면)
+ 한국관광공사 TourAPI · 카카오 (키가 있으면) · Gemini / Claude
 ```
 
-- **store** — 여러 페이지가 함께 쓰는 값(지역, 오늘 데이터, 북마크, 대화)
-- **router** — 이동 경로(`NAV_ITEMS`) 한 곳에서 관리
-- **bootstrap** — 레이아웃·그리드·폼 + 숲녹색 테마(`styles/theme.css`), 데스크톱은 좌측 레일 / 모바일은 하단 탭바
+- **store** — 여러 페이지가 함께 쓰는 값(지역, 오늘 데이터, 북마크, 일정, 대화)
+- **router** — 이동 경로(`NAV_ITEMS`) 한 곳에서 관리, 공유 일정은 `/trip/:id`
 - **server vs client** — 키가 필요하거나 CORS가 막힌 호출은 모두 서버 함수 경유
 
 ## 🤖 AI 에이전트
 
-`api/agent.js`의 루프: **질문 → Claude가 도구 선택 → 서버가 API 실행 → 결과를 보고 다시 판단 → 최종 답변** (최대 6회).
+`api/agent.js`의 루프: **질문 → AI가 도구 선택 → 서버가 API 실행 → 결과를 보고 다시 판단 → 최종 답변** (최대 6회).
+`GEMINI_API_KEY`가 있으면 Gemini, `ANTHROPIC_API_KEY`가 있으면 Claude로 같은 도구를 사용합니다.
 
 | 분류 | 도구 |
 |---|---|
 | 날씨·옷차림 | `get_today_plan` `get_weather` `get_air_quality` `get_station_air` `find_place` |
-| 자연·관광 | `find_oreum` `get_elevation` `get_wiki_summary` `find_olle_routes` `search_indoor_spots` `search_spots` `search_festivals` |
+| 자연·관광 | `find_oreum` `get_elevation` `get_wiki_summary` `find_olle_routes` `search_indoor_spots` `search_spots` `search_festivals` `search_dark_tourism` |
 | 먹거리·쇼핑 | `search_local_brands` `search_restaurants` `search_blog_reviews` |
 | 이슈 | `get_issue_jeju` `search_news` |
 
-시스템 프롬프트는 *"날씨·장소는 추측하지 말고 도구로 확인, 비·미세먼지엔 실내 대안, 없는 정보는 지어내지 않기"* 를 요구합니다.
+시스템 프롬프트는 *“날씨·장소는 추측하지 말고 도구로 확인, 비·미세먼지엔 실내 대안, 없는 정보는 지어내지 않기, 일정은 정해진 표 형식으로”* 를 요구합니다.
 
 ## 🔑 API 키 없이도 되는 것 / 키가 필요한 것
 
 | | 키 | 없을 때 |
 |---|---|---|
-| 날씨·대기질·옷차림·하루 플랜 | 불필요 | — |
+| 날씨·대기질·옷차림 | 불필요 | — |
 | 오름·고도·위키 | 불필요 | Overpass가 느리면 대표 오름으로 대체 |
-| 이슈제주 · 뉴스 | 불필요 | 네이버 키가 있으면 네이버 뉴스로 전환 |
-| 올레길 | 불필요 | 대표 코스 4개 + 제주올레 공식 사이트 링크 |
-| **축제·행사 / 관광지 (TourAPI)** | `DATA_GO_KR_KEY` | 안내 메시지 표시 |
-| 에어코리아 실측 | `DATA_GO_KR_KEY` | Open-Meteo 값 사용 |
-| 맛집 검색(카카오 로컬) | `KAKAO_REST_KEY` | OSM 주변 식당·카페 → 대표 메뉴 검색 카드 |
-| 옷차림·브랜드 **실제 사진**, 블로그 후기 (카카오 이미지·블로그 검색) | `KAKAO_REST_KEY` | 옷 일러스트·카테고리 배너 |
-| **AI 비서** | `ANTHROPIC_API_KEY` 또는 `GEMINI_API_KEY` | 안내 메시지 표시 |
+| 이슈제주 · 뉴스 | 불필요 | — |
+| 올레길 | 불필요 | 대표 코스 + 제주올레 공식 사이트 링크 |
+| **축제·행사·관광지·맛집 (TourAPI)**, 일정 장소 좌표 | `DATA_GO_KR_KEY` | 안내 메시지 표시 |
+| 옷차림·브랜드·다크투어 **실제 사진**, 블로그 후기 | `KAKAO_REST_KEY` | 일러스트·카테고리 배너 |
+| **AI 비서** | `GEMINI_API_KEY` 또는 `ANTHROPIC_API_KEY` | 안내 메시지 + 예시 일정 |
+| 북마크·일정 저장 | `VITE_SUPABASE_URL` · `VITE_SUPABASE_ANON_KEY` | 저장 기능 꺼짐 |
 
-> ⚠ TourAPI는 **KorService2** 주소를 써야 합니다. 예전 `KorService1`은 폐기되어 `NO_OPENAPI_SERVICE_ERROR (코드 12)`가 납니다.
+> ⚠ TourAPI는 **KorService2**, 제주 필터는 `lDongRegnCd=50`을 써야 합니다. 예전 `KorService1`은 폐기되었고, `areaCode=39`는 일부 데이터만 돌려줍니다.
 
 ## 🚀 실행하기
 
@@ -94,42 +105,43 @@
 npm install
 cp .env.example .env.local      # 값 채우기 (Windows: copy)
 npm run dev                     # http://localhost:5173  (화면 + /api 함께 실행)
-npm run test:server             # 서버 함수 점검 (API 응답 확인)
 ```
 
-`vite.config.js`에 `/api/*`를 로컬에서 실행하는 플러그인이 들어 있어 `vercel dev` 없이도 동작합니다.
+`vite.config.js`에 `/api/*`를 로컬에서 실행하는 플러그인이 들어 있어 `vercel dev` 없이도 동작합니다. (`server/` 파일을 고치면 개발 서버를 다시 시작하세요.)
 
 ### Supabase 준비
 1. [supabase.com](https://supabase.com)에서 프로젝트 생성 → Project URL과 anon key를 `.env.local`에 입력
-2. SQL Editor에 [`supabase/schema.sql`](supabase/schema.sql) 붙여넣고 Run (`favorites`, `chat_logs`)
-3. 북마크를 눌러 새로고침해도 남는지 확인
+2. SQL Editor에 [`supabase/schema.sql`](supabase/schema.sql) 붙여넣고 Run (`favorites`, `chat_logs`, `trips`)
+3. 북마크·일정을 저장하고 새로고침해도 남는지 확인
 
 ### Vercel 배포
 1. GitHub에 push → [vercel.com](https://vercel.com)에서 저장소 Import (Framework: Vite)
 2. Environment Variables에 `.env.example`의 값 입력 (`VITE_` 없는 키는 서버에서만 사용됨)
 3. Deploy → 배포 주소에서 홈 화면과 AI 비서 동작 확인
+4. 다른 사람에게 보여주려면 Settings → Deployment Protection에서 Vercel Authentication을 끕니다
 
 ## 📁 폴더 구조
 
 ```
-api/        Vercel 서버 함수 11개 (today, explore, spot, festivals, culture, shop, food-regions, news, outfit-photo, agent, hello) — Hobby 한도 12개 이하
-server/     외부 API 호출·규칙 로직 (weather, air, outfit, osm, tour, news, tools …) ← 화면·에이전트 공용
-  data/       로컬 브랜드·실내 명소 큐레이션
+api/        Vercel 서버 함수 11개 — Hobby 한도(12개) 이하
+server/     외부 API 호출·규칙 로직 (weather, air, outfit, tour, places, dark, daily, news, tools …) ← 화면·에이전트 공용
 src/
-  pages/      Home · Explore · Eat · Issue · Agent · My
-  components/ FavButton · PlacePicker · HourlyChart · Status
+  pages/      Home · Explore · Eat · Issue · Agent · My · TripShare
+  components/ Itinerary · MapView · DarkTour · DailyPicks · NaviButton · FavButton …
   layouts/    AppLayout (좌측 레일 / 하단 탭바)
   store/      Zustand 전역 상태
   api/        화면 → /api 호출 함수
   lib/        supabase 연결
+  styles/     theme · jeju · cursor · dark · trip
 supabase/   테이블 생성 SQL
-scripts/    서버 함수 점검 스크립트
 ```
 
 ## 📝 출처와 유의사항
 
 - 날씨·대기질: [Open-Meteo](https://open-meteo.com) · 지도 데이터: © OpenStreetMap contributors · 설명: 위키백과
+- 관광지·축제·맛집: 한국관광공사 TourAPI(공공데이터포털), 사진: 카카오 이미지 검색
 - 뉴스: [이슈제주](https://www.issuejeju.com) RSS(제목·요약·원문 링크만 표시), 기사 저작권은 각 언론사에 있습니다
 - 올레길 상세 코스는 [제주올레 공식 사이트](https://www.jejuolle.org/trail#/), 오름 이야기는 [오름나들이](http://www.ormstory.kr/)에서 확인하세요
 - 로컬 브랜드·소품샵 목록은 직접 정리한 큐레이션이며, 영업·재고·가격은 방문 전 확인이 필요합니다
+- AI 일정은 참고용입니다. 영업시간과 이동 시간은 가기 전에 확인하세요
 - 실습용 Supabase 정책은 *누구나 읽기·쓰기*입니다. 실제 서비스에서는 Supabase Auth로 바꾸세요
