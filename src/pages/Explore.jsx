@@ -195,6 +195,7 @@ function PlaceGallery({ sec, icon = 'house-heart', searching = false }) {
 // 문화생활: 플레이제주 바로가기 + 전시·공연 소식 (문화시설은 실내 탐험에 있음)
 function Culture() {
   const [state, setState] = useState({ loading: true })
+  const [frame, setFrame] = useState('events')
   useEffect(() => { fetchCulture().then(setState).catch((e) => setState({ error: e.message })) }, [])
   if (state.loading) return <Loading />
   if (state.error) return <ErrorBox error={state.error} />
@@ -204,6 +205,18 @@ function Culture() {
 
   return (
     <>
+      <div className="kcard mb-3">
+        <h3><i className="bi bi-ticket-perforated" />플레이제주 문화행사</h3>
+        <div className="d-flex gap-2 flex-wrap align-items-center mb-3">
+          <button className={`chip ${frame === 'events' ? 'on' : ''}`} onClick={() => setFrame('events')}>문화행사 목록</button>
+          <button className={`chip ${frame === 'calendar' ? 'on' : ''}`} onClick={() => setFrame('calendar')}>행사 달력</button>
+          <a className="pillbtn ghost text-decoration-none ms-auto" href={`https://playjeju.co.kr/${frame === 'events' ? 'events' : 'events/calendar'}`} target="_blank" rel="noreferrer"><i className="bi bi-box-arrow-up-right me-1" />새 탭에서 열기</a>
+        </div>
+        <iframe key={frame} title="플레이제주 문화행사" className="embed-frame" loading="lazy"
+          src={`https://playjeju.co.kr/${frame === 'events' ? 'events' : 'events/calendar'}`}
+          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms" referrerPolicy="no-referrer" />
+        <div className="src">화면에 보이는 내용은 플레이제주(playjeju.co.kr)가 직접 제공하는 페이지예요. 보이지 않으면 “새 탭에서 열기”를 눌러주세요.</div>
+      </div>
       <div className="kcard mb-3">
         <h3><i className="bi bi-palette" />플레이제주에서 보기</h3>
         <div className="culture-links">
