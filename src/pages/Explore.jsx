@@ -192,40 +192,18 @@ function IndoorAll({ sec }) {
   )
 }
 
-// 문화생활: 문화시설(사진·길찾기) + 플레이제주 바로가기 + 전시·공연 소식
+// 문화생활: 플레이제주 바로가기 + 전시·공연 소식 (문화시설은 실내 탐험에 있음)
 function Culture() {
   const [state, setState] = useState({ loading: true })
-  const [kind, setKind] = useState('전체')
-  const [more, setMore] = useState(false)
   useEffect(() => { fetchCulture().then(setState).catch((e) => setState({ error: e.message })) }, [])
-  useEffect(() => { setMore(false) }, [kind])
   if (state.loading) return <Loading />
   if (state.error) return <ErrorBox error={state.error} />
 
-  const kinds = ['전체', ...new Set(state.facilities.map((f) => f.kind))]
-  const list = state.facilities.filter((f) => kind === '전체' || f.kind === kind)
-  const shown = more ? list : list.slice(0, 12)
   const withImg = state.items.filter((n) => n.image)
   const noImg = state.items.filter((n) => !n.image)
 
   return (
     <>
-      {state.facilities.length > 0 && (
-        <div className="kcard mb-3">
-          <h3><i className="bi bi-bank" />제주 문화시설 <span className="chip ms-1">{state.facilities.length}곳</span></h3>
-          <div className="d-flex gap-2 flex-wrap mb-3">
-            {kinds.map((k) => <button key={k} className={`chip ${kind === k ? 'on' : ''}`} onClick={() => setKind(k)}>{k}</button>)}
-          </div>
-          <div className="poster-grid">
-            {shown.map((f) => (
-              <Poster key={f.id} image={f.image} title={f.title} sub={f.sub} icon="bank" navi={{ name: f.title, lat: f.lat, lon: f.lon }}
-                fav={{ kind: 'indoor', id: f.id, title: f.title, note: f.sub }} />
-            ))}
-          </div>
-          {list.length > 12 && !more && <div className="text-center mt-3"><button className="pillbtn ghost" onClick={() => setMore(true)}>{list.length - 12}곳 더 보기</button></div>}
-          <div className="src">출처 한국관광공사 TourAPI</div>
-        </div>
-      )}
       <div className="kcard mb-3">
         <h3><i className="bi bi-palette" />플레이제주에서 보기</h3>
         <div className="culture-links">
