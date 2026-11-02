@@ -30,6 +30,8 @@ export const PLACES = [
   { id: 'darangshi', name: '다랑쉬굴', region: '동부권', theme: '4·3', source: 'added', find: [],
     desc: '4·3 당시 피신했던 주민들이 희생된 동굴로 알려진 유적지입니다. 현장은 보존을 위해 출입이 제한될 수 있어요.' },
   { id: 'nakseon', name: '낙선동 4·3성', region: '동부권', theme: '4·3', source: 'added', find: [],
+    // 글자가 없는 성터 사진으로 직접 골라 고정 (검색 1순위는 글자가 들어간 이미지였음)
+    imageOverride: "https://postfiles.pstatic.net/MjAyNDA4MjdfMTk2/MDAxNzI0NzM3NjEzMzU5.IUK4qpG25fgw2e1xTFXH7C01tFLfSPQ8tlfk1QTfsN0g.tjI--ia3MbS1AxGP6Vhu1vwMpOhVPOIbHW7oEr5YhNIg.JPEG/%EB%82%99%EC%84%A0%EB%8F%994.3%EC%84%B1A62A8637.jpg?type=w966", imageFallback: "https://postfiles.pstatic.net/MjAyNDA4MjdfMTUy/MDAxNzI0NzM3NTYwMjI5.8sc_bwHswdJyQ7h_zFyLUlab_I1i4A_QGbSNFWwX9-Yg.G-hk5bePnmzJqvP6wA0Gz9Lze1JOfhB6YjVWsdcQYlgg.JPEG/%EB%82%99%EC%84%A0%EB%8F%994.3%EC%84%B1A62A8609.jpg?type=w966",
     desc: '4·3 당시 주민들이 쌓아 올린 성터를 복원한 유적지입니다.' },
   { id: 'baekjo', name: '백조일손지묘', region: '서부권', theme: '4·3', source: 'added', find: [],
     desc: '섯알오름 학살 희생자들을 한데 모신 묘역입니다.' },
@@ -63,6 +65,7 @@ export async function getDarkTourism() {
         const hit = pick(rows, p.find)
         if (hit) { Object.assign(out, { lat: hit.lat, lon: hit.lon, image: hit.image, addr: hit.addr?.replace('제주특별자치도 ', ''), officialName: hit.title }); break }
       }
+      if (p.imageOverride) Object.assign(out, { image: p.imageOverride, thumb: p.imageFallback, refImage: true })
       // TourAPI 에 사진이 없으면 카카오 이미지 검색으로 참고 사진을 찾는다
       if (!out.image) {
         const img = await getImageFor(p.name + ' 제주').catch(() => null)
