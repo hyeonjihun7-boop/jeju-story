@@ -1,17 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Col, Row } from 'react-bootstrap'
 import { fetchElevation, fetchExplore, fetchFestivals, fetchWiki } from '../api/client'
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import FavButton from '../components/FavButton'
+import MapView from '../components/MapView'
 import { Empty, ErrorBox, Loading } from '../components/Status'
 
 const TABS = [
+  { key: 'indoor', label: '실내 탐험', icon: 'house-heart' },
+  { key: 'outdoor', label: '야외 탐험', icon: 'tree' },
   { key: 'auto', label: '오늘 날씨 추천', icon: 'magic' },
-  { key: 'outdoor', label: '야외', icon: 'tree' },
-  { key: 'indoor', label: '실내', icon: 'house-heart' },
   { key: 'festival', label: '축제·행사', icon: 'balloon-heart' },
 ]
+const HEAD = {
+  auto: ['오늘의', '탐험', '오늘 날씨에 맞춰 갈 곳을 골라 드려요'],
+  indoor: ['실내', '탐험', '박물관·미술관 같은 실내 명소를 모았어요'],
+  outdoor: ['야외', '탐험', '가까운 오름과 올레길을 모았어요'],
+  festival: ['제주', '축제·행사', '오늘 이후 열리는 행사를 확인하세요'],
+}
 
 // 오름 카드: 눌러서 고도(Open-Meteo)·설명(위키백과)을 불러온다
 function OreumItem({ o }) {
@@ -106,8 +114,15 @@ function Festivals() {
 
 export default function Explore() {
   const place = useAppStore((s) => s.place)
-  const [tab, setTab] = useState('auto')
+  const [params, setParams] = useSearchParams()
+  const tab = HEAD[params.get('tab')] ? params.get('tab') : 'auto'
+  const setTab = (t) => setParams(t === 'auto' ? {} : { tab: t }, { replace: true })
   const [data, setData] = useState(null)
+  // 모든 섹션의 좌표 있는 항목을 지도 핀으로
+  const points = useMemo(() => (data?.sections ?? []).flatMap((sec) => sec.items.map((it) => ({
+    id: it.id ?? it.name, kind: sec.key, name: it.name ?? it.title, lat: it.lat, lon: it.lon,
+    note: sec.key === 'oreum' ? (it.ele ? `${it.ele}m` : '오름') : sec.key === 'olle' ? `${it.from} → ${it.to}` : sec.key === 'indoor' ? `${it.area} (대략 위치)` : it.addr,
+  }))), [data])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -125,12 +140,12 @@ export default function Explore() {
   return (
     <>
       <div className="mb-3">
-        <h1 className="headline">비 오면 <em>실내</em>, 맑으면 <em>오름·올레</em></h1>
-        <div className="sub mb-2">오늘 날씨에 맞춰 갈 곳을 골라 드려요</div>
+        <h1 className="headline">{HEAD[tab][0]} <em>{HEAD[tab][1]}</em></h1>
+        <div className="sub mb-2">{HEAD[tab][2]}</div>
         <PlacePicker />
-        <div className="d-flex gap-2 flex-wrap mt-3">
+        <div className="modebar mt-3">
           {TABS.map((t) => (
-            <button key={t.key} className={`chip ${tab === t.key ? 'on' : ''}`} onClick={() => setTab(t.key)}>
+            <button key={t.key} className={`modebtn ${tab === t.key ? 'on' : ''}`} onClick={() => setTab(t.key)}>
               <i className={`bi bi-${t.icon}`} />{t.label}
             </button>
           ))}
@@ -143,6 +158,16 @@ export default function Explore() {
             <i className={`bi bi-${data.mode === 'indoor' ? 'umbrella' : 'sun'} me-2`} />
             <b>{data.mode === 'indoor' ? '실내 추천' : '야외 추천'}</b> · {data.reason}
             {!data.auto && <span className="sub"> (직접 선택)</span>}
+          </div>
+          <div className="kcard mb-3 p-2">
+            <MapView points={points} center={data.center} />
+            <div className="d-flex gap-3 flex-wrap small sub px-2 pt-2">
+              <span><i className="bi bi-circle-fill" style={{ color: '#2c6b55' }} /> 오름</span>
+              <span><i className="bi bi-circle-fill" style={{ color: '#3a8fb7' }} /> 올레</span>
+              <span><i className="bi bi-circle-fill" style={{ color: '#7a5fb0' }} /> 실내 명소</span>
+              <span><i className="bi bi-circle-fill" style={{ color: '#ff9f2e' }} /> 관광지</span>
+              <span className="ms-auto">핀을 누르면 이름과 네이버 지도 링크가 나와요</span>
+            </div>
           </div>
           {data.notes.map((n) => <div key={n} className="small text-danger mb-2">{n}</div>)}
           <Row className="g-3">
@@ -163,3 +188,5 @@ export default function Explore() {
     </>
   )
 }
+
+

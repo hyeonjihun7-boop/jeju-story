@@ -31,6 +31,7 @@ export async function getExplore({ place = '제주시', mode } = {}) {
       if (t.length) out.sections.push({ key: 'tour', title: '문화시설 (TourAPI)', source: '한국관광공사 TourAPI', items: t })
     }
   }
+  out.center = { lat: today.weather.lat, lon: today.weather.lon, name: today.weather.place }
   out.notes = notes
   out.today = { pop: today.weather.today.pop, desc: today.weather.now.desc, temp: today.weather.now.temp }
   return out

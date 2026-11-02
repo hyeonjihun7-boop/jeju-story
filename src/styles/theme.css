@@ -55,7 +55,8 @@ body { background: var(--mint); letter-spacing: -0.01em; }
 .headline { font-weight: 800; font-size: clamp(1.6rem, 4.5vw, 2.3rem); line-height: 1.25; color: var(--forest); margin: 4px 0 6px; }
 .headline em { font-style: normal; color: var(--forest-2); }
 .sub { color: var(--muted); font-size: .95rem; }
-.kcard { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 14px rgba(29, 74, 58, .07); height: 100%; }
+.kcard { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 14px rgba(29, 74, 58, .07); }
+.row > [class*="col"] > .kcard { height: 100%; }
 .kcard h3 { font-size: 1rem; font-weight: 800; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; color: var(--forest); }
 .kcard h3 i { color: var(--citrus); }
 .kcard .src { font-size: .72rem; color: var(--muted); margin-top: 12px; }
@@ -115,3 +116,12 @@ body { background: var(--mint); letter-spacing: -0.01em; }
 .toastbox { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 60; display: grid; gap: 8px; }
 .toastbox div { background: var(--forest); color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: .9rem; box-shadow: 0 6px 20px rgba(0, 0, 0, .2); }
 .toastbox .danger { background: #b02a1f; } .toastbox .warn { background: #a35a00; }
+
+/* 실내/야외 탐험 전환 버튼 */
+.modebar { display: flex; gap: 8px; flex-wrap: wrap; }
+.modebtn {
+  flex: 1 1 130px; border: 2px solid var(--mint-2); background: #fff; color: var(--forest); border-radius: 18px;
+  padding: 12px 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.modebtn i { font-size: 1.2rem; }
+.modebtn.on { background: var(--forest); border-color: var(--forest); color: #fff; }

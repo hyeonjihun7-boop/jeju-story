@@ -3,6 +3,7 @@ import { fetchFood, fetchShops } from '../api/client'
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import FavButton from '../components/FavButton'
+import MapView from '../components/MapView'
 import { Empty, ErrorBox, Loading } from '../components/Status'
 
 const CATS = [
@@ -62,6 +63,7 @@ function Nearby() {
       {state.loading ? <Loading /> : state.error ? <ErrorBox error={state.error} /> : (
         <div className="kcard">
           <h3><i className="bi bi-geo-alt" />{place} 주변</h3>
+          <div className="mb-3"><MapView height={280} points={state.places.items.map((p) => ({ id: p.id, kind: 'food', name: p.name, lat: p.lat, lon: p.lon, note: p.addr || p.cuisine || '' }))} /></div>
           {state.places.items.length === 0 ? <Empty text="주변 정보를 찾지 못했어요" /> : state.places.items.map((p) => (
             <div className="row-item" key={p.id}>
               <div className="flex-grow-1">
@@ -102,3 +104,4 @@ export default function Eat() {
     </>
   )
 }
+

@@ -57,8 +57,8 @@ export default function Home() {
       </div>
 
       <Row className="g-3 mb-3" xs={2} md={4}>
-        <Col><Link to="/explore" className="tile t2"><i className="bi bi-tree" />오름·올레</Link></Col>
-        <Col><Link to="/explore" className="tile t3"><i className="bi bi-bank" />실내 명소</Link></Col>
+        <Col><Link to="/explore?tab=outdoor" className="tile t2"><i className="bi bi-tree" />야외 탐험</Link></Col>
+        <Col><Link to="/explore?tab=indoor" className="tile t3"><i className="bi bi-house-heart" />실내 탐험</Link></Col>
         <Col><Link to="/eat" className="tile t1"><i className="bi bi-cup-hot" />먹거리·쇼핑</Link></Col>
         <Col><Link to="/issue" className="tile t4"><i className="bi bi-newspaper" />제주 이슈</Link></Col>
       </Row>

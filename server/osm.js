@@ -68,10 +68,10 @@ export async function getWikiSummary({ title }) {
 // find_olle_routes: OSM 에 제주올레 route 가 있으면 사용, 없으면 대표 코스(내장) + 공식 사이트 링크
 export const OLLE_OFFICIAL = 'https://www.jejuolle.org/trail#/'
 const OLLE_FALLBACK = [
-  { id: 'c1', ref: '1', name: '제주올레 1코스', from: '시흥초등학교', to: '광치기해변', place: '성산' },
-  { id: 'c7', ref: '7', name: '제주올레 7코스', from: '외돌개', to: '월평마을', place: '서귀포' },
-  { id: 'c10', ref: '10', name: '제주올레 10코스', from: '화순금모래해수욕장', to: '모슬포항', place: '모슬포' },
-  { id: 'c18', ref: '18', name: '제주올레 18코스', from: '제주 원도심', to: '조천', place: '제주시' },
+  { id: 'c1', lat: 33.4745, lon: 126.9272, ref: '1', name: '제주올레 1코스', from: '시흥초등학교', to: '광치기해변', place: '성산' },
+  { id: 'c7', lat: 33.2433, lon: 126.5444, ref: '7', name: '제주올레 7코스', from: '외돌개', to: '월평마을', place: '서귀포' },
+  { id: 'c10', lat: 33.2301, lon: 126.34, ref: '10', name: '제주올레 10코스', from: '화순금모래해수욕장', to: '모슬포항', place: '모슬포' },
+  { id: 'c18', lat: 33.513, lon: 126.526, ref: '18', name: '제주올레 18코스', from: '제주 원도심', to: '조천', place: '제주시' },
 ]
 
 export async function findOlleRoutes({ keyword = '' } = {}) {
