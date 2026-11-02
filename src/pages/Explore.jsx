@@ -195,6 +195,7 @@ function PlaceGallery({ sec, icon = 'house-heart', searching = false }) {
 // 문화생활: 플레이제주 바로가기 + 전시·공연 소식 (문화시설은 실내 탐험에 있음)
 function Culture() {
   const [state, setState] = useState({ loading: true })
+  const [showPast, setShowPast] = useState(false)
   useEffect(() => { fetchCulture().then(setState).catch((e) => setState({ error: e.message })) }, [])
   if (state.loading) return <Loading />
   if (state.error) return <ErrorBox error={state.error} />
@@ -204,6 +205,21 @@ function Culture() {
 
   return (
     <>
+      {state.events?.length > 0 && (
+        <div className="kcard mb-3">
+          <h3><i className="bi bi-ticket-perforated" />제주 문화 행사 <span className="chip ms-1">{state.events.filter((e) => !e.past).length}건 진행·예정</span></h3>
+          <div className="sub small mb-3">올해 열리는 공연·전시·문화 행사예요</div>
+          <div className="poster-grid">
+            {state.events.filter((f) => showPast || !f.past).map((f) => (
+              <Poster key={f.id} image={f.image} icon="ticket-perforated" title={f.title}
+                sub={`${f.ongoing ? '진행 중 · ' : f.past ? '종료 · ' : '예정 · '}${fmt(f.start)} ~ ${fmt(f.end)}`} navi={{ name: f.title, lat: f.lat, lon: f.lon }}
+                fav={{ kind: 'festival', id: f.id, title: f.title, note: `${fmt(f.start)}~${fmt(f.end)}` }} />
+            ))}
+          </div>
+          {state.events.some((e) => e.past) && <div className="text-center mt-3"><button className="pillbtn ghost" onClick={() => setShowPast(!showPast)}>{showPast ? '지난 행사 숨기기' : `지난 행사 ${state.events.filter((e) => e.past).length}건 보기`}</button></div>}
+          <div className="src">출처 한국관광공사 TourAPI</div>
+        </div>
+      )}
       <div className="kcard mb-3">
         <h3><i className="bi bi-palette" />플레이제주에서 보기</h3>
         <div className="culture-links">
