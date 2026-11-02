@@ -77,6 +77,39 @@ export const useAppStore = create(
         } finally { set({ chatLoading: false }) }
       },
       clearChat: () => set({ messages: [] }),
+
+      // 내 여행 일정 — Supabase trips 테이블
+      trips: [],
+      tripsLoading: false,
+      tripsError: '',
+      loadTrips: async () => {
+        if (!supabase) return
+        set({ tripsLoading: true, tripsError: '' })
+        const { data, error } = await supabase.from('trips').select('*')
+          .eq('nickname', get().nickname || '익명').order('created_at', { ascending: false })
+        set({ tripsLoading: false })
+        if (error) return set({ tripsError: error.code === 'PGRST205' ? 'trips 테이블이 아직 없어요 (supabase/schema.sql 실행 필요)' : error.message })
+        set({ trips: data })
+      },
+      saveTrip: async ({ title, question, content, tools }) => {
+        if (!supabase) { get().toast('Supabase 설정(.env.local)이 필요해요', 'warn'); return false }
+        const { data, error } = await supabase.from('trips')
+          .insert({ nickname: get().nickname || '익명', title, question, content, tools }).select().single()
+        if (error) {
+          get().toast(error.code === 'PGRST205' ? 'trips 테이블이 아직 없어요 — Supabase에서 schema.sql 을 실행해 주세요' : error.message, 'danger')
+          return false
+        }
+        set({ trips: [data, ...get().trips] })
+        get().toast('내 일정에 저장했어요')
+        return true
+      },
+      deleteTrip: async (id) => {
+        if (!supabase) return
+        const { error } = await supabase.from('trips').delete().eq('id', id)
+        if (error) return get().toast(error.message, 'danger')
+        set({ trips: get().trips.filter((t) => t.id !== id) })
+        get().toast('일정을 지웠어요')
+      },
     }),
     {
       name: 'today-jeju-store',

@@ -12,7 +12,12 @@ const SYSTEM = `너는 "탐험 제주" 여행 비서 에이전트다. 오늘은 
 - 비가 오거나 미세먼지가 나쁘면 실내 대안(search_indoor_spots), 맑으면 오름·올레 같은 야외를 추천한다.
 - 도구가 키 없음/오류를 돌려주면 그 사실을 솔직히 말하고 가능한 대안을 제시한다.
 - 도구 결과에 없는 장소·수치는 지어내지 않는다.
-- 한국어로, 6문장 이내, 핵심부터.`
+- 일반 질문은 한국어로 6문장 이내, 핵심부터 답한다.
+- 사용자가 일정·코스를 짜 달라고 하면(예: 당일치기, 1박 2일, 내일 일정) get_today_plan·실내/야외 추천·맛집·행사 도구로 확인한 뒤, 반드시 아래 형식으로 답한다. 이 경우 6문장 제한은 적용하지 않는다.
+  ## 1일차 (그날 날씨 한 줄)
+  - 09:00 | 장소 이름 | 한 줄 설명 (이동 방법·비 대비 등)
+  하루 4~6칸, 점심(맛집)과 카페를 포함하고 비 오는 날은 실내 중심으로 짠다. 날짜별 제목 줄은 '## N일차'로 시작한다.
+  마지막에 준비물·유의사항을 일반 문장 1~2줄로 덧붙인다. 도구로 확인된 날씨는 오늘·내일뿐이니, 그 이후 날짜는 '예보를 다시 확인하세요'라고 말한다.`
 
 const MAX_TURNS = 6
 
@@ -31,7 +36,7 @@ async function runClaude(message, history, steps) {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   const messages = [...history.slice(-10), { role: 'user', content: message }]
   for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const r = await client.messages.create({ model: CLAUDE_MODEL, max_tokens: 1200, system: SYSTEM, tools, messages })
+    const r = await client.messages.create({ model: CLAUDE_MODEL, max_tokens: 2400, system: SYSTEM, tools, messages })
     if (r.stop_reason !== 'tool_use') return r.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n')
     messages.push({ role: 'assistant', content: r.content })
     const results = []
@@ -80,7 +85,7 @@ async function runGemini(message, history, steps) {
   for (let turn = 0; turn < MAX_TURNS; turn++) {
     const data = await geminiCall({
       systemInstruction: { parts: [{ text: SYSTEM }] }, contents, tools: geminiTools,
-      generationConfig: { maxOutputTokens: 1500, temperature: 0.4 },
+      generationConfig: { maxOutputTokens: 3000, temperature: 0.4 },
     })
     const cand = data.candidates?.[0]
     const parts = cand?.content?.parts ?? []

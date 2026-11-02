@@ -1,0 +1,14 @@
+/* AI 여행 일정 시간표 */
+.trip { background: #fff; border: 1.5px solid #cfe3e0; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; }
+.trip-day + .trip-day { margin-top: 14px; }
+.trip-day-title { font-family: var(--jeju-font); font-weight: 700; color: var(--sea-deep); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.trip-day-title i { color: var(--citrus); }
+.trip-rows { list-style: none; margin: 0; padding: 0 0 0 4px; border-left: 2px dashed #bfdcd7; display: grid; gap: 10px; }
+.trip-rows li { display: flex; gap: 12px; align-items: flex-start; position: relative; padding-left: 14px; }
+.trip-rows li::before { content: ''; position: absolute; left: -9px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--citrus); border: 2px solid #fff; }
+.trip-time { flex-shrink: 0; font-weight: 800; color: var(--sea-deep); font-variant-numeric: tabular-nums; background: #e3f1f2; border-radius: 999px; padding: 2px 10px; font-size: .85rem; }
+.trip-body { display: flex; flex-direction: column; line-height: 1.4; }
+.trip-body small { color: var(--muted); font-size: .82rem; }
+.trip-notes { margin: 12px 0 0; padding: 10px 14px 10px 28px; background: #fff6e5; border-radius: 12px; font-size: .88rem; color: #5b4300; display: grid; gap: 4px; }
+.trip-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -2px 0 12px; }
+.trip-saved { color: var(--forest-2); font-weight: 700; font-size: .85rem; }
