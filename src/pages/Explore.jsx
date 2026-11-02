@@ -168,7 +168,7 @@ function Festivals() {
 }
 
 // 실내 명소 전체: 분류 칩 + 사진 카드 + 길찾기
-function IndoorAll({ sec }) {
+function PlaceGallery({ sec, icon = 'house-heart' }) {
   const [kind, setKind] = useState('전체')
   const [more, setMore] = useState(false)
   const kinds = ['전체', ...new Set(sec.items.map((f) => f.kind))]
@@ -176,14 +176,14 @@ function IndoorAll({ sec }) {
   const shown = more ? list : list.slice(0, 12)
   return (
     <div className="kcard">
-      <h3><i className="bi bi-house-heart" />{sec.title} <span className="chip ms-1">{sec.items.length}곳</span></h3>
+      <h3><i className={`bi bi-${icon}`} />{sec.title} <span className="chip ms-1">{sec.items.length}곳</span></h3>
       <div className="d-flex gap-2 flex-wrap mb-3">
         {kinds.map((k) => <button key={k} className={`chip ${kind === k ? 'on' : ''}`} onClick={() => { setKind(k); setMore(false) }}>{k}</button>)}
       </div>
       <div className="poster-grid">
         {shown.map((f) => (
-          <Poster key={f.id} image={f.image} title={f.title} sub={f.sub} icon="bank" navi={{ name: f.title, lat: f.lat, lon: f.lon }}
-            fav={{ kind: 'indoor', id: f.id, title: f.title, note: f.sub }} />
+          <Poster key={f.id} image={f.image} title={f.title} sub={f.sub} icon={icon === 'house-heart' ? 'bank' : 'tree'} navi={{ name: f.title, lat: f.lat, lon: f.lon }}
+            fav={{ kind: icon === 'house-heart' ? 'indoor' : 'tour', id: f.id, title: f.title, note: f.sub }} />
         ))}
       </div>
       {list.length > 12 && !more && <div className="text-center mt-3"><button className="pillbtn ghost" onClick={() => setMore(true)}>{list.length - 12}곳 더 보기</button></div>}
@@ -294,6 +294,7 @@ export default function Explore() {
               <span><i className="bi bi-circle-fill" style={{ color: '#3a8fb7' }} /> 올레</span>
               <span><i className="bi bi-circle-fill" style={{ color: '#7a5fb0' }} /> 실내 명소(추천)</span>
               <span><i className="bi bi-circle-fill" style={{ color: '#9b7fd1' }} /> 실내 명소(전체)</span>
+              <span><i className="bi bi-circle-fill" style={{ color: '#e0762f' }} /> 야외 명소(전체)</span>
               <span><i className="bi bi-circle-fill" style={{ color: '#ff9f2e' }} /> 관광지</span>
               <span className="ms-auto">핀을 누르면 이름과 네이버 지도 링크가 나와요</span>
             </div>
@@ -301,8 +302,8 @@ export default function Explore() {
           {data.notes.map((n) => <div key={n} className="small text-danger mb-2">{n}</div>)}
           <Row className="g-3">
             {data.sections.map((sec) => (
-              <Col md={12} lg={sec.items.length > 6 || sec.key === 'indoorAll' ? 12 : 6} key={sec.key}>
-                {sec.key === 'indoorAll' ? <IndoorAll sec={sec} /> : (<div className="kcard">
+              <Col md={12} lg={sec.items.length > 6 || sec.key === 'indoorAll' || sec.key === 'outdoorAll' ? 12 : 6} key={sec.key}>
+                {sec.key === 'indoorAll' ? <PlaceGallery sec={sec} /> : sec.key === 'outdoorAll' ? <PlaceGallery sec={sec} icon="tree" /> : (<div className="kcard">
                   <h3><i className="bi bi-geo-alt" />{sec.title}</h3>
                   {sec.items.length === 0 ? <Empty /> : sec.items.map((it) => <Item key={it.id ?? it.name} sec={sec} it={it} />)}
                   {sec.key === 'oreum' && <div className="small mt-2"><a href="http://www.ormstory.kr/" target="_blank" rel="noreferrer">오름나들이 — 오름 이야기 더 보기 <i className="bi bi-box-arrow-up-right" /></a></div>}

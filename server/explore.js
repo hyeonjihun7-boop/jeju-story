@@ -1,9 +1,9 @@
 // 관광 추천: 날씨에 따라 실외(오름·올레) / 실내(박물관) 구성
 import { getToday } from './today.js'
 import { findOreum, findOlleRoutes } from './osm.js'
-import { searchSpots } from './tour.js'
 import { INDOOR } from './data/curated.js'
 import { getIndoorAll } from './indoor.js'
+import { getOutdoorAll } from './outdoor.js'
 
 export async function getExplore({ place = '제주시', mode } = {}) {
   const today = await getToday({ place })
@@ -22,8 +22,8 @@ export async function getExplore({ place = '제주시', mode } = {}) {
     if (olle.status === 'fulfilled') out.sections.push({ key: 'olle', title: '올레길 코스', source: olle.value.source, items: olle.value.items.slice(0, 12) })
     else notes.push('올레길 데이터를 불러오지 못했어요')
     if (process.env.DATA_GO_KR_KEY) {
-      const t = await searchSpots({ contentTypeId: '12' }).catch(() => [])
-      if (t.length) out.sections.push({ key: 'tour', title: '자연·관광지 (TourAPI)', source: '한국관광공사 TourAPI', items: t })
+      const all = await getOutdoorAll().catch(() => [])
+      if (all.length) out.sections.push({ key: 'outdoorAll', title: '제주 야외 명소 전체', source: '한국관광공사 TourAPI (관광지 + 레포츠, 실내형 제외)', items: all })
     }
   } else {
     out.sections.push({ key: 'indoor', title: '여행객 추천 실내 명소 BEST', source: '큐레이션', items: INDOOR })
