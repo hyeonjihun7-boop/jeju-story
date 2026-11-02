@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Col, Row } from 'react-bootstrap'
-import { fetchElevation, fetchExplore, fetchFestivals, fetchWiki } from '../api/client'
+import { fetchCulture, fetchElevation, fetchExplore, fetchFestivals, fetchWiki } from '../api/client'
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import FavButton from '../components/FavButton'
@@ -15,12 +15,14 @@ const TABS = [
   { key: 'outdoor', label: '야외 탐험', icon: 'tree' },
   { key: 'auto', label: '오늘 날씨 추천', icon: 'magic' },
   { key: 'festival', label: '축제·행사', icon: 'balloon-heart' },
+  { key: 'culture', label: '문화생활', icon: 'palette' },
 ]
 const HEAD = {
   auto: ['오늘의', '탐험', '오늘 날씨에 맞춰 갈 곳을 골라 드려요'],
   indoor: ['실내', '탐험', '박물관·미술관 같은 실내 명소를 모았어요'],
   outdoor: ['야외', '탐험', '가까운 오름과 올레길을 모았어요'],
   festival: ['제주', '축제·행사', '오늘 이후 열리는 행사를 확인하세요'],
+  culture: ['제주', '문화생활', '전시·공연·문화 소식과 플레이제주 바로가기'],
 }
 
 // 오름 카드: 눌러서 고도(Open-Meteo)·설명(위키백과)을 불러온다
@@ -165,6 +167,41 @@ function Festivals() {
   )
 }
 
+// 문화생활: 플레이제주 바로가기 + 이슈제주·뉴스의 전시·공연 소식
+function Culture() {
+  const [state, setState] = useState({ loading: true })
+  useEffect(() => { fetchCulture().then(setState).catch((e) => setState({ error: e.message })) }, [])
+  if (state.loading) return <Loading />
+  if (state.error) return <ErrorBox error={state.error} />
+  return (
+    <>
+      <div className="kcard mb-3">
+        <h3><i className="bi bi-palette" />플레이제주에서 보기</h3>
+        <div className="culture-links">
+          {state.links.map((l) => (
+            <a key={l.url} href={l.url} target="_blank" rel="noreferrer" className="tile t4">
+              <i className={`bi bi-${l.icon}`} />{l.name}<small className="sub fw-normal">{l.desc}</small>
+            </a>
+          ))}
+        </div>
+        <div className="src">플레이제주는 문화행사 목록을 자체 앱으로 보여줘서, 이 앱에서는 바로가기로 연결해요</div>
+      </div>
+      <div className="kcard">
+        <h3><i className="bi bi-easel" />제주 문화 소식</h3>
+        {state.items.length === 0 ? <Empty text="문화 소식이 없어요" /> : (
+          <div className="poster-grid">
+            {state.items.map((n) => (
+              <Poster key={n.url} href={n.url} image={n.image} icon="palette" title={n.title} sub={n.press || n.date}
+                fav={{ kind: 'news', id: n.url, title: n.title, note: n.date }} />
+            ))}
+          </div>
+        )}
+        <div className="src">출처 {state.source} — 기사 저작권은 각 언론사에 있어요</div>
+      </div>
+    </>
+  )
+}
+
 export default function Explore() {
   const place = useAppStore((s) => s.place)
   const [params, setParams] = useSearchParams()
@@ -205,7 +242,7 @@ export default function Explore() {
         </div>
       </div>
 
-      {tab === 'festival' ? <Festivals /> : loading ? <Loading /> : error ? <ErrorBox error={error} /> : data && (
+      {tab === 'festival' ? <Festivals /> : tab === 'culture' ? <Culture /> : loading ? <Loading /> : error ? <ErrorBox error={error} /> : data && (
         <>
           <div className="kcard mb-3" style={{ background: data.mode === 'indoor' ? '#e3eef5' : '#dcefe6' }}>
             <i className={`bi bi-${data.mode === 'indoor' ? 'umbrella' : 'sun'} me-2`} />
@@ -241,6 +278,7 @@ export default function Explore() {
     </>
   )
 }
+
 
 
 

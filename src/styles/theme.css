@@ -178,3 +178,7 @@ body { background: var(--mint); letter-spacing: -0.01em; }
 .navibtn { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 4px 11px; border-radius: 999px; background: #fee500; color: #191600 !important;
   font-size: .78rem; font-weight: 700; text-decoration: none !important; line-height: 1.3; }
 .navibtn:hover { filter: brightness(.95); }
+
+.culture-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 700px) { .culture-links { grid-template-columns: repeat(2, 1fr); } }
+.culture-links .tile small { font-size: .75rem; line-height: 1.3; }
