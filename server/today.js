@@ -1,4 +1,4 @@
-// 오늘의 제주 종합: 날씨 + 대기질 + 옷차림 + 하루 4칸 + 실내/실외 판단
+// 탐험 제주 종합: 날씨 + 대기질 + 옷차림 + 하루 4칸 + 실내/실외 판단
 import { getWeather } from './weather.js'
 import { getAirQuality } from './air.js'
 import { recommendOutfit, buildDayPlan, overallMode } from './outfit.js'

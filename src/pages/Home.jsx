@@ -27,7 +27,7 @@ export default function Home() {
   const loadToday = useAppStore((s) => s.loadToday)
 
   if (todayError) return <ErrorBox error={todayError} />
-  if (!today) return <Loading text="오늘의 제주를 불러오는 중..." />
+  if (!today) return <Loading text="탐험 제주를 불러오는 중..." />
   const { weather: w, air, outfit, plan, mode } = today
   const rainy = w.today.pop >= 50
   const tone = rainy ? 'rain' : w.now.temp >= 22 ? 'warm' : ''
@@ -36,7 +36,7 @@ export default function Home() {
     <>
       <div className="mb-3">
         <div className="sub">오늘 제주 어디로 가시나요?</div>
-        <h1 className="headline">날씨 보고 정하는 <em>오늘의 제주</em></h1>
+        <h1 className="headline">날씨 보고 정하는 <em>탐험 제주</em></h1>
         <PlacePicker />
       </div>
 

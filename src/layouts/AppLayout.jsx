@@ -21,7 +21,7 @@ export default function AppLayout() {
   return (
     <div className="app">
       <aside className="rail">
-        <div className="brand"><i className="bi bi-tree-fill" />오늘의 제주</div>
+        <div className="brand"><i className="bi bi-tree-fill" />탐험 제주</div>
         {links}
         <div className="foot">공공데이터 · AI 에이전트<br />Open-Meteo · OSM · TourAPI</div>
       </aside>
