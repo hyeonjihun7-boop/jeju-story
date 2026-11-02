@@ -168,12 +168,12 @@ function Festivals() {
 }
 
 // 실내 명소 전체: 분류 칩 + 사진 카드 + 길찾기
-function PlaceGallery({ sec, icon = 'house-heart' }) {
+function PlaceGallery({ sec, icon = 'house-heart', searching = false }) {
   const [kind, setKind] = useState('전체')
   const [more, setMore] = useState(false)
   const kinds = ['전체', ...new Set(sec.items.map((f) => f.kind))]
   const list = sec.items.filter((f) => kind === '전체' || f.kind === kind)
-  const shown = more ? list : list.slice(0, 12)
+  const shown = more || searching ? list : list.slice(0, 12)
   return (
     <div className="kcard">
       <h3><i className={`bi bi-${icon}`} />{sec.title} <span className="chip ms-1">{sec.items.length}곳</span></h3>
@@ -186,7 +186,7 @@ function PlaceGallery({ sec, icon = 'house-heart' }) {
             fav={{ kind: icon === 'house-heart' ? 'indoor' : 'tour', id: f.id, title: f.title, note: f.sub }} />
         ))}
       </div>
-      {list.length > 12 && !more && <div className="text-center mt-3"><button className="pillbtn ghost" onClick={() => setMore(true)}>{list.length - 12}곳 더 보기</button></div>}
+      {list.length > 12 && !more && !searching && <div className="text-center mt-3"><button className="pillbtn ghost" onClick={() => setMore(true)}>{list.length - 12}곳 더 보기</button></div>}
       <div className="src">출처 {sec.source}</div>
     </div>
   )
@@ -246,11 +246,24 @@ export default function Explore() {
   const tab = HEAD[params.get('tab')] ? params.get('tab') : 'auto'
   const setTab = (t) => setParams(t === 'auto' ? {} : { tab: t }, { replace: true })
   const [data, setData] = useState(null)
+  const [q, setQ] = useState('')
+  useEffect(() => { setQ('') }, [tab])
+  // 검색: 이름·주소·분류·설명에 검색어가 들어 있는 항목만 (띄어쓰기로 여러 단어 = 모두 포함)
+  const words = q.trim().toLowerCase().replace(/[ 	]+/g, ' ').split(' ').filter(Boolean)
+  const searching = words.length > 0
+  const sections = useMemo(() => {
+    const all = data?.sections ?? []
+    if (!words.length) return all
+    const hay = (it) => [it.name, it.title, it.addr, it.sub, it.area, it.desc, it.theme, it.from, it.to, it.kind, ...(it.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
+    return all.map((s) => ({ ...s, items: s.items.filter((it) => words.every((w) => hay(it).includes(w))) })).filter((s) => s.items.length)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, q])
+  const found = sections.reduce((n, s) => n + s.items.length, 0)
   // 모든 섹션의 좌표 있는 항목을 지도 핀으로
-  const points = useMemo(() => (data?.sections ?? []).flatMap((sec) => sec.items.map((it) => ({
+  const points = useMemo(() => sections.flatMap((sec) => sec.items.map((it) => ({
     id: it.id ?? it.name, kind: sec.key, name: it.name ?? it.title, lat: it.lat, lon: it.lon,
     note: sec.key === 'oreum' ? (it.ele ? `${it.ele}m` : '오름') : sec.key === 'olle' ? `${it.from} → ${it.to}` : sec.key === 'indoor' ? `${it.area} (대략 위치)` : it.addr,
-  }))), [data])
+  }))), [sections])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -299,11 +312,18 @@ export default function Explore() {
               <span className="ms-auto">핀을 누르면 이름과 네이버 지도 링크가 나와요</span>
             </div>
           </div>
+          <div className="searchbar mb-3">
+            <i className="bi bi-search" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tab === 'indoor' ? '실내 명소 검색 (예: 박물관, 미술관, 서귀포, 수족관)' : tab === 'outdoor' ? '야외 명소 검색 (예: 해변, 폭포, 오름, 애월, 승마)' : '장소 검색 (이름·지역·분류)'} aria-label="장소 검색" />
+            {searching && <button className="pillbtn ghost" onClick={() => setQ('')}>지우기</button>}
+          </div>
+          {searching && <div className="small sub mb-3">“{q.trim()}” 검색 결과 <b>{found}건</b></div>}
+          {searching && found === 0 && <Empty text="검색 결과가 없어요" hint="다른 검색어(지역·분류)로 찾아보세요" />}
           {data.notes.map((n) => <div key={n} className="small text-danger mb-2">{n}</div>)}
           <Row className="g-3">
-            {data.sections.map((sec) => (
+            {sections.map((sec) => (
               <Col md={12} lg={sec.items.length > 6 || sec.key === 'indoorAll' || sec.key === 'outdoorAll' ? 12 : 6} key={sec.key}>
-                {sec.key === 'indoorAll' ? <PlaceGallery sec={sec} /> : sec.key === 'outdoorAll' ? <PlaceGallery sec={sec} icon="tree" /> : (<div className="kcard">
+                {sec.key === 'indoorAll' ? <PlaceGallery sec={sec} searching={searching} /> : sec.key === 'outdoorAll' ? <PlaceGallery sec={sec} icon="tree" searching={searching} /> : (<div className="kcard">
                   <h3><i className="bi bi-geo-alt" />{sec.title}</h3>
                   {sec.items.length === 0 ? <Empty /> : sec.items.map((it) => <Item key={it.id ?? it.name} sec={sec} it={it} />)}
                   {sec.key === 'oreum' && <div className="small mt-2"><a href="http://www.ormstory.kr/" target="_blank" rel="noreferrer">오름나들이 — 오름 이야기 더 보기 <i className="bi bi-box-arrow-up-right" /></a></div>}
@@ -318,8 +338,3 @@ export default function Explore() {
     </>
   )
 }
-
-
-
-
-

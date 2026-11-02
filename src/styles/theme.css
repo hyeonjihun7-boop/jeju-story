@@ -185,3 +185,9 @@ body { background: var(--mint); letter-spacing: -0.01em; }
 
 .poster-ref { text-align: center; font-size: .68rem; color: var(--muted); margin-top: 6px; }
 .poster-ref + .poster-title { margin-top: 2px; }
+
+/* 장소 검색창 */
+.searchbar { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 999px; padding: 8px 12px 8px 18px; box-shadow: 0 2px 14px rgba(29, 74, 58, .08); }
+.searchbar i { color: var(--muted); }
+.searchbar input { flex: 1; border: 0; outline: 0; background: transparent; font-size: 1rem; min-width: 0; }
+.searchbar:focus-within { box-shadow: 0 0 0 3px rgba(44, 107, 85, .25); }
