@@ -90,9 +90,24 @@ function Item({ sec, it }) {
 
 function Festivals() {
   const [state, setState] = useState({ loading: true })
-  useEffect(() => { fetchFestivals().then((d) => setState({ items: d.items })).catch((e) => setState({ error: e.message })) }, [])
+  useEffect(() => { fetchFestivals().then((d) => setState(d)).catch((e) => setState({ error: e.message })) }, [])
   if (state.loading) return <Loading />
   if (state.error) return <ErrorBox error={state.error + ' — .env.local 의 DATA_GO_KR_KEY(Decoding 키)와 TourAPI 활용신청을 확인하세요'} />
+  if (state.fallback) {
+    return (
+      <div className="kcard">
+        <h3><i className="bi bi-balloon-heart" />제주 축제 소식</h3>
+        <div className="small sub mb-2">공식 행사 목록(날짜·장소)은 .env.local 에 DATA_GO_KR_KEY 를 넣으면 나와요. 지금은 최신 뉴스예요.</div>
+        {state.items.map((n) => (
+          <div className="row-item" key={n.url}>
+            <div className="flex-grow-1"><a href={n.url} target="_blank" rel="noreferrer" className="fw-bold text-reset text-decoration-none">{n.title}</a><div className="small sub">{n.press ? n.press + ' · ' : ''}{n.date}</div></div>
+            <FavButton kind="news" id={n.url} title={n.title} note={n.date} />
+          </div>
+        ))}
+        <div className="src">출처 {state.source}</div>
+      </div>
+    )
+  }
   if (!state.items.length) return <Empty text="진행·예정 중인 행사가 없어요" />
   return (
     <div className="kcard">
