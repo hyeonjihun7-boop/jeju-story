@@ -9,8 +9,6 @@ const NOISE = /성폭력|예방|교육청|인사|부고|교통|캠페인|안전|
 export const PLAYJEJU = [
   { name: '문화행사', desc: '공연·전시·축제 등 제주 문화행사 목록', url: 'https://playjeju.co.kr/events', icon: 'ticket-perforated' },
   { name: '행사 달력', desc: '날짜별로 보는 문화행사 일정', url: 'https://playjeju.co.kr/events/calendar', icon: 'calendar3' },
-  { name: '웹진', desc: '제주 문화예술 이야기', url: 'https://playjeju.co.kr/webzine', icon: 'journal-richtext' },
-  { name: '커뮤니티', desc: '문화 소식과 후기', url: 'https://playjeju.co.kr/community', icon: 'people' },
 ]
 
 // 문화시설 분류 (제목 키워드)
