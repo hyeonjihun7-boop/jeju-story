@@ -65,7 +65,7 @@ function Nearby() {
   // 사진이 있는 TourAPI 목록이 있으면 그것을, 없으면 주변 식당(OSM/카카오)을 같은 카드 모양으로
   const cards = state.tour?.items?.length
     ? state.tour.items.map((p) => ({ id: p.id, title: p.title, image: p.image, sub: p.addr }))
-    : (state.places?.items ?? []).map((p) => ({ id: p.id, title: p.name, image: null, sub: p.addr || (p.distKm != null ? p.distKm + 'km' : p.cuisine || '') }))
+    : (state.places?.items ?? []).map((p) => ({ id: p.id, title: p.name, image: null, sub: p.addr || (p.distKm != null ? p.distKm + 'km' : p.cuisine || ''), link: p.link }))
 
   return (
     <div>
@@ -82,7 +82,7 @@ function Nearby() {
           {cards.length === 0 ? <Empty text="주변 정보를 찾지 못했어요" /> : (
             <div className="poster-grid">
               {cards.map((p) => (
-                <Poster key={p.id} image={p.image} title={p.title} sub={p.sub} icon="cup-hot" href={`https://map.naver.com/p/search/${encodeURIComponent('제주 ' + p.title)}`}
+                <Poster key={p.id} image={p.image} title={p.title} sub={p.sub} icon="cup-hot" href={p.link ?? `https://map.naver.com/p/search/${encodeURIComponent('제주 ' + p.title)}`}
                   fav={{ kind: 'restaurant', id: p.id, title: p.title, note: place }} />
               ))}
             </div>

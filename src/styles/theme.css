@@ -154,3 +154,7 @@ body { background: var(--mint); letter-spacing: -0.01em; }
 .outfit-name { margin-top: 8px; font-weight: 700; font-size: .95rem; }
 .outfit-sub { font-size: .8rem; color: var(--muted); }
 .outfit-list { padding-left: 1.1rem; display: grid; gap: 8px; line-height: 1.6; }
+
+.outfit-photo { position: relative; display: block; width: 100%; height: 100%; }
+.outfit-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: block; }
+.outfit-price { position: absolute; left: 8px; bottom: 8px; background: rgba(23, 38, 31, .82); color: #fff; font-size: .75rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }

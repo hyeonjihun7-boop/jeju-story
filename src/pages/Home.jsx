@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap'
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import HourlyChart from '../components/HourlyChart'
-import Garment from '../components/Garment'
+import OutfitPhoto from '../components/OutfitPhoto'
 import { ErrorBox, Loading } from '../components/Status'
 
 const MODE_ICON = { outdoor: 'tree', indoor: 'house-heart', food: 'cup-hot' }
@@ -100,7 +100,7 @@ export default function Home() {
         <div className="outfit-grid mb-3">
           {outfit.cards.map((c) => (
             <div key={c.label} className="outfit-card">
-              <div className="outfit-img"><Garment g={c.g} size={110} /></div>
+              <div className="outfit-img"><OutfitPhoto g={c.g} /></div>
               <div className="outfit-name">{c.label}</div>
               <div className="outfit-sub">{c.sub}</div>
             </div>

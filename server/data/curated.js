@@ -53,3 +53,19 @@ const indoor = [
   { name: '제주민속자연사박물관', lat: 33.5063, lon: 126.5287, area: '제주시 삼성로', theme: '민속·자연사', desc: '제주의 민속과 자연사를 함께 보는 박물관.' },
 ]
 export const INDOOR = indoor.map((p) => ({ ...p, mapUrl: naver(p.name) }))
+
+// 주변 식당·카페 데이터를 못 가져올 때 보여주는 제주 대표 메뉴 (지역 + 메뉴로 지도 검색 링크)
+export const DISHES = [
+  { id: 'd1', name: '흑돼지', sub: '제주 대표 고기', cat: 'restaurant' },
+  { id: 'd2', name: '고기국수', sub: '제주식 국수', cat: 'restaurant' },
+  { id: 'd3', name: '갈치조림', sub: '제주 바다 한 상', cat: 'restaurant' },
+  { id: 'd4', name: '해물뚝배기', sub: '든든한 국물', cat: 'restaurant' },
+  { id: 'd5', name: '전복죽', sub: '속 편한 한 끼', cat: 'restaurant' },
+  { id: 'd6', name: '몸국', sub: '제주 향토 국물', cat: 'restaurant' },
+  { id: 'c1', name: '오션뷰 카페', sub: '바다를 보며 한 잔', cat: 'cafe' },
+  { id: 'c2', name: '감귤 디저트 카페', sub: '제주 감귤 메뉴', cat: 'cafe' },
+  { id: 'c3', name: '로컬 베이커리', sub: '제주 재료 빵', cat: 'cafe' },
+  { id: 'c4', name: '오름 뷰 카페', sub: '초록 풍경', cat: 'cafe' },
+  { id: 'c5', name: '말차·한라봉 카페', sub: '제주 차 음료', cat: 'cafe' },
+  { id: 'c6', name: '전통 찻집', sub: '조용한 쉼', cat: 'cafe' },
+]

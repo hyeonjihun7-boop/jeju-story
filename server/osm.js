@@ -5,18 +5,12 @@ import { findPlace } from './geo.js'
 const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']
 const BBOX = '33.10,126.10,33.60,127.00' // 제주도 전체
 
-async function overpass(query, timeout = 25000) {
-  let lastErr
-  for (const ep of OVERPASS) {
-    try {
-      return await getJson(ep, {
-        method: 'POST', timeout,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'data=' + encodeURIComponent(query),
-      })
-    } catch (e) { lastErr = e }
-  }
-  throw lastErr
+// 서버 두 곳에 동시에 요청해서 먼저 오는 응답을 쓴다 (한 곳이 느려도 기다리지 않음)
+async function overpass(query, timeout = 6000) {
+  const body = 'data=' + encodeURIComponent(query)
+  return Promise.any(OVERPASS.map((ep) => getJson(ep, {
+    method: 'POST', timeout, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body,
+  })))
 }
 
 const FALLBACK_OREUM = [
@@ -25,13 +19,19 @@ const FALLBACK_OREUM = [
   { name: '송악산', lat: 33.2054, lon: 126.2908 }, { name: '도두봉', lat: 33.5105, lon: 126.4682 },
 ]
 
+// 외부 서버 실패를 잠깐 기억해서, 같은 요청이 매번 기다리지 않게 한다
+const failed = new Map()
+const failedRecently = (k) => Date.now() - (failed.get(k) ?? 0) < 5 * 60e3
+const markFailed = (k) => failed.set(k, Date.now())
+
 // find_oreum: OSM 의 natural=peak 중 이름이 있는 봉우리 (가까운 순)
 export async function findOreum({ place = '제주시', keyword = '', limit = 8 } = {}) {
   const p = await findPlace({ name: place })
   let peaks, fallback = false
   try {
+    if (failedRecently('oreum')) throw new Error('recent failure')
     const data = await cached('oreum', 6 * 3600e3, () =>
-      overpass(`[out:json][timeout:25];node["natural"="peak"]["name"](${BBOX});out body;`))
+      overpass(`[out:json][timeout:25];node["natural"="peak"]["name"](${BBOX});out body;`)).catch((e) => { markFailed('oreum'); throw e })
     peaks = data.elements.map((e) => ({
       id: e.id, name: e.tags.name, ele: e.tags.ele ? Math.round(Number(e.tags.ele)) : null,
       lat: e.lat, lon: e.lon, wikipedia: e.tags.wikipedia ?? null,
@@ -78,8 +78,9 @@ export async function findOlleRoutes({ keyword = '' } = {}) {
   let items = []
   let source = '대표 코스(내장) · 전체 코스와 거리는 제주올레 공식 사이트'
   try {
+    if (failedRecently('olle')) throw new Error('recent failure')
     const data = await cached('olle', 6 * 3600e3, () =>
-      overpass(`[out:json][timeout:20];relation["route"~"hiking|foot"]["name"~"올레"](${BBOX});out tags center;`, 9000))
+      overpass(`[out:json][timeout:20];relation["route"~"hiking|foot"]["name"~"올레"](${BBOX});out tags center;`, 6000)).catch((e) => { markFailed('olle'); throw e })
     items = data.elements.map((e) => ({
       id: e.id, name: e.tags.name, ref: e.tags.ref ?? null, from: e.tags.from ?? null, to: e.tags.to ?? null,
       lat: e.center?.lat, lon: e.center?.lon, osm: true,
@@ -111,8 +112,9 @@ export async function getRouteLength({ id }) {
 export async function nearbyFood({ place = '제주시', kind = 'restaurant', limit = 12 } = {}) {
   const p = await findPlace({ name: place })
   const amenity = kind === 'cafe' ? 'cafe' : 'restaurant'
+  if (failedRecently('food')) throw new Error('recent failure')
   const data = await cached(`food:${amenity}:${p.name}`, 3600e3, () =>
-    overpass(`[out:json][timeout:25];node["amenity"="${amenity}"]["name"](around:4000,${p.lat},${p.lon});out body 60;`))
+    overpass(`[out:json][timeout:25];node["amenity"="${amenity}"]["name"](around:4000,${p.lat},${p.lon});out body 60;`)).catch((e) => { markFailed('food'); throw e })
   return data.elements.map((e) => ({
     id: e.id, name: e.tags.name, cuisine: e.tags.cuisine ?? null, lat: e.lat, lon: e.lon,
     distKm: Math.round(distKm(p, { lat: e.lat, lon: e.lon }) * 10) / 10,
