@@ -84,7 +84,7 @@
 | 에어코리아 실측 | `DATA_GO_KR_KEY` | Open-Meteo 값 사용 |
 | 맛집 검색(카카오 로컬) | `KAKAO_REST_KEY` | OSM 주변 식당·카페 → 대표 메뉴 검색 카드 |
 | 옷차림·브랜드 **실제 사진**, 블로그 후기 (카카오 이미지·블로그 검색) | `KAKAO_REST_KEY` | 옷 일러스트·카테고리 배너 |
-| **AI 비서** | `ANTHROPIC_API_KEY` | 안내 메시지 표시 |
+| **AI 비서** | `ANTHROPIC_API_KEY` 또는 `GEMINI_API_KEY` | 안내 메시지 표시 |
 
 > ⚠ TourAPI는 **KorService2** 주소를 써야 합니다. 예전 `KorService1`은 폐기되어 `NO_OPENAPI_SERVICE_ERROR (코드 12)`가 납니다.
 
