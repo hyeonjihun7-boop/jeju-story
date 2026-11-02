@@ -28,7 +28,7 @@ function Brands({ cat }) {
       {state.items.map((s) => (
         <div className="kcard brand-card" key={s.id}>
           <a className={`brand-banner cat-${s.cat}`} href={s.productLink ?? s.buyUrl} target="_blank" rel="noreferrer" title={s.productTitle ?? s.name}>
-            {s.image ? <img src={s.image} alt={s.productTitle ?? s.name} loading="lazy" /> : (
+            {s.image ? <img src={s.image} alt={s.productTitle ?? s.name} loading="lazy" referrerPolicy="no-referrer" onError={(ev) => { if (s.thumb && ev.currentTarget.src !== s.thumb) ev.currentTarget.src = s.thumb }} /> : (
               <span className="brand-ph"><i className={`bi bi-${CAT_ICON[s.cat]}`} /><b>{s.name.split(' (')[0]}</b></span>
             )}
             {s.price && <span className="outfit-price">{s.price.toLocaleString()}원~</span>}

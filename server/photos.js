@@ -19,7 +19,8 @@ async function fromKakao(term) {
   })
   const it = d.documents?.find((i) => i.thumbnail_url && i.width >= 300 && i.height >= 300)
   if (!it) return null
-  return { image: it.thumbnail_url, title: it.display_sitename || term, link: it.doc_url, source: '카카오 이미지 검색' }
+  // image: 선명한 원본(image_url), thumb: 카카오 썸네일(원본이 막혀 있을 때 대체)
+  return { image: it.image_url || it.thumbnail_url, thumb: it.thumbnail_url, title: term, credit: it.display_sitename, link: it.doc_url, source: '카카오 이미지 검색' }
 }
 
 export async function getOutfitPhoto({ g }) {

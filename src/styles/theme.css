@@ -167,3 +167,9 @@ body { background: var(--mint); letter-spacing: -0.01em; }
 .cat-snack { background: linear-gradient(135deg, #ff9f2e, #d9682b); }
 .cat-fashion { background: linear-gradient(135deg, #2c6b55, #1d4a3a); }
 .cat-acc { background: linear-gradient(135deg, #3a8fb7, #7a5fb0); }
+
+/* 사진 크기가 달라도 카드 비율(3:4)을 유지 */
+.outfit-img { position: relative; overflow: hidden; }
+.outfit-photo { position: absolute; inset: 0; width: auto; height: auto; }
+.outfit-photo img { position: absolute; inset: 0; }
+.brand-banner img { position: absolute; inset: 0; }

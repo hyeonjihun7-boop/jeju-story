@@ -8,6 +8,6 @@ export default route(async (q) => {
   const photos = await Promise.all(list.map((s) => getBrandPhoto(s.name).catch(() => null)))
   return {
     hasPhotos: photos.some(Boolean),
-    items: list.map((s, i) => ({ ...s, image: photos[i]?.image ?? null, price: photos[i]?.price ?? null, productTitle: photos[i]?.title ?? null, productLink: photos[i]?.link ?? null })),
+    items: list.map((s, i) => ({ ...s, image: photos[i]?.image ?? null, thumb: photos[i]?.thumb ?? null, price: photos[i]?.price ?? null, productTitle: photos[i]?.title ?? null, productLink: photos[i]?.link ?? null })),
   }
 })

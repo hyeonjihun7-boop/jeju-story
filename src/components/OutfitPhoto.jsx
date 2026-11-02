@@ -13,8 +13,9 @@ export default function OutfitPhoto({ g }) {
   if (!photo) return <Garment g={g} size={110} />
   return (
     <a href={photo.link} target="_blank" rel="noreferrer" className="outfit-photo" title={photo.title}>
-      <img src={photo.image} alt={photo.title} loading="lazy" />
+      <img src={photo.image} alt={photo.title} loading="lazy" referrerPolicy="no-referrer" onError={(e) => { if (photo.thumb && e.currentTarget.src !== photo.thumb) e.currentTarget.src = photo.thumb }} />
       {photo.price && <span className="outfit-price">{photo.price.toLocaleString()}원~</span>}
     </a>
   )
 }
+
