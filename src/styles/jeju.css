@@ -59,3 +59,9 @@ body {
 .hero-art { position: absolute; right: 0; bottom: 0; width: 70%; height: 100%; z-index: 0; pointer-events: none; }
 
 @media (max-width: 860px) { .tabbar a.active { color: var(--citrus); } }
+
+/* 마스코트 귤룡 */
+.logo-badge { display: inline-grid; place-items: center; background: #1f5a63; border-radius: 28%; flex-shrink: 0; box-shadow: 0 0 0 2px rgba(255, 210, 63, .55); overflow: hidden; }
+.mascot-wrap { display: block; text-align: center; margin: 0 0 6px; animation: bob 3.2s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) { .mascot-wrap { animation: none; } }

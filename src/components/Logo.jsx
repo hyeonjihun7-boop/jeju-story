@@ -1,13 +1,49 @@
-// 탐험 제주 로고: 한라산 + 감귤 해 + 파도 (SVG)
+// 탐험 제주 마스코트 "귤룡": 껍질 날개를 단 귀여운 귤 용 (직접 그린 SVG)
+export function Mascot({ size = 80, title = '귤룡' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={title}>
+      {/* 꼬리 */}
+      <path d="M66 82 Q86 84 88 66 Q80 72 72 70 Q80 66 82 58 Q70 62 66 72Z" fill="#ff9a2e" />
+      {/* 껍질 날개 */}
+      <path d="M33 58 Q10 50 8 66 Q18 62 22 70 Q26 62 34 66Z" fill="#ffc47a" />
+      <path d="M67 58 Q90 50 92 66 Q82 62 78 70 Q74 62 66 66Z" fill="#ffc47a" />
+      {/* 몸 */}
+      <ellipse cx="50" cy="68" rx="21" ry="22" fill="#ff9a2e" />
+      <ellipse cx="50" cy="70" rx="13.5" ry="16.5" fill="#ffe6bd" />
+      <path d="M50 54 V86 M42 58 Q38 70 43 84 M58 58 Q62 70 57 84" fill="none" stroke="#ffcf94" strokeWidth="1.6" strokeLinecap="round" />
+      {/* 팔·발 */}
+      <ellipse cx="31" cy="66" rx="5.5" ry="8" fill="#ff9a2e" transform="rotate(18 31 66)" />
+      <ellipse cx="69" cy="66" rx="5.5" ry="8" fill="#ff9a2e" transform="rotate(-18 69 66)" />
+      <ellipse cx="40" cy="89" rx="8" ry="4.6" fill="#ff8a1f" />
+      <ellipse cx="60" cy="89" rx="8" ry="4.6" fill="#ff8a1f" />
+      {/* 뿔·귀 */}
+      <ellipse cx="34" cy="18" rx="5" ry="8" fill="#ff9a2e" transform="rotate(-24 34 18)" />
+      <ellipse cx="66" cy="18" rx="5" ry="8" fill="#ff9a2e" transform="rotate(24 66 18)" />
+      {/* 머리 */}
+      <circle cx="50" cy="35" r="20" fill="#ff9a2e" />
+      <ellipse cx="50" cy="42" rx="13" ry="9.5" fill="#ffe6bd" />
+      {/* 잎 */}
+      <path d="M50 16 Q47 7 55 5 Q56 12 50 16Z" fill="#4caf50" />
+      <path d="M50 16 Q54 10 60 11 Q58 17 50 16Z" fill="#6cc56a" />
+      {/* 얼굴 */}
+      <circle cx="42.5" cy="36" r="2.8" fill="#2b2a2a" />
+      <circle cx="57.5" cy="36" r="2.8" fill="#2b2a2a" />
+      <circle cx="43.4" cy="35" r=".9" fill="#fff" />
+      <circle cx="58.4" cy="35" r=".9" fill="#fff" />
+      <circle cx="35.5" cy="42" r="3" fill="#ff7f6b" opacity=".45" />
+      <circle cx="64.5" cy="42" r="3" fill="#ff7f6b" opacity=".45" />
+      <path d="M45.5 43.5 Q50 48.5 54.5 43.5" fill="none" stroke="#7a3b16" strokeWidth="1.8" strokeLinecap="round" />
+      <ellipse cx="50" cy="40.8" rx="2.4" ry="1.5" fill="#e98a52" />
+    </svg>
+  )
+}
+
+// 사이드바 로고: 바다색 배지 안의 귤룡
 export default function Logo({ size = 34 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="탐험 제주 로고">
-      <rect width="48" height="48" rx="13" fill="#1f5a63" />
-      <circle cx="33" cy="15" r="6.5" fill="#ff9f2e" />
-      <path d="M2 36 L13 27 Q17 24 21 25 L24 22.5 Q27 21 30 23 L34 27 L46 36 Z" fill="#e9f3ee" />
-      <path d="M0 38 q6-4 12 0 t12 0 t12 0 t12 0 V48 H0Z" fill="#3a8fb7" />
-      <path d="M0 42.5 q6-4 12 0 t12 0 t12 0 t12 0 V48 H0Z" fill="#2c6b9a" opacity=".85" />
-    </svg>
+    <span className="logo-badge" style={{ width: size, height: size }}>
+      <Mascot size={size * 0.94} />
+    </span>
   )
 }
 
