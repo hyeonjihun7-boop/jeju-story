@@ -6,11 +6,16 @@ import NaviButton from '../components/NaviButton'
 import { Empty, ErrorBox, Loading } from '../components/Status'
 
 const CAT_ICON = { snack: 'cookie', fashion: 'tags', acc: 'gem' }
-const CATS = [
-  { key: 'snack', label: '간식·디저트', icon: 'cookie' },
-  { key: 'fashion', label: '로컬 의류', icon: 'tags' },
-  { key: 'acc', label: '액세서리·소품', icon: 'gem' },
+// 큰 분류: 로컬 브랜드 / 주변 맛집·카페. 로컬 브랜드 안에서 다시 간식·의류·소품으로 나눈다
+const MAIN = [
+  { key: 'brand', label: '로컬 브랜드', icon: 'shop' },
   { key: 'near', label: '주변 맛집·카페', icon: 'geo-alt' },
+]
+const SUBS = [
+  { key: 'all', label: '전체', icon: 'grid' },
+  { key: 'snack', label: '간식·디저트', icon: 'cookie' },
+  { key: 'fashion', label: '의류', icon: 'tags' },
+  { key: 'acc', label: '액세서리·소품', icon: 'gem' },
 ]
 
 function Brands({ cat }) {
@@ -113,22 +118,24 @@ function Nearby() {
 }
 
 export default function Eat() {
-  const [cat, setCat] = useState('snack')
+  const [main, setMain] = useState('brand')
+  const [sub, setSub] = useState('all')
   return (
     <>
       <div className="mb-3">
         <h1 className="headline">제주에서 태어난 <em>브랜드</em>와 <em>한입</em></h1>
-        <div className="sub mb-3">로컬 간식·의류·소품, 그리고 근처 맛집까지</div>
-        <div className="d-flex gap-2 flex-wrap">
-          {CATS.map((c) => <button key={c.key} className={`chip ${cat === c.key ? 'on' : ''}`} onClick={() => setCat(c.key)}><i className={`bi bi-${c.icon}`} />{c.label}</button>)}
+        <div className="sub mb-3">로컬 브랜드(간식·의류·소품), 그리고 근처 맛집까지</div>
+        <div className="modebar">
+          {MAIN.map((c) => <button key={c.key} className={`modebtn ${main === c.key ? 'on' : ''}`} onClick={() => setMain(c.key)}><i className={`bi bi-${c.icon}`} />{c.label}</button>)}
         </div>
-        
+        {main === 'brand' && (
+          <div className="d-flex gap-2 flex-wrap mt-3">
+            {SUBS.map((c) => <button key={c.key} className={`chip ${sub === c.key ? 'on' : ''}`} onClick={() => setSub(c.key)}><i className={`bi bi-${c.icon}`} />{c.label}</button>)}
+          </div>
+        )}
       </div>
-      {cat === 'near' ? <Nearby /> : <Brands cat={cat} />}
+      {main === 'near' ? <Nearby /> : <Brands cat={sub === 'all' ? undefined : sub} />}
     </>
   )
 }
-
-
-
 
