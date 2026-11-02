@@ -12,9 +12,8 @@ async function call(op, extra) {
   need()
   const params = new URLSearchParams({
     serviceKey: process.env.DATA_GO_KR_KEY, MobileOS: 'ETC', MobileApp: 'TodayJeju', _type: 'json',
-    numOfRows: '12', pageNo: '1', areaCode: '39', ...extra,
+    numOfRows: '12', pageNo: '1', lDongRegnCd: '50', ...extra, // ※ areaCode=39 는 옛 분류라 일부만 나옴(문화시설 9건 vs 97건)
   })
-  if (extra.lDongRegnCd) params.delete('areaCode') // 축제 조회는 areaCode 가 아니라 법정동 코드(제주=50)
   const data = await cached(`tour:${op}:${params}`, 1800e3, () => getJson(`${BASE}/${op}?${params}`))
   const header = data?.response?.header
   if (header && header.resultCode !== '0000') throw new Error(`TourAPI 오류 ${header.resultCode}: ${header.resultMsg}`)
@@ -48,12 +47,15 @@ export async function searchFestivals({ year, onlyUpcoming = false } = {}) {
     .sort((a, b) => String(a.start).localeCompare(String(b.start)))
 }
 
-// 제주 음식점 전체 (카페만: cafe=true). 100건씩 여러 페이지를 모아서 반환
-export async function listAllFood({ cafe = false } = {}) {
+// 제주 음식점 전체 (카페만: cafe=true)
+export const listAllFood = ({ cafe = false } = {}) => listAll({ contentTypeId: '39', cat3: cafe ? 'A05020900' : undefined })
+
+// 100건씩 여러 페이지를 모아서 반환
+export async function listAll({ contentTypeId, cat3 } = {}) {
   const all = []
-  for (let page = 1; page <= 6; page++) {
-    const extra = { contentTypeId: '39', pageNo: String(page), numOfRows: '100' }
-    if (cafe) extra.cat3 = 'A05020900'
+  for (let page = 1; page <= 10; page++) {
+    const extra = { contentTypeId, pageNo: String(page), numOfRows: '100' }
+    if (cat3) extra.cat3 = cat3
     const rows = (await call('areaBasedList2', extra)).map(shape)
     all.push(...rows)
     if (rows.length < 100) break
