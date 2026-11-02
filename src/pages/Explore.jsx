@@ -5,6 +5,7 @@ import { fetchElevation, fetchExplore, fetchFestivals, fetchWiki } from '../api/
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import FavButton from '../components/FavButton'
+import Poster from '../components/Poster'
 import MapView from '../components/MapView'
 import { Empty, ErrorBox, Loading } from '../components/Status'
 
@@ -88,25 +89,6 @@ function Item({ sec, it }) {
   )
 }
 
-// 포스터 카드: 이미지(없으면 대체 포스터) + 제목 + 기간
-function Poster({ image, title, sub, href, fav }) {
-  const inner = (
-    <>
-      <div className="poster-img">
-        {image ? <img src={image} alt={title} loading="lazy" /> : <div className="poster-ph"><i className="bi bi-balloon-heart" /><span>{title}</span></div>}
-      </div>
-      <div className="poster-title">{title}</div>
-      {sub && <div className="poster-sub">{sub}</div>}
-    </>
-  )
-  return (
-    <div className="poster">
-      {href ? <a href={href} target="_blank" rel="noreferrer">{inner}</a> : inner}
-      <span className="poster-fav"><FavButton {...fav} /></span>
-    </div>
-  )
-}
-
 const fmt = (d) => (d ? `${d.slice(4, 6)}.${d.slice(6, 8)}` : '')
 const visitJeju = (y, m) => `https://www.visitjeju.net/kr/festival/list?menuId=DOM_000001718007000000&cate1cd=cate0000001360#p1&year=${y}&month=${String(m).padStart(2, '0')}&state=all`
 
@@ -119,9 +101,9 @@ function Festivals() {
   useEffect(() => {
     let alive = true
     setState({ loading: true })
-    fetchFestivals(year).then((d) => alive && setState(d)).catch((e) => alive && setState({ error: e.message }))
+    fetchFestivals(year, month).then((d) => alive && setState(d)).catch((e) => alive && setState({ error: e.message }))
     return () => { alive = false }
-  }, [year])
+  }, [year, month])
 
   const mm = String(month).padStart(2, '0')
   const from = `${year}${mm}01`
@@ -154,7 +136,7 @@ function Festivals() {
         <ErrorBox error={state.error + ' — .env.local 의 DATA_GO_KR_KEY(Decoding 키)와 TourAPI 활용신청을 확인하세요'} />
       ) : state.fallback ? (
         <>
-          <div className="small sub mb-2">월별 공식 일정은 DATA_GO_KR_KEY 를 넣으면 이 칸에 나와요. 지금은 최신 축제 뉴스를 보여줘요.</div>
+          <div className="small sub mb-2">{month}월 공식 일정(포스터·기간)은 DATA_GO_KR_KEY 를 넣으면 나와요. 지금은 {month}월 축제 관련 뉴스를 보여줘요.</div>
           <div className="poster-grid">
             {state.items.map((n) => (
               <Poster key={n.url} href={n.url} title={n.title} sub={n.press || n.date} fav={{ kind: 'news', id: n.url, title: n.title, note: n.date }} />

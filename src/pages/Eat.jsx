@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchFood, fetchShops } from '../api/client'
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
-import FavButton from '../components/FavButton'
+import Poster from '../components/Poster'
 import MapView from '../components/MapView'
 import { Empty, ErrorBox, Loading } from '../components/Status'
 
@@ -46,14 +46,26 @@ function Brands({ cat }) {
   )
 }
 
+const VISIT_JEJU_FOOD = 'https://www.visitjeju.net/kr/detail/list?menuId=DOM_000001719000000000&cate1cd=cate0000000005'
+
 function Nearby() {
   const place = useAppStore((s) => s.place)
   const [kind, setKind] = useState('restaurant')
+  const [page, setPage] = useState(1)
   const [state, setState] = useState({ loading: true })
+  useEffect(() => { setPage(1) }, [place, kind])
   useEffect(() => {
+    let alive = true
     setState({ loading: true })
-    fetchFood(place, kind).then(setState).catch((e) => setState({ error: e.message }))
-  }, [place, kind])
+    fetchFood(place, kind, page).then((d) => alive && setState(d)).catch((e) => alive && setState({ error: e.message }))
+    return () => { alive = false }
+  }, [place, kind, page])
+
+  // 사진이 있는 TourAPI 목록이 있으면 그것을, 없으면 주변 식당(OSM/카카오)을 같은 카드 모양으로
+  const cards = state.tour?.items?.length
+    ? state.tour.items.map((p) => ({ id: p.id, title: p.title, image: p.image, sub: p.addr }))
+    : (state.places?.items ?? []).map((p) => ({ id: p.id, title: p.name, image: null, sub: p.addr || (p.distKm != null ? p.distKm + 'km' : p.cuisine || '') }))
+
   return (
     <div>
       <div className="d-flex gap-2 mb-3">
@@ -63,25 +75,35 @@ function Nearby() {
       {state.loading ? <Loading /> : state.error ? <ErrorBox error={state.error} /> : (
         <div className="kcard">
           <h3><i className="bi bi-geo-alt" />{place} 주변</h3>
-          <div className="mb-3"><MapView height={280} points={state.places.items.map((p) => ({ id: p.id, kind: 'food', name: p.name, lat: p.lat, lon: p.lon, note: p.addr || p.cuisine || '' }))} /></div>
-          {state.places.items.length === 0 ? <Empty text="주변 정보를 찾지 못했어요" /> : state.places.items.map((p) => (
-            <div className="row-item" key={p.id}>
-              <div className="flex-grow-1">
-                <div className="fw-bold">{p.name} {p.distKm != null && <span className="chip ms-1">{p.distKm}km</span>}</div>
-                <div className="small sub">{p.addr || p.cuisine || p.category || ''}</div>
-                <a className="small" href={`https://map.naver.com/p/search/${encodeURIComponent('제주 ' + p.name)}`} target="_blank" rel="noreferrer">네이버 지도 <i className="bi bi-box-arrow-up-right" /></a>
-              </div>
-              <FavButton kind="restaurant" id={p.id} title={p.name} note={place} />
+          <div className="mb-3"><MapView height={260} points={(state.places?.items ?? []).map((p) => ({ id: p.id, kind: 'food', name: p.name, lat: p.lat, lon: p.lon, note: p.addr || p.cuisine || '' }))} /></div>
+          {state.tour?.error && <div className="small text-danger mb-2">TourAPI 오류: {state.tour.error}</div>}
+          {!state.tour && <div className="small sub mb-3">음식점 사진은 .env.local 에 DATA_GO_KR_KEY 를 넣으면 나와요. 지금은 주변 식당 목록이에요.</div>}
+          {cards.length === 0 ? <Empty text="주변 정보를 찾지 못했어요" /> : (
+            <div className="poster-grid">
+              {cards.map((p) => (
+                <Poster key={p.id} image={p.image} title={p.title} sub={p.sub} icon="cup-hot" href={`https://map.naver.com/p/search/${encodeURIComponent('제주 ' + p.title)}`}
+                  fav={{ kind: 'restaurant', id: p.id, title: p.title, note: place }} />
+              ))}
             </div>
-          ))}
-          <div className="src">출처 {state.places.source}</div>
-          {state.blogs.available && state.blogs.items.length > 0 && (
+          )}
+          {state.tour && (
+            <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
+              <button className="pillbtn ghost" disabled={page <= 1} onClick={() => setPage(page - 1)}><i className="bi bi-chevron-left" /> 이전</button>
+              <b>{page}</b>
+              <button className="pillbtn ghost" disabled={!state.tour.items?.length || state.tour.items.length < 12} onClick={() => setPage(page + 1)}>다음 <i className="bi bi-chevron-right" /></button>
+            </div>
+          )}
+          <div className="d-flex flex-wrap gap-2 align-items-center mt-3">
+            <a className="pillbtn text-decoration-none" href={VISIT_JEJU_FOOD} target="_blank" rel="noreferrer"><i className="bi bi-box-arrow-up-right me-1" />방문 제주 음식점 전체 보기</a>
+            <span className="src m-0">출처 {state.tour?.items?.length ? '한국관광공사 TourAPI' : state.places?.source}</span>
+          </div>
+          {state.blogs?.available && state.blogs.items.length > 0 && (
             <>
               <h3 className="mt-4"><i className="bi bi-chat-quote" />블로그 후기</h3>
               {state.blogs.items.map((b) => <div key={b.url} className="mb-2 small"><a href={b.url} target="_blank" rel="noreferrer" className="fw-bold">{b.title}</a><div className="sub">{b.summary}</div></div>)}
             </>
           )}
-          {!state.blogs.available && <div className="src">블로그 후기: 네이버 API 키(NAVER_CLIENT_ID/SECRET)를 넣으면 표시돼요</div>}
+          {state.blogs && !state.blogs.available && <div className="src">블로그 후기: 네이버 API 키(NAVER_CLIENT_ID/SECRET)를 넣으면 표시돼요</div>}
         </div>
       )}
     </div>

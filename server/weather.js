@@ -35,6 +35,7 @@ export async function getWeather({ place = '제주시' } = {}) {
     code: d.hourly.weather_code[i], wind: d.hourly.wind_speed_10m[i],
   })).filter((h) => h.date === today && h.hour >= 6 && h.hour <= 22)
 
+  const at = (hr) => (hourly.find((h) => h.hour === hr) ?? hourly[0]).temp
   const [desc, icon] = describe(d.current.weather_code)
   const maxPop = Math.max(...hourly.map((h) => h.pop))
   const rainHours = hourly.filter((h) => h.pop >= 50 || h.rain >= 0.3).map((h) => h.hour)
@@ -61,6 +62,9 @@ export async function getWeather({ place = '제주시' } = {}) {
       sunrise: d.daily.sunrise[0].slice(11), sunset: d.daily.sunset[0].slice(11),
       avgFeel: r1(avg(hourly.filter((h) => h.hour >= 9 && h.hour <= 20).map((h) => h.feel))),
       maxWind: Math.max(...hourly.map((h) => h.wind)), rainHours, trend: trend.join(' · '),
+      temps: { morning: at(8), noon: at(14), evening: at(20) },
+      fogMorning: hourly.some((h) => h.hour <= 11 && (h.code === 45 || h.code === 48)),
+      tomorrow: { pop: d.daily.precipitation_probability_max[1] ?? 0, max: d.daily.temperature_2m_max[1], min: d.daily.temperature_2m_min[1] },
     },
     hourly: hourly.map((h) => ({ ...h, label: describe(h.code)[0], icon: describe(h.code)[1] })),
     source: 'Open-Meteo',

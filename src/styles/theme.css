@@ -146,3 +146,11 @@ body { background: var(--mint); letter-spacing: -0.01em; }
 .poster-title { margin-top: 10px; font-weight: 700; font-size: .92rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; }
 .poster-sub { text-align: center; font-size: .78rem; color: var(--muted); margin-top: 4px; }
 .poster-fav { position: absolute; top: 6px; right: 6px; background: rgba(255, 255, 255, .88); border-radius: 999px; line-height: 1; padding: 4px 6px; }
+
+/* 오늘의 옷차림 카드 */
+.outfit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 640px) { .outfit-grid { grid-template-columns: repeat(2, 1fr); } }
+.outfit-img { aspect-ratio: 3 / 4; border-radius: 16px; display: grid; place-items: center; background: linear-gradient(170deg, #f3f7f4, var(--mint-2)); }
+.outfit-name { margin-top: 8px; font-weight: 700; font-size: .95rem; }
+.outfit-sub { font-size: .8rem; color: var(--muted); }
+.outfit-list { padding-left: 1.1rem; display: grid; gap: 8px; line-height: 1.6; }

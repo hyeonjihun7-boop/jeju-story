@@ -2,6 +2,7 @@ import { route } from '../server/handler.js'
 import { nearbyFood } from '../server/osm.js'
 import { kakaoPlaces, searchBlogs } from '../server/news.js'
 import { findPlace } from '../server/geo.js'
+import { searchSpots } from '../server/tour.js'
 export default route(async (q) => {
   const place = q.place || '제주시'
   const kind = q.kind === 'cafe' ? 'cafe' : 'restaurant'
@@ -14,5 +15,12 @@ export default route(async (q) => {
     catch { places = { source: 'OpenStreetMap(Overpass) 응답 지연 — 잠시 후 다시 시도하세요', items: [] } }
   }
   const blogs = await searchBlogs({ query: place + (kind === 'cafe' ? ' 카페 후기' : ' 맛집 후기') }).catch(() => ({ available: false, items: [] }))
-  return { places, blogs }
+  // TourAPI 음식점(39) — 대표 사진이 있어 갤러리로 보여준다 (카페는 세부분류 A05020900)
+  let tour = null
+  if (process.env.DATA_GO_KR_KEY) {
+    const page = Math.max(1, Number(q.page) || 1)
+    tour = await searchSpots({ contentTypeId: '39', page, rows: 12, cat3: kind === 'cafe' ? 'A05020900' : undefined })
+      .then((items) => ({ items, page })).catch((e) => ({ items: [], page, error: e.message }))
+  }
+  return { places, blogs, tour }
 })

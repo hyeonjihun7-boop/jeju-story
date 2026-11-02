@@ -3,6 +3,7 @@ import { Col, Row } from 'react-bootstrap'
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import HourlyChart from '../components/HourlyChart'
+import Garment from '../components/Garment'
 import { ErrorBox, Loading } from '../components/Status'
 
 const MODE_ICON = { outdoor: 'tree', indoor: 'house-heart', food: 'cup-hot' }
@@ -89,16 +90,30 @@ export default function Home() {
 
       <div className="kcard mb-3">
         <h3><i className="bi bi-handbag" />오늘의 옷차림</h3>
-        <div className="d-flex flex-wrap gap-3 align-items-center mb-2">
-          <div className="fs-4 fw-bold" style={{ color: 'var(--forest)' }}>{outfit.title}</div>
-          <span className={`chip ${outfit.outer ? 'warn' : 'on'}`}><i className="bi bi-person-arms-up" />{outfit.outerText}</span>
+        <p className="mb-3" style={{ lineHeight: 1.7 }}>{outfit.summary}</p>
+        <div className="d-flex gap-2 flex-wrap mb-3">
+          <span className="chip on">{outfit.title}</span>
           <span className="chip">{outfit.layer}</span>
+          <span className={`chip ${outfit.outer ? 'warn' : ''}`}><i className="bi bi-person-arms-up" />{outfit.outerText}</span>
         </div>
-        <div className="d-flex gap-2 flex-wrap mb-2">
-          {outfit.pieces.map((p) => <span key={p} className="chip on">{p}</span>)}
-          {outfit.gear.map((g) => <span key={g} className="chip warn"><i className="bi bi-bag-plus" />{g}</span>)}
+        <h4 className="fs-5 fw-bold mt-2 mb-3">추천 옷차림</h4>
+        <div className="outfit-grid mb-3">
+          {outfit.cards.map((c) => (
+            <div key={c.label} className="outfit-card">
+              <div className="outfit-img"><Garment g={c.g} size={110} /></div>
+              <div className="outfit-name">{c.label}</div>
+              <div className="outfit-sub">{c.sub}</div>
+            </div>
+          ))}
         </div>
-        <ul className="mb-0 small sub ps-3">{outfit.tips.map((t) => <li key={t}>{t}</li>)}</ul>
+        <ul className="outfit-list">
+          {outfit.slots.map((s) => <li key={s.label}><b>{s.label}({s.temp}도 전후):</b> {s.text}</li>)}
+        </ul>
+        <h4 className="fs-5 fw-bold mt-4 mb-2">주의사항</h4>
+        <ul className="outfit-list mb-0">
+          {outfit.cautions.map((t) => <li key={t}>{t}</li>)}
+        </ul>
+        <div className="src">기온·강수: Open-Meteo · 대기질: Open-Meteo Air Quality · 옷 구성은 규칙 기반 추천이에요</div>
       </div>
 
       <div className="kcard">
