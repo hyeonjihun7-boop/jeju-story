@@ -15,7 +15,7 @@ export default function DarkTour() {
   if (state.error) return <ErrorBox error={state.error} />
 
   const list = state.items.filter((p) => (region === '전체' || p.region === region) && (theme === '전체' || p.theme === theme))
-  const points = list.map((p) => ({ id: p.id, kind: 'dark', name: p.name, lat: p.lat, lon: p.lon, note: `${p.theme} · ${p.region}` }))
+  const points = list.map((p) => ({ id: p.id, kind: 'dark', name: p.name, lat: p.lat, lon: p.lon, note: `${p.theme} · ${p.region}`, addr: p.addr, img: p.image, desc: p.desc }))
 
   return (
     <>
@@ -31,7 +31,7 @@ export default function DarkTour() {
 
       <div className="kcard mb-3 p-2">
         <MapView points={points} />
-        <div className="small sub px-2 pt-2">지도 핀은 위치가 확인된 곳만 표시돼요. 핀을 누르면 길찾기 링크가 나와요.</div>
+        <div className="small sub px-2 pt-2">지도 핀은 위치가 확인된 곳만 표시돼요. 핀을 누르면 사진·설명과 길찾기 링크가 나와요.</div>
       </div>
 
       <div className="kcard mb-3">

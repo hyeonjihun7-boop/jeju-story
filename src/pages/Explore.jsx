@@ -279,7 +279,8 @@ export default function Explore() {
   // 모든 섹션의 좌표 있는 항목을 지도 핀으로
   const points = useMemo(() => sections.flatMap((sec) => sec.items.map((it) => ({
     id: it.id ?? it.name, kind: sec.key, name: it.name ?? it.title, lat: it.lat, lon: it.lon,
-    note: sec.key === 'oreum' ? (it.ele ? `${it.ele}m` : '오름') : sec.key === 'olle' ? `${it.from} → ${it.to}` : sec.key === 'indoor' ? `${it.area} (대략 위치)` : it.addr,
+    note: sec.key === 'oreum' ? (it.ele ? `${it.ele}m` : '오름') : sec.key === 'olle' ? `${it.from} → ${it.to}` : sec.key === 'indoor' ? `${it.area} (대략 위치)` : undefined,
+    addr: it.addr ?? it.sub, img: it.image, desc: it.desc,
   }))), [sections])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -326,7 +327,7 @@ export default function Explore() {
               <span><i className="bi bi-circle-fill" style={{ color: '#9b7fd1' }} /> 실내 명소(전체)</span>
               <span><i className="bi bi-circle-fill" style={{ color: '#e0762f' }} /> 야외 명소(전체)</span>
               <span><i className="bi bi-circle-fill" style={{ color: '#ff9f2e' }} /> 관광지</span>
-              <span className="ms-auto">핀을 누르면 이름과 네이버 지도 링크가 나와요</span>
+              <span className="ms-auto">핀을 누르면 사진·주소와 길찾기 링크가 나와요</span>
             </div>
           </div>
           <div className="searchbar mb-3">
