@@ -2,7 +2,6 @@
 // ※ 플레이제주(playjeju.co.kr)는 데이터가 /api/ 로만 제공되고 robots.txt 가 /api/ 를 막고 있어 가져오지 않고 링크로 연결합니다.
 import { getIssueJeju, searchNews } from './news.js'
 import { dedupe } from './dedupe.js'
-import { searchFestivals } from './tour.js'
 
 const CULTURE = /전시|공연|미술|예술|연극|뮤지컬|콘서트|음악회|영화|도서|작가|박물관|미술관|문화|무용|국악|오케스트라|사진전|북페어|아트/
 const NOISE = /성폭력|예방|교육청|인사|부고|교통|캠페인|안전|단속|화재/
@@ -19,26 +18,13 @@ export const kindOf = (t) =>
   /박물관/.test(t) ? '박물관' : /미술관|갤러리|화랑/.test(t) ? '미술관' : /공연|극장|아트센터|문예회관|콘서트|예술/.test(t) ? '공연장'
     : /도서관|서점|문학관/.test(t) ? '도서관·문학관' : /기념관|전시|과학|체험|문화원|문화/.test(t) ? '전시·체험' : '기타'
 
-// TourAPI 행사 중 문화·공연·전시 성격만 (공식 데이터, 포스터·기간·좌표 포함)
-const CULTURE_EVENT = /문화|공연|전시|비엔날레|페스티벌|독서|예술|음악|야간|야시|쇼|영화|연극|미술|박람회|축제/
-
 export async function getCulture() {
   const [issue, news] = await Promise.all([
     getIssueJeju({ limit: 50 }).catch(() => ({ items: [] })),
     searchNews({ query: '제주 전시 공연', limit: 12 }).catch(() => ({ items: [], source: '' })),
   ])
   const own = issue.items.filter((i) => CULTURE.test(i.title) && !NOISE.test(i.title)).map((i) => ({ ...i, press: '이슈제주' }))
-  // 올해 문화행사 (진행 중·예정이 앞, 지난 행사는 뒤) — DATA_GO_KR_KEY 필요
-  let events = []
-  if (process.env.DATA_GO_KR_KEY) {
-    const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10).replaceAll('-', '')
-    events = (await searchFestivals({}).catch(() => []))
-      .filter((f) => CULTURE_EVENT.test(f.title))
-      .map((f) => ({ id: f.id, title: f.title, sub: f.addr?.replace('제주특별자치도 ', ''), image: f.image, lat: f.lat, lon: f.lon, start: f.start, end: f.end, ongoing: f.start <= today && (f.end || f.start) >= today, past: (f.end || f.start) < today }))
-      .sort((a, b) => Number(a.past) - Number(b.past) || (a.past ? b.start.localeCompare(a.start) : a.start.localeCompare(b.start)))
-  }
   return {
-    events,
     links: PLAYJEJU,
     source: '이슈제주 RSS(기사 대표 사진) · ' + news.source,
     items: dedupe([...own, ...news.items]).slice(0, 16), // 사진 없는 소식은 화면에서 목록으로 따로 보여준다
