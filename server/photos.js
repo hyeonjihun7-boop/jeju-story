@@ -33,3 +33,10 @@ export async function getOutfitPhoto({ g }) {
     return r ? { found: true, ...r } : { found: false }
   })
 }
+
+// 브랜드 대표 상품 사진: "<브랜드명> 제주" 로 쇼핑 검색 (키 없으면 null)
+export async function getBrandPhoto(name) {
+  if (!process.env.NAVER_CLIENT_ID || !process.env.NAVER_CLIENT_SECRET) return null
+  const q = name.split(' (')[0] + ' 제주'
+  return cached('brand:' + q, 24 * 3600e3, () => fromNaver(q).catch(() => null))
+}

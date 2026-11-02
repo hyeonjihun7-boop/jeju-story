@@ -7,6 +7,7 @@ import Poster from '../components/Poster'
 import MapView from '../components/MapView'
 import { Empty, ErrorBox, Loading } from '../components/Status'
 
+const CAT_ICON = { snack: 'cookie', fashion: 'tags', acc: 'gem' }
 const CATS = [
   { key: 'snack', label: '간식·디저트', icon: 'cookie' },
   { key: 'fashion', label: '로컬 의류', icon: 'tags' },
@@ -18,15 +19,21 @@ function Brands({ cat }) {
   const [state, setState] = useState({ loading: true })
   useEffect(() => {
     setState({ loading: true })
-    fetchShops(cat).then((d) => setState({ items: d.items })).catch((e) => setState({ error: e.message }))
+    fetchShops(cat).then((d) => setState(d)).catch((e) => setState({ error: e.message }))
   }, [cat])
   if (state.loading) return <Loading />
   if (state.error) return <ErrorBox error={state.error} />
   return (
     <div className="d-grid gap-3">
       {state.items.map((s) => (
-        <div className="kcard" key={s.id}>
-          <div className="d-flex align-items-start gap-2">
+        <div className="kcard brand-card" key={s.id}>
+          <a className={`brand-banner cat-${s.cat}`} href={s.productLink ?? s.buyUrl} target="_blank" rel="noreferrer" title={s.productTitle ?? s.name}>
+            {s.image ? <img src={s.image} alt={s.productTitle ?? s.name} loading="lazy" /> : (
+              <span className="brand-ph"><i className={`bi bi-${CAT_ICON[s.cat]}`} /><b>{s.name.split(' (')[0]}</b></span>
+            )}
+            {s.price && <span className="outfit-price">{s.price.toLocaleString()}원~</span>}
+          </a>
+          <div className="d-flex align-items-start gap-2 mt-3">
             <div className="flex-grow-1">
               <div className="fw-bold fs-5">{s.name}</div>
               <div className="small sub"><i className="bi bi-geo-alt" /> {s.area}</div>
@@ -42,7 +49,7 @@ function Brands({ cat }) {
           </div>
         </div>
       ))}
-      <div className="src">큐레이션 목록 · 영업·재고는 방문 전 확인하세요</div>
+      <div className="src">큐레이션 목록 · 영업·재고는 방문 전 확인하세요{state.hasPhotos ? ' · 상품 사진: 네이버 쇼핑' : ' · 상품 사진은 네이버 API 키(NAVER_CLIENT_ID/SECRET)를 넣으면 나와요'}</div>
     </div>
   )
 }
@@ -127,5 +134,6 @@ export default function Eat() {
     </>
   )
 }
+
 
 
