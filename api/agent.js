@@ -135,9 +135,20 @@ export default async function handler(req, res) {
   if (hit && Date.now() - hit.at < CACHE_MS) return res.status(200).json({ ...hit.body, cached: true })
   const ctx = { models: [...GEMINI_MODELS], model: null }
 
+  let provider = useClaude ? 'claude' : 'gemini'
   try {
-    const answer = useClaude ? await runClaude(message, history, steps) : await runGemini(message, history, steps, ctx)
-    const body = { answer: answer ?? '도구 호출이 너무 많아 중단했어요. 질문을 좁혀 주세요.', steps, provider: useClaude ? 'claude' : 'gemini', model: ctx.model }
+    let answer
+    try {
+      answer = useClaude ? await runClaude(message, history, steps) : await runGemini(message, history, steps, ctx)
+    } catch (e) {
+      // Claude 가 실패하면(크레딧 부족·한도·장애 등) Gemini 키가 있을 때 자동으로 넘어간다
+      if (!(useClaude && process.env.GEMINI_API_KEY)) throw e
+      console.warn('Claude 실패 → Gemini 로 대체:', e.status, String(e.message).slice(0, 120))
+      steps.length = 0
+      provider = 'gemini'
+      answer = await runGemini(message, history, steps, ctx)
+    }
+    const body = { answer: answer ?? '도구 호출이 너무 많아 중단했어요. 질문을 좁혀 주세요.', steps, provider, model: ctx.model }
     if (key && answer) answerCache.set(key, { at: Date.now(), body })
     res.status(200).json(body)
   } catch (e) {
