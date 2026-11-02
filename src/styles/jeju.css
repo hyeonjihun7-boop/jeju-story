@@ -59,3 +59,6 @@ body {
 .hero-art { position: absolute; right: 0; bottom: 0; width: 70%; height: 100%; z-index: 0; pointer-events: none; }
 
 @media (max-width: 860px) { .tabbar a.active { color: var(--citrus); } }
+.today-line { background: #fff7e6; border: 1px solid #ffd9a0; border-radius: 18px; padding: 14px 18px; }
+.today-line-text { font-size: 1.12rem; line-height: 1.7; }
+.today-line-text a { color: var(--sea-deep); }

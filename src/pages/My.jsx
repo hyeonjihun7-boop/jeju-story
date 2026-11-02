@@ -92,7 +92,7 @@ export default function My() {
                 <button className="trip-mapbtn" onClick={() => shareTrip(t)}><i className="bi bi-share" />공유 링크</button>
                 <button className="favbtn" aria-label="일정 삭제" onClick={() => deleteTrip(t.id)}><i className="bi bi-trash" /></button>
               </div>
-              {plan ? <Itinerary plan={plan} /> : <div className="msg assistant">{t.content}</div>}
+              {plan ? <Itinerary plan={plan} title={t.title} /> : <div className="msg assistant">{t.content}</div>}
               {t.tools?.length > 0 && <div className="small sub">사용한 도구: {[...new Set(t.tools)].join(', ')}</div>}
             </div>
           )

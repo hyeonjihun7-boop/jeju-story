@@ -59,6 +59,16 @@ export default function Home() {
         </div>
       </div>
 
+      <div className="today-line mb-3">
+        <div className="small fw-bold sub mb-1"><i className="bi bi-stars me-1" />오늘 이렇게 보내세요</div>
+        <div className="today-line-text">
+          <b>{place} {w.now.desc} {Math.round(w.now.temp)}°</b>, {outfit.title}에 {outfit.outerText}
+          {rainy ? ', 우산도 꼭 챙기세요' : ''}
+          {air && air.grade.overall.level >= 2 ? `, 미세먼지 ${air.grade.overall.label}이라 마스크를 쓰세요` : ''}.
+          {' '}오늘은 <Link to={`/explore?tab=${mode.mode}`}><b>{mode.mode === 'indoor' ? '실내 탐험' : '야외 탐험'}</b></Link>을 추천해요.
+        </div>
+      </div>
+
       <Row className="g-3 mb-3" xs={2} md={4}>
         <Col><Link to="/explore?tab=outdoor" className="tile t2"><i className="bi bi-tree" />야외 탐험</Link></Col>
         <Col><Link to="/explore?tab=indoor" className="tile t3"><i className="bi bi-house-heart" />실내 탐험</Link></Col>

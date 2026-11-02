@@ -41,7 +41,7 @@ function Message({ m, question }) {
       )}
       {plan ? (
         <>
-          <Itinerary plan={plan} />
+          <Itinerary plan={plan} title={tripTitle(question)} />
           <div className="trip-actions">
             {saved
               ? <span className="trip-saved"><i className="bi bi-check2-circle me-1" />내 일정에 저장했어요 (북마크 → 내 여행 일정)</span>

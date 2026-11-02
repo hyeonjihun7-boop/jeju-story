@@ -25,7 +25,7 @@ export default function TripShare() {
         <div className="sub"><i className="bi bi-share me-1" />공유된 여행 일정 · {new Date(trip.created_at).toLocaleDateString('ko-KR')}</div>
         <h1 className="headline">{trip.title}</h1>
       </div>
-      {plan ? <Itinerary plan={plan} /> : <div className="msg assistant">{trip.content}</div>}
+      {plan ? <Itinerary plan={plan} title={trip.title} /> : <div className="msg assistant">{trip.content}</div>}
       <div className="text-center mt-3">
         <Link to="/agent" className="pillbtn text-decoration-none"><i className="bi bi-stars me-1" />나도 일정 만들어 보기</Link>
       </div>
