@@ -14,6 +14,7 @@ async function call(op, extra) {
     serviceKey: process.env.DATA_GO_KR_KEY, MobileOS: 'ETC', MobileApp: 'TodayJeju', _type: 'json',
     numOfRows: '12', pageNo: '1', areaCode: '39', ...extra,
   })
+  if (extra.lDongRegnCd) params.delete('areaCode') // 축제 조회는 areaCode 가 아니라 법정동 코드(제주=50)
   const data = await cached(`tour:${op}:${params}`, 1800e3, () => getJson(`${BASE}/${op}?${params}`))
   const header = data?.response?.header
   if (header && header.resultCode !== '0000') throw new Error(`TourAPI 오류 ${header.resultCode}: ${header.resultMsg}`)
@@ -22,7 +23,8 @@ async function call(op, extra) {
 }
 
 const shape = (p) => ({
-  id: p.contentid, title: p.title, addr: p.addr1, image: p.firstimage || null,
+  id: p.contentid, title: p.title, addr: p.addr1, image: (p.firstimage || '').replace(/^http:/, 'https:') || null, // https 배포에서 혼합 콘텐츠 방지
+  cat3: p.cat3 ?? null,
   lat: Number(p.mapy) || null, lon: Number(p.mapx) || null, type: p.contenttypeid,
   start: p.eventstartdate ?? null, end: p.eventenddate ?? null, tel: p.tel || null,
 })
@@ -40,8 +42,21 @@ export async function searchFestivals({ year, onlyUpcoming = false } = {}) {
   const kst = new Date(Date.now() + 9 * 3600e3)
   const y = String(year ?? kst.getUTCFullYear())
   const today = kst.toISOString().slice(0, 10).replaceAll('-', '')
-  const list = (await call('searchFestival2', { eventStartDate: y + '0101', numOfRows: '300' })).map(shape)
+  const list = (await call('searchFestival2', { eventStartDate: y + '0101', numOfRows: '300', lDongRegnCd: '50' })).map(shape)
     .filter((f) => f.start && f.start.startsWith(y) || (f.end && f.end.startsWith(y)))
   return list.filter((f) => !onlyUpcoming || !f.end || f.end >= today)
     .sort((a, b) => String(a.start).localeCompare(String(b.start)))
+}
+
+// 제주 음식점 전체 (카페만: cafe=true). 100건씩 여러 페이지를 모아서 반환
+export async function listAllFood({ cafe = false } = {}) {
+  const all = []
+  for (let page = 1; page <= 6; page++) {
+    const extra = { contentTypeId: '39', pageNo: String(page), numOfRows: '100' }
+    if (cafe) extra.cat3 = 'A05020900'
+    const rows = (await call('areaBasedList2', extra)).map(shape)
+    all.push(...rows)
+    if (rows.length < 100) break
+  }
+  return all
 }

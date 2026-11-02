@@ -59,6 +59,7 @@ const VISIT_JEJU_FOOD = 'https://www.visitjeju.net/kr/detail/list?menuId=DOM_000
 function Nearby() {
   const [kind, setKind] = useState('restaurant')
   const [region, setRegion] = useState('전체')
+  const [open, setOpen] = useState({})
   const [state, setState] = useState({ loading: true })
   useEffect(() => {
     let alive = true
@@ -66,6 +67,7 @@ function Nearby() {
     fetchFoodRegions(kind).then((d) => alive && setState(d)).catch((e) => alive && setState({ error: e.message }))
     return () => { alive = false }
   }, [kind])
+  useEffect(() => { setOpen({}) }, [kind, region])
 
   const sections = (state.sections ?? []).filter((s) => region === '전체' || s.region === region)
   const label = kind === 'cafe' ? '카페' : '맛집'
@@ -87,19 +89,22 @@ function Nearby() {
         <div className="d-grid gap-3">
           {sections.map((sec) => (
             <div className="kcard" key={sec.region}>
-              <h3><i className="bi bi-geo-alt" />{sec.region} {label}</h3>
+              <h3><i className="bi bi-geo-alt" />{sec.region} {label} <span className="chip ms-1">{sec.items.length}곳</span></h3>
               <div className="poster-grid">
-                {sec.items.map((p) => (
+                {(open[sec.region] || region !== '전체' ? sec.items : sec.items.slice(0, 8)).map((p) => (
                   <Poster key={p.id} image={p.image} thumb={p.thumb} title={p.title} sub={p.sub} icon="cup-hot" href={p.link}
                     navi={p.lat ? { name: p.title, lat: p.lat, lon: p.lon } : undefined}
                     fav={{ kind: 'restaurant', id: p.id, title: p.title, note: sec.region }} />
                 ))}
               </div>
+              {region === '전체' && sec.items.length > 8 && !open[sec.region] && (
+                <div className="text-center mt-3"><button className="pillbtn ghost" onClick={() => setOpen({ ...open, [sec.region]: true })}>{sec.region} {label} {sec.items.length - 8}곳 더 보기</button></div>
+              )}
             </div>
           ))}
           <div className="d-flex flex-wrap gap-2 align-items-center">
             <a className="pillbtn text-decoration-none" href={VISIT_JEJU_FOOD} target="_blank" rel="noreferrer"><i className="bi bi-box-arrow-up-right me-1" />방문 제주 음식점 전체 보기</a>
-            <span className="src m-0">출처 {state.source}</span>
+            <span className="src m-0">출처 {state.source}{state.total ? ` · 총 ${state.total}곳` : ''}</span>
           </div>
         </div>
       )}

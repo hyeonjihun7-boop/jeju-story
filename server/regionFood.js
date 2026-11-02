@@ -2,6 +2,7 @@
 import { getJson, cached } from './http.js'
 import { findPlace } from './geo.js'
 import { getImageFor } from './photos.js'
+import { listAllFood } from './tour.js'
 
 export const REGIONS = ['제주시', '애월', '한림', '중문', '서귀포', '표선', '성산', '구좌', '우도']
 const H = () => ({ Authorization: 'KakaoAK ' + process.env.KAKAO_REST_KEY })
@@ -29,7 +30,41 @@ async function blogs(region, kind) {
   }))
 }
 
+// 주소 → 화면의 지역 구분
+function regionOf(addr = '') {
+  if (/우도면/.test(addr)) return '우도'
+  if (/구좌읍/.test(addr)) return '구좌'
+  if (/성산읍/.test(addr)) return '성산'
+  if (/표선면/.test(addr)) return '표선'
+  if (/애월읍/.test(addr)) return '애월'
+  if (/한림읍|한경면/.test(addr)) return '한림'
+  if (/중문|색달|대포|예래|천제연|하원|강정/.test(addr)) return '중문'
+  if (/서귀포시/.test(addr)) return '서귀포'
+  return '제주시'
+}
+
+// TourAPI(DATA_GO_KR_KEY): 제주 음식점·카페 전체를 지역별로 (사진·좌표 포함)
+async function fromTour(kind) {
+  const rows = await cached('rf-tour:' + kind, 6 * 3600e3, () => listAllFood({ cafe: kind === 'cafe' }))
+  const by = Object.fromEntries(REGIONS.map((r) => [r, []]))
+  for (const p of rows) {
+    const region = regionOf(p.addr)
+    by[region].push({
+      id: p.id, title: p.title, sub: p.addr?.replace('제주특별자치도 ', ''), image: p.image, thumb: p.image,
+      link: p.lat ? `https://map.kakao.com/link/map/${encodeURIComponent(p.title)},${p.lat},${p.lon}` : null, lat: p.lat, lon: p.lon,
+    })
+  }
+  // 사진이 있는 곳을 앞에 둔다
+  return REGIONS.map((region) => ({ region, items: by[region].sort((a, b) => Number(!!b.image) - Number(!!a.image)) })).filter((s) => s.items.length)
+}
+
 export async function getRegionFood({ kind = 'restaurant' } = {}) {
+  if (process.env.DATA_GO_KR_KEY) {
+    try {
+      const sections = await fromTour(kind)
+      if (sections.length) return { available: true, mode: 'tour', source: '한국관광공사 TourAPI (제주 음식점 전체)', total: sections.reduce((n, s) => n + s.items.length, 0), sections }
+    } catch { /* 아래 카카오 방식으로 대체 */ }
+  }
   if (!process.env.KAKAO_REST_KEY) return { available: false, reason: 'KAKAO_REST_KEY 가 필요해요' }
   let mode = 'places'
   let sections
