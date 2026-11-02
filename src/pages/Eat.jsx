@@ -4,6 +4,7 @@ import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import FavButton from '../components/FavButton'
 import Poster from '../components/Poster'
+import NaviButton from '../components/NaviButton'
 import MapView from '../components/MapView'
 import { Empty, ErrorBox, Loading } from '../components/Status'
 
@@ -46,6 +47,7 @@ function Brands({ cat }) {
             <a className="pillbtn ghost text-decoration-none" href={s.mapUrl} target="_blank" rel="noreferrer"><i className="bi bi-map me-1" />위치</a>
             <a className="pillbtn text-decoration-none" href={s.buyUrl} target="_blank" rel="noreferrer"><i className="bi bi-credit-card me-1" />구매·결제</a>
             {s.reserveUrl && <a className="pillbtn ghost text-decoration-none" href={s.reserveUrl} target="_blank" rel="noreferrer"><i className="bi bi-hourglass-split me-1" />예약·대기</a>}
+            <NaviButton name={s.name.split(' (')[0]} lat={null} lon={null} label="카카오 길찾기" />
           </div>
         </div>
       ))}
@@ -71,8 +73,8 @@ function Nearby() {
 
   // 사진이 있는 TourAPI 목록이 있으면 그것을, 없으면 주변 식당(OSM/카카오)을 같은 카드 모양으로
   const cards = state.tour?.items?.length
-    ? state.tour.items.map((p) => ({ id: p.id, title: p.title, image: p.image, sub: p.addr }))
-    : (state.places?.items ?? []).map((p) => ({ id: p.id, title: p.name, image: null, sub: p.addr || (p.distKm != null ? p.distKm + 'km' : p.cuisine || ''), link: p.link }))
+    ? state.tour.items.map((p) => ({ id: p.id, title: p.title, image: p.image, sub: p.addr, lat: p.lat, lon: p.lon }))
+    : (state.places?.items ?? []).map((p) => ({ id: p.id, title: p.name, image: null, sub: p.addr || (p.distKm != null ? p.distKm + 'km' : p.cuisine || ''), link: p.link, lat: p.lat, lon: p.lon }))
 
   return (
     <div>
@@ -89,7 +91,7 @@ function Nearby() {
           {cards.length === 0 ? <Empty text="주변 정보를 찾지 못했어요" /> : (
             <div className="poster-grid">
               {cards.map((p) => (
-                <Poster key={p.id} image={p.image} title={p.title} sub={p.sub} icon="cup-hot" href={p.link ?? `https://map.naver.com/p/search/${encodeURIComponent('제주 ' + p.title)}`}
+                <Poster key={p.id} image={p.image} navi={{ name: p.title, lat: p.lat, lon: p.lon }} title={p.title} sub={p.sub} icon="cup-hot" href={p.link ?? `https://map.naver.com/p/search/${encodeURIComponent('제주 ' + p.title)}`}
                   fav={{ kind: 'restaurant', id: p.id, title: p.title, note: place }} />
               ))}
             </div>

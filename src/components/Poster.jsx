@@ -1,7 +1,8 @@
 import FavButton from './FavButton'
+import NaviButton from './NaviButton'
 
 // 포스터 카드: 이미지(없으면 대체 포스터) + 제목 + 기간
-export default function Poster({ image, thumb, title, sub, href, fav, icon = 'balloon-heart' }) {
+export default function Poster({ image, thumb, title, sub, href, fav, icon = 'balloon-heart', navi }) {
   const inner = (
     <>
       <div className="poster-img">
@@ -14,6 +15,7 @@ export default function Poster({ image, thumb, title, sub, href, fav, icon = 'ba
   return (
     <div className="poster">
       {href ? <a href={href} target="_blank" rel="noreferrer">{inner}</a> : inner}
+      {navi && <div className="text-center"><NaviButton {...navi} /></div>}
       <span className="poster-fav"><FavButton {...fav} /></span>
     </div>
   )

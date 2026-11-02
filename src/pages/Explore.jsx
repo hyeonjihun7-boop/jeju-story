@@ -6,6 +6,7 @@ import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import FavButton from '../components/FavButton'
 import Poster from '../components/Poster'
+import NaviButton from '../components/NaviButton'
 import MapView from '../components/MapView'
 import { Empty, ErrorBox, Loading } from '../components/Status'
 
@@ -41,6 +42,7 @@ function OreumItem({ o }) {
       <div className="flex-grow-1">
         <div className="fw-bold">{o.name} <span className="chip ms-1">{o.distKm}km</span>{o.ele && <span className="chip ms-1">{o.ele}m</span>}</div>
         <button className="btn btn-link p-0 small" onClick={open}>{busy ? '불러오는 중…' : info ? '접기' : '고도·설명 보기'}</button>
+        <div><NaviButton name={o.name} lat={o.lat} lon={o.lon} /></div>
         {info && (
           <div className="small mt-1">
             {info.ele != null && <div className="fw-bold">해발 약 {info.ele}m</div>}
@@ -62,6 +64,7 @@ function Item({ sec, it }) {
           <div className="fw-bold">{it.name}</div>
           <div className="small sub">{it.from} → {it.to}</div>
           <a className="small" href={it.url} target="_blank" rel="noreferrer">공식 코스 안내 <i className="bi bi-box-arrow-up-right" /></a>
+          <div><NaviButton name={`${it.name} 시작점 ${it.from ?? ''}`.trim()} lat={it.lat} lon={it.lon} /></div>
         </div>
         <FavButton kind="olle" id={it.id} title={it.name} />
       </div>
@@ -75,6 +78,7 @@ function Item({ sec, it }) {
           <div className="small sub">{it.area}</div>
           <div className="small">{it.desc}</div>
           <a className="small" href={it.mapUrl} target="_blank" rel="noreferrer">지도에서 보기 <i className="bi bi-box-arrow-up-right" /></a>
+          <div><NaviButton name={it.name} lat={it.lat} lon={it.lon} /></div>
         </div>
         <FavButton kind="indoor" id={it.name} title={it.name} note={it.area} />
       </div>
@@ -83,7 +87,7 @@ function Item({ sec, it }) {
   return (
     <div className="row-item">
       {it.image && <img className="thumb" src={it.image} alt="" loading="lazy" />}
-      <div className="flex-grow-1"><div className="fw-bold">{it.title}</div><div className="small sub">{it.addr}</div></div>
+      <div className="flex-grow-1"><div className="fw-bold">{it.title}</div><div className="small sub">{it.addr}</div><NaviButton name={it.title} lat={it.lat} lon={it.lon} /></div>
       <FavButton kind="tour" id={it.id} title={it.title} note={it.addr} />
     </div>
   )
@@ -146,7 +150,7 @@ function Festivals() {
       ) : inMonth.length === 0 ? <Empty text={`${year}년 ${month}월에 등록된 행사가 없어요`} /> : (
         <div className="poster-grid">
           {inMonth.map((f) => (
-            <Poster key={f.id} image={f.image} title={f.title} sub={`${f.start?.slice(0, 4)}.${fmt(f.start)} ~ ${f.end?.slice(0, 4)}.${fmt(f.end)}`}
+            <Poster key={f.id} image={f.image} navi={{ name: f.title, lat: f.lat, lon: f.lon }} title={f.title} sub={`${f.start?.slice(0, 4)}.${fmt(f.start)} ~ ${f.end?.slice(0, 4)}.${fmt(f.end)}`}
               fav={{ kind: 'festival', id: f.id, title: f.title, note: `${fmt(f.start)}~${fmt(f.end)}` }} />
           ))}
         </div>

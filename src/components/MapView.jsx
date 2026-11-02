@@ -27,7 +27,7 @@ export default function MapView({ points, center, height = 340 }) {
     const bounds = []
     for (const p of valid) {
       L.circleMarker([p.lat, p.lon], { radius: 9, color: '#fff', weight: 2, fillColor: COLORS[p.kind] ?? COLORS.tour, fillOpacity: 0.95 })
-        .bindPopup(`<b>${p.name}</b>${p.note ? `<br/>${p.note}` : ''}<br/><a href="https://map.naver.com/p/search/${encodeURIComponent(p.name)}" target="_blank" rel="noreferrer">네이버 지도</a>`)
+        .bindPopup(`<b>${p.name}</b>${p.note ? `<br/>${p.note}` : ''}<br/><a href="https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lon}" target="_blank" rel="noreferrer">카카오 길찾기</a> · <a href="https://map.naver.com/p/search/${encodeURIComponent(p.name)}" target="_blank" rel="noreferrer">네이버 지도</a>`)
         .addTo(layer.current)
       bounds.push([p.lat, p.lon])
     }
