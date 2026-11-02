@@ -39,3 +39,9 @@ export async function getBrandPhoto(name) {
   const q = name.split(' (')[0] + ' 제주'
   return cached('brand:' + q, 24 * 3600e3, () => fromKakao(q).catch(() => null))
 }
+
+// 임의 검색어로 대표 이미지 1장 (축제 제목 등). 키가 없으면 null
+export async function getImageFor(query) {
+  if (!hasKakao()) return null
+  return cached('img:' + query, 24 * 3600e3, () => fromKakao(query).catch(() => null))
+}
