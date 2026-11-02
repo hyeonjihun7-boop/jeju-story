@@ -112,7 +112,7 @@ npm run test:server             # 서버 함수 점검 (API 응답 확인)
 ## 📁 폴더 구조
 
 ```
-api/        Vercel 서버 함수 (today, explore, spot, festivals, shop, food, news, station, agent, hello)
+api/        Vercel 서버 함수 11개 (today, explore, spot, festivals, culture, shop, food-regions, news, outfit-photo, agent, hello) — Hobby 한도 12개 이하
 server/     외부 API 호출·규칙 로직 (weather, air, outfit, osm, tour, news, tools …) ← 화면·에이전트 공용
   data/       로컬 브랜드·실내 명소 큐레이션
 src/
