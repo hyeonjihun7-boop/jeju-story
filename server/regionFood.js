@@ -4,7 +4,7 @@ import { findPlace } from './geo.js'
 import { distKm } from './http.js'
 import { nearbyFood } from './osm.js'
 import { getImageFor } from './photos.js'
-import { listAllFood } from './tour.js'
+import { listAllFood, nearbyFoodRows } from './tour.js'
 
 export const REGIONS = ['제주시', '애월', '한림', '중문', '서귀포', '표선', '성산', '구좌', '우도']
 const H = () => ({ Authorization: 'KakaoAK ' + process.env.KAKAO_REST_KEY })
@@ -65,7 +65,8 @@ export async function nearbyFoodForAgent({ place = '제주시', kind = 'restaura
   if (process.env.DATA_GO_KR_KEY) {
     try {
       const p = await findPlace({ name: place })
-      const rows = await cached('rf-tour:' + kind, 6 * 3600e3, () => listAllFood({ cafe: kind === 'cafe' }))
+      let rows = await nearbyFoodRows({ lat: p.lat, lon: p.lon, cafe: kind === 'cafe', rows: Math.max(limit, 12) }).catch(() => [])
+      if (!rows.length) rows = await cached('rf-tour:' + kind, 6 * 3600e3, () => listAllFood({ cafe: kind === 'cafe' }))
       const items = rows.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon))
         .map((r) => ({ name: r.title, addr: r.addr?.replace('제주특별자치도 ', ''), tel: r.tel, lat: r.lat, lon: r.lon, distKm: Math.round(distKm(p, r) * 10) / 10 }))
         .filter((r) => r.distKm <= 6).sort((a, b) => a.distKm - b.distKm).slice(0, limit)

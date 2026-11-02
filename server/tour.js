@@ -10,10 +10,10 @@ function need() {
 
 async function call(op, extra) {
   need()
-  const params = new URLSearchParams({
+  const params = new URLSearchParams(Object.entries({
     serviceKey: process.env.DATA_GO_KR_KEY, MobileOS: 'ETC', MobileApp: 'TodayJeju', _type: 'json',
-    numOfRows: '12', pageNo: '1', lDongRegnCd: '50', ...extra, // ※ areaCode=39 는 옛 분류라 일부만 나옴(문화시설 9건 vs 97건)
-  })
+    numOfRows: '12', pageNo: '1', lDongRegnCd: '50', ...extra, // ※ areaCode=39 는 옛 분류라 일부만 나옴(문화시설 9건 vs 97건). 값이 undefined 인 항목은 보내지 않는다
+  }).filter(([, v]) => v !== undefined))
   const data = await cached(`tour:${op}:${params}`, 1800e3, () => getJson(`${BASE}/${op}?${params}`))
   const header = data?.response?.header
   if (header && header.resultCode !== '0000') throw new Error(`TourAPI 오류 ${header.resultCode}: ${header.resultMsg}`)
@@ -46,6 +46,13 @@ export async function searchFestivals({ year, onlyUpcoming = false } = {}) {
     .filter((f) => f.start && f.start.startsWith(y) || (f.end && f.end.startsWith(y)))
   return list.filter((f) => !onlyUpcoming || !f.end || f.end >= today)
     .sort((a, b) => String(a.start).localeCompare(String(b.start)))
+}
+
+// 좌표 주변 음식점·카페 (가까운 순). 전체 목록(수백 건·여러 쪽)을 받지 않아 빠르다
+export async function nearbyFoodRows({ lat, lon, cafe = false, radius = 6000, rows = 12 } = {}) {
+  const extra = { contentTypeId: '39', mapX: String(lon), mapY: String(lat), radius: String(radius), arrange: 'E', numOfRows: String(rows), lDongRegnCd: undefined }
+  if (cafe) extra.cat3 = 'A05020900'
+  return (await call('locationBasedList2', extra)).map(shape)
 }
 
 // 제주 음식점 전체 (카페만: cafe=true)
