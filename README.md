@@ -4,7 +4,7 @@
 
 **날씨 보고 정하는 하루 — 옷차림부터 실내·야외 탐험, 다크 투어리즘, 축제, 로컬 브랜드, 이슈, AI 여행 일정까지 한 곳에**
 
-`React 19` · `Vite` · `React Router` · `Zustand` · `Bootstrap 5` · `Leaflet` · `Supabase` · `Vercel` · `Gemini / Claude`
+`React 19` · `Vite` · `React Router` · `Zustand` · `Bootstrap 5` · `Leaflet` · `Three.js` · `Supabase` · `Vercel` · `Claude / Gemini`
 
 [배포 주소](https://jeju-story.vercel.app) · [저장소](https://github.com/hyeonjihun7-boop/jeju-story) · 제주대 청년도약 부트캠프 1기 개별 과제
 
@@ -21,8 +21,8 @@
 
 | 칸 | 하는 일 | 사용하는 데이터 |
 |---|---|---|
-| ☀️ **오늘** | 현재 날씨, 시간대별 기온·강수 그래프, 미세먼지·초미세먼지·황사 등급, **옷차림**(실제 사진), **오늘의 추천**(날마다 바뀜) | Open-Meteo 예보·대기질 · 카카오 이미지 |
-| 🧭 **탐험** | **실내 / 야외 / 다크 투어리즘 / 축제·행사 / 문화생활 / 오늘 날씨 추천** 탭, 검색, 지도(제주 범위), 카카오 길찾기 | TourAPI · OpenStreetMap(Overpass) · 위키백과 · Open-Meteo 고도 |
+| ☀️ **오늘** | **“오늘 이렇게 보내세요” 한 줄 요약**(날씨·옷차림·실내/야외 추천), 현재 날씨, 시간대별 기온·강수 그래프, 미세먼지·초미세먼지·황사 등급, **옷차림**(실제 사진), **오늘의 추천**(날마다 바뀜) | Open-Meteo 예보·대기질 · 카카오 이미지 |
+| 🧭 **탐험** | **실내 / 야외 / 다크 투어리즘 / 축제·행사 / 문화생활 / 오늘 날씨 추천** 탭, 검색, **3D 지도**(제주 범위), 핀을 누르면 사진·주소·설명, 카카오 길찾기 | TourAPI · OpenStreetMap(Overpass) · 위키백과 · Open-Meteo 고도 |
 | 🛍 **먹거리·쇼핑** | 로컬 브랜드(간식·디저트 / 의류 / 액세서리·소품), 지역별 맛집·카페, 실제 사진 | TourAPI · 카카오 이미지·블로그 |
 | 📰 **이슈** | 이슈제주 최신 기사 + 주제별 뉴스 | 이슈제주 RSS · Google 뉴스 RSS |
 | ✨ **AI 비서** | 질문하면 AI가 **스스로 도구를 골라** 호출하고 답변, *호출한 도구 목록* 표시. “1박 2일 일정 짜줘” → **시간표**로 보여주고 저장 | 위 모든 API를 도구(18개)로 사용 |
@@ -40,6 +40,12 @@
 
 ### 🌦 옷차림은 이렇게 정해요
 체감온도 평균(9~20시)을 구간별로 나눠 *얇은 옷 / 적당한 옷 / 두꺼운 옷*을 고르고, 여기에 **일교차 ≥ 8°**, **풍속 ≥ 7m/s**, **강수**, **자외선 ≥ 6**, **미세먼지 나쁨·황사**를 얹어 겉옷·우산·바람막이·선크림·마스크를 덧붙입니다. (`server/outfit.js`)
+
+### 🗺 3D 지도
+모든 지도(탐험·다크 투어리즘·북마크·AI 일정)가 **Three.js 3D 지형 지도**로 열립니다. 고도 타일(AWS Terrain Tiles)로 제주 지형을 솟게 하고 그 위에 OpenStreetMap 지도를 입혔습니다(키 불필요).
+- 드래그로 회전, 휠·핀치로 확대, 핀을 누르면 사진·주소·설명 카드. 일정 지도는 번호 핀과 이동 경로를 지형 위에 보여줍니다.
+- 오른쪽 위 버튼으로 **2D(Leaflet)** 와 전환하고, 3D를 못 쓰는 기기는 자동으로 2D로 돌아갑니다.
+- 3D 코드(`src/components/Map3D.jsx`)는 지도를 처음 열 때만 내려받아 다른 화면이 느려지지 않습니다.
 
 ### 🎨 디자인
 제주 바다·한라산·감귤 모티프의 테마, 감귤 모양 마우스 커서(마우스가 있는 기기에서만), 데스크톱은 좌측 레일 / 모바일은 하단 탭바.
@@ -73,7 +79,7 @@
 ## 🤖 AI 에이전트
 
 `api/agent.js`의 루프: **질문 → AI가 도구 선택 → 서버가 API 실행 → 결과를 보고 다시 판단 → 최종 답변** (최대 6회).
-`GEMINI_API_KEY`가 있으면 Gemini, `ANTHROPIC_API_KEY`가 있으면 Claude로 같은 도구를 사용합니다.
+`ANTHROPIC_API_KEY`가 있으면 Claude(배포본), 없고 `GEMINI_API_KEY`가 있으면 Gemini로 같은 도구를 사용합니다.
 
 | 분류 | 도구 |
 |---|---|
@@ -138,7 +144,7 @@ supabase/   테이블 생성 SQL
 
 ## 📝 출처와 유의사항
 
-- 날씨·대기질: [Open-Meteo](https://open-meteo.com) · 지도 데이터: © OpenStreetMap contributors · 설명: 위키백과
+- 날씨·대기질: [Open-Meteo](https://open-meteo.com) · 지도 데이터: © OpenStreetMap contributors · 3D 지형: [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) · 설명: 위키백과
 - 관광지·축제·맛집: 한국관광공사 TourAPI(공공데이터포털), 사진: 카카오 이미지 검색
 - 뉴스: [이슈제주](https://www.issuejeju.com) RSS(제목·요약·원문 링크만 표시), 기사 저작권은 각 언론사에 있습니다
 - 올레길 상세 코스는 [제주올레 공식 사이트](https://www.jejuolle.org/trail#/), 오름 이야기는 [오름나들이](http://www.ormstory.kr/)에서 확인하세요
