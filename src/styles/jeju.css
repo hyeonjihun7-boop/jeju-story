@@ -1,0 +1,61 @@
+/* ═══ 제주스럽게: 바다 · 한라산 · 감귤 · 돌담 · 유채 (theme.css 위에 덧입힘) ═══ */
+:root {
+  --sea: #2f8fb0; --sea-deep: #1f5a63; --basalt: #2a302e;
+  --citrus: #ff8f1f; --canola: #ffd23f;
+  --jeju-font: 'Gowun Batang', 'Pretendard', serif;
+}
+
+/* 배경: 연민트 + 돌담 무늬(아주 연하게) */
+body {
+  background-color: var(--mint);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='72'%3E%3Cg fill='none' stroke='%231d4a3a' stroke-opacity='.045' stroke-width='2'%3E%3Cellipse cx='30' cy='18' rx='24' ry='13'/%3E%3Cellipse cx='90' cy='18' rx='24' ry='13'/%3E%3Cellipse cx='60' cy='54' rx='28' ry='13'/%3E%3Cellipse cx='4' cy='54' rx='20' ry='13'/%3E%3Cellipse cx='116' cy='54' rx='20' ry='13'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* 좌측 레일: 현무암 → 바다 */
+.rail { background: linear-gradient(180deg, var(--basalt) 0%, #24403f 62%, var(--sea-deep) 100%); overflow: hidden; }
+.rail .brand { align-items: center; gap: 10px; font-family: var(--jeju-font); letter-spacing: -0.02em; }
+.rail .brand span { display: flex; flex-direction: column; line-height: 1.15; }
+.rail .brand small { font-family: 'Pretendard', sans-serif; font-size: .7rem; font-weight: 600; color: var(--canola); letter-spacing: .05em; margin-top: 3px; }
+.rail a.active { background: var(--canola); color: var(--basalt); }
+.rail a:hover { background: rgba(255, 210, 63, .14); }
+.rail a.active:hover { background: var(--canola); }
+.rail .foot { position: relative; padding-top: 38px; opacity: .9; }
+.rail .foot em { display: block; margin-top: 6px; font-style: normal; color: var(--canola); font-family: var(--jeju-font); font-size: .85rem; }
+.foot-wave {
+  position: absolute; left: -16px; right: -16px; top: 0; height: 24px; opacity: .6;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='24'%3E%3Cpath d='M0 14q14-12 28 0t28 0V24H0z' fill='%239fd3e6' fill-opacity='.55'/%3E%3C/svg%3E") repeat-x;
+}
+
+/* 헤드라인: 고운바탕 + 감귤색 파도 밑줄 */
+.headline { font-family: var(--jeju-font); font-weight: 700; color: var(--sea-deep); position: relative; padding-bottom: 14px; }
+.headline em { color: var(--citrus); }
+.headline::after {
+  content: ''; position: absolute; left: 0; bottom: 0; width: 132px; height: 10px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='10'%3E%3Cpath d='M0 6q5.5-6 11 0t11 0t11 0t11 0' fill='none' stroke='%23ff8f1f' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x;
+}
+.sub.greet { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.greet-chip { background: var(--citrus); color: #fff; font-family: var(--jeju-font); font-weight: 700; padding: 2px 12px; border-radius: 999px; font-size: .86rem; }
+
+/* 카드·버튼: 바다빛 */
+.kcard { box-shadow: 0 3px 18px rgba(31, 90, 99, .09); }
+.kcard h3 { color: var(--sea-deep); font-family: var(--jeju-font); font-size: 1.08rem; }
+.kcard h3 i { color: var(--citrus); }
+.chip.on { background: var(--sea-deep); }
+.pillbtn { background: var(--sea-deep); }
+.pillbtn.ghost { background: #e3f1f2; color: var(--sea-deep); }
+.modebtn { color: var(--sea-deep); }
+.modebtn.on { background: var(--sea-deep); border-color: var(--sea-deep); }
+.modebtn:hover:not(.on) { border-color: var(--citrus); }
+.tile { box-shadow: 0 3px 12px rgba(31, 90, 99, .08); }
+.toastbox div { background: var(--sea-deep); }
+.slot { background: #eaf4f1; }
+
+/* 히어로: 바다빛 그라데이션 + 한라산·파도 장식 */
+.hero { background: linear-gradient(160deg, #1f5a63 0%, #2f8fb0 100%); min-height: 190px; }
+.hero.rain { background: linear-gradient(160deg, #2b4a5e 0%, #5b88a0 100%); }
+.hero.warm { background: linear-gradient(160deg, #1f6a58 0%, #52a36b 100%); }
+.hero > *:not(.hero-art) { position: relative; z-index: 1; }
+.hero .bigicon { position: absolute; z-index: 1; }
+.hero-art { position: absolute; right: 0; bottom: 0; width: 70%; height: 100%; z-index: 0; pointer-events: none; }
+
+@media (max-width: 860px) { .tabbar a.active { color: var(--citrus); } }

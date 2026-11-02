@@ -4,6 +4,7 @@ import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import HourlyChart from '../components/HourlyChart'
 import OutfitPhoto from '../components/OutfitPhoto'
+import { HeroArt } from '../components/Logo'
 import { ErrorBox, Loading } from '../components/Status'
 
 const MODE_ICON = { outdoor: 'tree', indoor: 'house-heart', food: 'cup-hot' }
@@ -35,12 +36,13 @@ export default function Home() {
   return (
     <>
       <div className="mb-3">
-        <div className="sub">오늘 제주 어디로 가시나요?</div>
+        <div className="sub greet"><span className="greet-chip">혼저 옵서예</span> 오늘 제주 어디로 가시나요?</div>
         <h1 className="headline">날씨 보고 정하는 <em>탐험 제주</em></h1>
         <PlacePicker />
       </div>
 
       <div className={`hero mb-3 ${tone}`} style={{ opacity: todayLoading ? 0.6 : 1 }}>
+        <HeroArt />
         <i className={`bi bi-${w.now.icon} bigicon`} />
         <div className="d-flex align-items-end gap-3 flex-wrap">
           <div className="temp">{Math.round(w.now.temp)}°</div>
