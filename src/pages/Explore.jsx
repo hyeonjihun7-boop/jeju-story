@@ -5,6 +5,7 @@ import { fetchCulture, fetchElevation, fetchExplore, fetchFestivals, fetchWiki }
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
 import DarkTour from '../components/DarkTour'
+import DailyPicks from '../components/DailyPicks'
 import FavButton from '../components/FavButton'
 import Poster from '../components/Poster'
 import NaviButton from '../components/NaviButton'
@@ -338,8 +339,8 @@ export default function Explore() {
           {data.notes.map((n) => <div key={n} className="small text-danger mb-2">{n}</div>)}
           <Row className="g-3">
             {sections.map((sec) => (
-              <Col md={12} lg={sec.items.length > 6 || sec.key === 'indoorAll' || sec.key === 'outdoorAll' ? 12 : 6} key={sec.key}>
-                {sec.key === 'indoorAll' ? <PlaceGallery sec={sec} searching={searching} /> : sec.key === 'outdoorAll' ? <PlaceGallery sec={sec} icon="tree" searching={searching} /> : (<div className="kcard">
+              <Col md={12} lg={sec.items.length > 6 || sec.key === 'indoorAll' || sec.key === 'outdoorAll' || sec.key === 'daily' ? 12 : 6} key={sec.key}>
+                {sec.key === 'daily' ? <DailyPicks sec={sec} /> : sec.key === 'indoorAll' ? <PlaceGallery sec={sec} searching={searching} /> : sec.key === 'outdoorAll' ? <PlaceGallery sec={sec} icon="tree" searching={searching} /> : (<div className="kcard">
                   <h3><i className="bi bi-geo-alt" />{sec.title}</h3>
                   {sec.items.length === 0 ? <Empty /> : sec.items.map((it) => <Item key={it.id ?? it.name} sec={sec} it={it} />)}
                   {sec.key === 'oreum' && <div className="small mt-2"><a href="http://www.ormstory.kr/" target="_blank" rel="noreferrer">오름나들이 — 오름 이야기 더 보기 <i className="bi bi-box-arrow-up-right" /></a></div>}

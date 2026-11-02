@@ -11,3 +11,6 @@
 .dark-body { padding: 14px 14px 14px 0; flex: 1; min-width: 0; }
 .dark-program { background: #f6f4f8; border-radius: 14px; padding: 14px 16px; }
 .ref-badge { position: absolute; left: 8px; bottom: 8px; background: rgba(42, 38, 52, .78); color: #fff; font-size: .68rem; padding: 2px 8px; border-radius: 999px; }
+
+/* 오늘의 추천 */
+.daily-card { background: linear-gradient(135deg, #fff6e5, #ffffff 60%); border: 1.5px solid #ffd58a; }
