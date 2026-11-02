@@ -30,3 +30,9 @@
 .pin-img { display: block; width: 100%; height: 110px; object-fit: cover; border-radius: 10px; margin: 6px 0 4px; }
 .pin-addr { font-size: .78rem; color: #5a6b66; }
 .pin-desc { font-size: .82rem; margin-top: 2px; }
+.map-modebtn { position: absolute; top: 10px; right: 10px; z-index: 500; border: 0; background: #1d4a3a; color: #fff; border-radius: 999px; padding: 5px 14px; font-size: .8rem; font-weight: 700; display: inline-flex; gap: 6px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.map3d-loading { display: grid; place-items: center; min-height: 160px; background: #dcecf2; border-radius: 22px; color: #1f5a63; font-weight: 700; position: absolute; inset: 0; }
+.map3d-hint { position: absolute; left: 10px; bottom: 10px; background: rgba(255,255,255,.85); border-radius: 999px; padding: 3px 12px; font-size: .72rem; color: #1f5a63; pointer-events: none; }
+.map3d-card { position: absolute; left: 10px; bottom: 10px; max-width: min(280px, calc(100% - 20px)); background: #fff; border-radius: 14px; padding: 10px 12px; box-shadow: 0 4px 16px rgba(0,0,0,.3); font-size: .85rem; }
+.map3d-x { position: absolute; top: 2px; right: 8px; border: 0; background: none; font-size: 1.3rem; line-height: 1; color: #5a6b66; }
+.map3d-fail { font-size: .75rem; color: #8a5a00; margin-top: 4px; }

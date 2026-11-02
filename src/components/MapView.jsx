@@ -1,6 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+
+const Map3D = lazy(() => import('./Map3D')) // three.js 는 3D 지도를 열 때만 내려받는다
 
 const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', dark: '#5b4a6b', tour: '#ff9f2e', food: '#d6402f', center: '#17261f' }
 
@@ -10,7 +12,7 @@ const inJeju = (p) => Number.isFinite(p.lat) && Number.isFinite(p.lon) && JEJU.c
 
 // 지도: Leaflet + OpenStreetMap 타일 (키 불필요). points = [{ id, kind, name, lat, lon, note, n? }]
 //  n 이 있으면 번호 핀(일정 순서), route 가 true 면 번호 순서대로 선을 잇고, fit 이면 핀이 모두 보이게 맞춘다
-export default function MapView({ points, center, height = 340, route = false, fit = false }) {
+function MapLeaflet({ points, center, height = 340, route = false, fit = false }) {
   const el = useRef(null)
   const map = useRef(null)
   const layer = useRef(null)
@@ -58,4 +60,29 @@ export default function MapView({ points, center, height = 340, route = false, f
   }, [points, center, route, fit])
 
   return <div ref={el} style={{ height, borderRadius: 22, overflow: 'hidden', zIndex: 0 }} role="img" aria-label="제주도 지도" />
+}
+
+// 지도 한 곳: 3D(기본) / 2D 전환 버튼. 3D 를 못 쓰는 기기(WebGL 없음·타일 실패)는 자동으로 2D 로 돌아간다.
+export default function MapView(props) {
+  const [mode, setMode] = useState(() => { try { return localStorage.getItem('mapMode') || '3d' } catch { return '3d' } })
+  const [failed, setFailed] = useState(false)
+  const is3d = mode === '3d' && !failed
+  const choose = (m) => {
+    setMode(m)
+    setFailed(false)
+    try { localStorage.setItem('mapMode', m) } catch { /* 저장 못 해도 동작에는 문제 없음 */ }
+  }
+  return (
+    <div style={{ position: 'relative' }}>
+      {is3d ? (
+        <Suspense fallback={<div className="map3d-loading" style={{ height: props.height ?? 340 }}>3D 지도를 불러오는 중…</div>}>
+          <Map3D {...props} onFail={() => setFailed(true)} />
+        </Suspense>
+      ) : <MapLeaflet {...props} />}
+      <button type="button" className="map-modebtn" onClick={() => choose(is3d ? '2d' : '3d')}>
+        <i className={`bi bi-${is3d ? 'map' : 'badge-3d'}`} />{is3d ? '2D 지도' : '3D 지도'}
+      </button>
+      {failed && mode === '3d' && <div className="map3d-fail">이 기기에서는 3D 지도를 열 수 없어 2D로 보여드려요</div>}
+    </div>
+  )
 }
