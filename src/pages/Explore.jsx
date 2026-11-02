@@ -88,6 +88,25 @@ function Item({ sec, it }) {
   )
 }
 
+// 포스터 카드: 이미지(없으면 대체 포스터) + 제목 + 기간
+function Poster({ image, title, sub, href, fav }) {
+  const inner = (
+    <>
+      <div className="poster-img">
+        {image ? <img src={image} alt={title} loading="lazy" /> : <div className="poster-ph"><i className="bi bi-balloon-heart" /><span>{title}</span></div>}
+      </div>
+      <div className="poster-title">{title}</div>
+      {sub && <div className="poster-sub">{sub}</div>}
+    </>
+  )
+  return (
+    <div className="poster">
+      {href ? <a href={href} target="_blank" rel="noreferrer">{inner}</a> : inner}
+      <span className="poster-fav"><FavButton {...fav} /></span>
+    </div>
+  )
+}
+
 const fmt = (d) => (d ? `${d.slice(4, 6)}.${d.slice(6, 8)}` : '')
 const visitJeju = (y, m) => `https://www.visitjeju.net/kr/festival/list?menuId=DOM_000001718007000000&cate1cd=cate0000001360#p1&year=${y}&month=${String(m).padStart(2, '0')}&state=all`
 
@@ -136,23 +155,20 @@ function Festivals() {
       ) : state.fallback ? (
         <>
           <div className="small sub mb-2">월별 공식 일정은 DATA_GO_KR_KEY 를 넣으면 이 칸에 나와요. 지금은 최신 축제 뉴스를 보여줘요.</div>
-          {state.items.map((n) => (
-            <div className="row-item" key={n.url}>
-              <div className="flex-grow-1"><a href={n.url} target="_blank" rel="noreferrer" className="fw-bold text-reset text-decoration-none">{n.title}</a><div className="small sub">{n.press ? n.press + ' · ' : ''}{n.date}</div></div>
-              <FavButton kind="news" id={n.url} title={n.title} note={n.date} />
-            </div>
-          ))}
-        </>
-      ) : inMonth.length === 0 ? <Empty text={`${year}년 ${month}월에 등록된 행사가 없어요`} /> : inMonth.map((f) => (
-        <div className="row-item" key={f.id}>
-          {f.image && <img className="thumb" src={f.image} alt="" loading="lazy" />}
-          <div className="flex-grow-1">
-            <div className="fw-bold">{f.title}</div>
-            <div className="small sub">{fmt(f.start)} ~ {fmt(f.end)} · {f.addr}</div>
+          <div className="poster-grid">
+            {state.items.map((n) => (
+              <Poster key={n.url} href={n.url} title={n.title} sub={n.press || n.date} fav={{ kind: 'news', id: n.url, title: n.title, note: n.date }} />
+            ))}
           </div>
-          <FavButton kind="festival" id={f.id} title={f.title} note={`${fmt(f.start)}~${fmt(f.end)}`} />
+        </>
+      ) : inMonth.length === 0 ? <Empty text={`${year}년 ${month}월에 등록된 행사가 없어요`} /> : (
+        <div className="poster-grid">
+          {inMonth.map((f) => (
+            <Poster key={f.id} image={f.image} title={f.title} sub={`${f.start?.slice(0, 4)}.${fmt(f.start)} ~ ${f.end?.slice(0, 4)}.${fmt(f.end)}`}
+              fav={{ kind: 'festival', id: f.id, title: f.title, note: `${fmt(f.start)}~${fmt(f.end)}` }} />
+          ))}
         </div>
-      ))}
+      )}
       <div className="d-flex flex-wrap gap-2 align-items-center mt-3">
         <a className="pillbtn text-decoration-none" href={visitJeju(year, month)} target="_blank" rel="noreferrer">
           <i className="bi bi-box-arrow-up-right me-1" />방문 제주에서 {month}월 행사 보기
@@ -239,6 +255,7 @@ export default function Explore() {
     </>
   )
 }
+
 
 
 
