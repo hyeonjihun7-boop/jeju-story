@@ -1,0 +1,37 @@
+// 관광 추천: 날씨에 따라 실외(오름·올레) / 실내(박물관) 구성
+import { getToday } from './today.js'
+import { findOreum, findOlleRoutes } from './osm.js'
+import { searchSpots } from './tour.js'
+import { INDOOR } from './data/curated.js'
+
+export async function getExplore({ place = '제주시', mode } = {}) {
+  const today = await getToday({ place })
+  const use = mode === 'indoor' || mode === 'outdoor' ? mode : today.mode.mode
+  const notes = []
+  const auto = !(mode === 'indoor' || mode === 'outdoor')
+  const pop = today.weather.today.pop
+  const reason = auto ? today.mode.reason
+    : use === 'outdoor' ? `강수확률 ${pop}% — 야외 코스예요${pop >= 50 ? ' (우산·방수 신발 챙기세요)' : ''}` : '실내 명소 모음이에요'
+  const out = { mode: use, reason, auto, sections: [] }
+
+  if (use === 'outdoor') {
+    const [oreum, olle] = await Promise.allSettled([findOreum({ place, limit: 8 }), findOlleRoutes({})])
+    if (oreum.status === 'fulfilled') out.sections.push({ key: 'oreum', title: '가까운 오름', source: oreum.value.source, items: oreum.value.items })
+    else notes.push('오름 데이터를 불러오지 못했어요')
+    if (olle.status === 'fulfilled') out.sections.push({ key: 'olle', title: '올레길 코스', source: olle.value.source, items: olle.value.items.slice(0, 12) })
+    else notes.push('올레길 데이터를 불러오지 못했어요')
+    if (process.env.DATA_GO_KR_KEY) {
+      const t = await searchSpots({ contentTypeId: '12' }).catch(() => [])
+      if (t.length) out.sections.push({ key: 'tour', title: '자연·관광지 (TourAPI)', source: '한국관광공사 TourAPI', items: t })
+    }
+  } else {
+    out.sections.push({ key: 'indoor', title: '비 오는 날 실내 명소', source: '큐레이션', items: INDOOR })
+    if (process.env.DATA_GO_KR_KEY) {
+      const t = await searchSpots({ contentTypeId: '14' }).catch(() => [])
+      if (t.length) out.sections.push({ key: 'tour', title: '문화시설 (TourAPI)', source: '한국관광공사 TourAPI', items: t })
+    }
+  }
+  out.notes = notes
+  out.today = { pop: today.weather.today.pop, desc: today.weather.now.desc, temp: today.weather.now.temp }
+  return out
+}
