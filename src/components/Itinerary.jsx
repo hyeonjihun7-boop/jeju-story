@@ -71,7 +71,7 @@ function TripMap({ plan, dayIndex, onLegs }) {
   if (state.loading) return <div className="small sub py-3 text-center">장소 위치를 찾는 중…</div>
   if (state.error) return <div className="small text-danger py-2">지도를 불러오지 못했어요: {state.error}</div>
   const byName = Object.fromEntries(state.items.map((i) => [i.name, i]))
-  const points = withApprox(rows.map((r, i) => ({ ...byName[r.place], id: i, name: r.place, n: i + 1, note: r.time })))
+  const points = withApprox(rows.map((r, i) => ({ ...byName[r.place], id: i, name: r.place, n: i + 1, note: r.time, desc: r.desc })))
   const missing = points.filter((p) => p.approx).length
   return (
     <div className="trip-map">

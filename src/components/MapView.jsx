@@ -32,7 +32,10 @@ export default function MapView({ points, center, height = 340, route = false, f
     layer.current.clearLayers()
     const valid = points.filter(inJeju)
     const many = valid.length > 60
-    const popup = (p) => `<b>${p.n ? p.n + '. ' : ''}${p.name}</b>${p.note ? `<br/>${p.note}` : ''}${p.approx ? '<br/><small>정확한 위치를 못 찾아 대략 표시했어요</small>' : ''}<br/><a href="${p.approx ? `https://map.kakao.com/link/search/${encodeURIComponent('제주 ' + p.name)}` : `https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lon}`}" target="_blank" rel="noreferrer">카카오 길찾기</a> · <a href="https://map.naver.com/p/search/${encodeURIComponent(p.name)}" target="_blank" rel="noreferrer">네이버 지도</a>`
+    // 핀을 누르면 사진·주소·설명이 보이는 카드 (글은 모두 이스케이프)
+    const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
+    const card = (p) => `${(p.img ?? '').startsWith('https://') ? `<img class="pin-img" src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy"/>` : ''}${p.addr ? `<div class="pin-addr">${esc(p.addr)}</div>` : ''}${p.desc ? `<div class="pin-desc">${esc(p.desc)}</div>` : ''}`
+    const popup = (p) => `<b>${p.n ? p.n + '. ' : ''}${esc(p.name)}</b>${p.note ? `<br/>${esc(p.note)}` : ''}${card(p)}${p.approx ? '<br/><small>정확한 위치를 못 찾아 대략 표시했어요</small>' : ''}<br/><a href="${p.approx ? `https://map.kakao.com/link/search/${encodeURIComponent('제주 ' + p.name)}` : `https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lon}`}" target="_blank" rel="noreferrer">카카오 길찾기</a> · <a href="https://map.naver.com/p/search/${encodeURIComponent(p.name)}" target="_blank" rel="noreferrer">네이버 지도</a>`
 
     if (route) {
       const line = valid.filter((p) => p.n).sort((a, b) => a.n - b.n).map((p) => [p.lat, p.lon])
@@ -41,10 +44,10 @@ export default function MapView({ points, center, height = 340, route = false, f
     for (const p of valid) {
       if (p.n) {
         const icon = L.divIcon({ className: p.approx ? 'num-pin approx' : 'num-pin', html: `<span>${p.n}</span>`, iconSize: [30, 30], iconAnchor: [15, 15] })
-        L.marker([p.lat, p.lon], { icon }).bindPopup(popup(p)).addTo(layer.current)
+        L.marker([p.lat, p.lon], { icon }).bindPopup(popup(p), { minWidth: 200, maxWidth: 260 }).addTo(layer.current)
       } else {
         L.circleMarker([p.lat, p.lon], { radius: many ? 5 : 9, color: '#fff', weight: many ? 1 : 2, fillColor: COLORS[p.kind] ?? COLORS.tour, fillOpacity: 0.9 })
-          .bindPopup(popup(p)).addTo(layer.current)
+          .bindPopup(popup(p), { minWidth: 200, maxWidth: 260 }).addTo(layer.current)
       }
     }
     if (center && inJeju(center)) {

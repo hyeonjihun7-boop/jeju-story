@@ -28,7 +28,7 @@ function FavMap({ items }) {
   if (state.error) return <div className="small text-danger py-2">지도를 불러오지 못했어요: {state.error}</div>
   const by = Object.fromEntries(state.found.map((x) => [x.name, x]))
   const points = items.filter((f) => MAPPABLE.has(f.kind) && Number.isFinite(by[f.title]?.lat))
-    .map((f) => ({ id: f.id, kind: PIN[f.kind] ?? 'tour', name: f.title, lat: by[f.title].lat, lon: by[f.title].lon, note: KIND[f.kind] }))
+    .map((f) => ({ id: f.id, kind: PIN[f.kind] ?? 'tour', name: f.title, lat: by[f.title].lat, lon: by[f.title].lon, note: KIND[f.kind], addr: by[f.title].addr, img: by[f.title].img, desc: f.note }))
   const shown = new Set(points.map((p) => p.name))
   const missing = names.filter((n) => !shown.has(n)).length
   return (

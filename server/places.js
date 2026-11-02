@@ -24,7 +24,7 @@ async function resolveOne(name) {
   for (const q of queries) {
     const rows = await cached('place:' + q, 6 * 3600e3, () => searchSpots({ keyword: q, contentTypeId: '' })).catch(() => [])
     const hit = rows.find((r) => Number.isFinite(r.lat) && accept(r.title, c))
-    if (hit) return { name, lat: hit.lat, lon: hit.lon, title: hit.title, addr: hit.addr?.replace('제주특별자치도 ', '') }
+    if (hit) return { name, lat: hit.lat, lon: hit.lon, title: hit.title, addr: hit.addr?.replace('제주특별자치도 ', ''), img: hit.image || null }
   }
   return { name, lat: null, lon: null }
 }
