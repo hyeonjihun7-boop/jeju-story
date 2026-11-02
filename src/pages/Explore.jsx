@@ -88,41 +88,77 @@ function Item({ sec, it }) {
   )
 }
 
+const fmt = (d) => (d ? `${d.slice(4, 6)}.${d.slice(6, 8)}` : '')
+const visitJeju = (y, m) => `https://www.visitjeju.net/kr/festival/list?menuId=DOM_000001718007000000&cate1cd=cate0000001360#p1&year=${y}&month=${String(m).padStart(2, '0')}&state=all`
+
+// 축제·행사: 월 버튼으로 연간 일정을 달별로 본다
 function Festivals() {
+  const now = new Date(Date.now() + 9 * 3600e3)
+  const [year, setYear] = useState(now.getUTCFullYear())
+  const [month, setMonth] = useState(now.getUTCMonth() + 1)
   const [state, setState] = useState({ loading: true })
-  useEffect(() => { fetchFestivals().then((d) => setState(d)).catch((e) => setState({ error: e.message })) }, [])
-  if (state.loading) return <Loading />
-  if (state.error) return <ErrorBox error={state.error + ' — .env.local 의 DATA_GO_KR_KEY(Decoding 키)와 TourAPI 활용신청을 확인하세요'} />
-  if (state.fallback) {
-    return (
-      <div className="kcard">
-        <h3><i className="bi bi-balloon-heart" />제주 축제 소식</h3>
-        <div className="small sub mb-2">공식 행사 목록(날짜·장소)은 .env.local 에 DATA_GO_KR_KEY 를 넣으면 나와요. 지금은 최신 뉴스예요.</div>
-        {state.items.map((n) => (
-          <div className="row-item" key={n.url}>
-            <div className="flex-grow-1"><a href={n.url} target="_blank" rel="noreferrer" className="fw-bold text-reset text-decoration-none">{n.title}</a><div className="small sub">{n.press ? n.press + ' · ' : ''}{n.date}</div></div>
-            <FavButton kind="news" id={n.url} title={n.title} note={n.date} />
-          </div>
-        ))}
-        <div className="src">출처 {state.source}</div>
-      </div>
-    )
+  useEffect(() => {
+    let alive = true
+    setState({ loading: true })
+    fetchFestivals(year).then((d) => alive && setState(d)).catch((e) => alive && setState({ error: e.message }))
+    return () => { alive = false }
+  }, [year])
+
+  const mm = String(month).padStart(2, '0')
+  const from = `${year}${mm}01`
+  const to = `${year}${mm}31`
+  const inMonth = (state.items ?? []).filter((f) => !state.fallback && (f.start ?? '') <= to && (f.end || f.start || '') >= from)
+  const counts = {}
+  for (let m = 1; m <= 12; m++) {
+    const s = `${year}${String(m).padStart(2, '0')}01`
+    const e = `${year}${String(m).padStart(2, '0')}31`
+    counts[m] = state.fallback || !state.items ? 0 : state.items.filter((f) => (f.start ?? '') <= e && (f.end || f.start || '') >= s).length
   }
-  if (!state.items.length) return <Empty text="진행·예정 중인 행사가 없어요" />
+
   return (
     <div className="kcard">
-      <h3><i className="bi bi-balloon-heart" />제주 축제·행사 (오늘 이후)</h3>
-      {state.items.map((f) => (
+      <div className="d-flex align-items-center gap-2 mb-2">
+        <h3 className="mb-0 flex-grow-1"><i className="bi bi-balloon-heart" />제주 축제·행사</h3>
+        <button className="pillbtn ghost" onClick={() => setYear(year - 1)} aria-label="이전 해"><i className="bi bi-chevron-left" /></button>
+        <b>{year}년</b>
+        <button className="pillbtn ghost" onClick={() => setYear(year + 1)} aria-label="다음 해"><i className="bi bi-chevron-right" /></button>
+      </div>
+      <div className="monthbar mb-3">
+        {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+          <button key={m} className={`modebtn ${m === month ? 'on' : ''}`} onClick={() => setMonth(m)}>
+            {m}월{counts[m] > 0 && <small className="ms-1 opacity-75">{counts[m]}</small>}
+          </button>
+        ))}
+      </div>
+
+      {state.loading ? <Loading /> : state.error ? (
+        <ErrorBox error={state.error + ' — .env.local 의 DATA_GO_KR_KEY(Decoding 키)와 TourAPI 활용신청을 확인하세요'} />
+      ) : state.fallback ? (
+        <>
+          <div className="small sub mb-2">월별 공식 일정은 DATA_GO_KR_KEY 를 넣으면 이 칸에 나와요. 지금은 최신 축제 뉴스를 보여줘요.</div>
+          {state.items.map((n) => (
+            <div className="row-item" key={n.url}>
+              <div className="flex-grow-1"><a href={n.url} target="_blank" rel="noreferrer" className="fw-bold text-reset text-decoration-none">{n.title}</a><div className="small sub">{n.press ? n.press + ' · ' : ''}{n.date}</div></div>
+              <FavButton kind="news" id={n.url} title={n.title} note={n.date} />
+            </div>
+          ))}
+        </>
+      ) : inMonth.length === 0 ? <Empty text={`${year}년 ${month}월에 등록된 행사가 없어요`} /> : inMonth.map((f) => (
         <div className="row-item" key={f.id}>
           {f.image && <img className="thumb" src={f.image} alt="" loading="lazy" />}
           <div className="flex-grow-1">
             <div className="fw-bold">{f.title}</div>
-            <div className="small sub">{f.start} ~ {f.end} · {f.addr}</div>
+            <div className="small sub">{fmt(f.start)} ~ {fmt(f.end)} · {f.addr}</div>
           </div>
-          <FavButton kind="festival" id={f.id} title={f.title} note={`${f.start}~${f.end}`} />
+          <FavButton kind="festival" id={f.id} title={f.title} note={`${fmt(f.start)}~${fmt(f.end)}`} />
         </div>
       ))}
-      <div className="src">출처 한국관광공사 TourAPI</div>
+      <div className="d-flex flex-wrap gap-2 align-items-center mt-3">
+        <a className="pillbtn text-decoration-none" href={visitJeju(year, month)} target="_blank" rel="noreferrer">
+          <i className="bi bi-box-arrow-up-right me-1" />방문 제주에서 {month}월 행사 보기
+        </a>
+        <span className="src m-0">출처 {state.source ?? '한국관광공사 TourAPI'}</span>
+      </div>
     </div>
   )
 }
@@ -203,5 +239,6 @@ export default function Explore() {
     </>
   )
 }
+
 
 

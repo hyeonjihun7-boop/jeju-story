@@ -42,7 +42,7 @@ export const runTool = {
   find_olle_routes: async (a) => { const r = await findOlleRoutes(a); return { ...r, items: r.items.slice(0, 15) } },
   search_indoor_spots: async () => ({ items: INDOOR }),
   search_spots: searchSpots,
-  search_festivals: async () => ({ items: (await searchFestivals({})).slice(0, 15) }),
+  search_festivals: async () => ({ items: (await searchFestivals({ onlyUpcoming: true })).slice(0, 15) }),
   search_local_brands: async ({ cat } = {}) => ({ items: SHOPS.filter((s) => !cat || s.cat === cat).map(({ id, name, area, desc, cat: c }) => ({ id, name, area, desc, cat: c })) }),
   search_restaurants: async (a) => ({ items: await nearbyFood(a) }),
   search_blog_reviews: searchBlogs,

@@ -34,10 +34,13 @@ export async function searchSpots({ keyword = '', contentTypeId = '12' } = {}) {
   return (await call(keyword ? 'searchKeyword2' : 'areaBasedList2', extra)).map(shape)
 }
 
-// search_festivals: 오늘 이후 진행/예정 행사
-export async function searchFestivals({ from } = {}) {
+// search_festivals: 해당 연도 전체 행사 (월별 보기는 화면에서 필터)
+export async function searchFestivals({ year, onlyUpcoming = false } = {}) {
   const kst = new Date(Date.now() + 9 * 3600e3)
-  const start = (from ?? kst.toISOString().slice(0, 10)).replaceAll('-', '')
-  const list = (await call('searchFestival2', { eventStartDate: start.slice(0, 4) + '0101', numOfRows: '60' })).map(shape)
-  return list.filter((f) => !f.end || f.end >= start).sort((a, b) => String(a.start).localeCompare(String(b.start)))
+  const y = String(year ?? kst.getUTCFullYear())
+  const today = kst.toISOString().slice(0, 10).replaceAll('-', '')
+  const list = (await call('searchFestival2', { eventStartDate: y + '0101', numOfRows: '300' })).map(shape)
+    .filter((f) => f.start && f.start.startsWith(y) || (f.end && f.end.startsWith(y)))
+  return list.filter((f) => !onlyUpcoming || !f.end || f.end >= today)
+    .sort((a, b) => String(a.start).localeCompare(String(b.start)))
 }

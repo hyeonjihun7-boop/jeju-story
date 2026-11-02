@@ -125,3 +125,7 @@ body { background: var(--mint); letter-spacing: -0.01em; }
 }
 .modebtn i { font-size: 1.2rem; }
 .modebtn.on { background: var(--forest); border-color: var(--forest); color: #fff; }
+
+.monthbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.monthbar .modebtn { flex: none; padding: 8px 4px; font-size: .92rem; border-radius: 14px; }
+@media (max-width: 520px) { .monthbar { grid-template-columns: repeat(4, 1fr); } }
