@@ -24,3 +24,4 @@ export const askAgent = (message, history) => post('/api/agent', { message, hist
 export const fetchOutfitPhoto = (g) => get('/api/outfit-photo?' + qs({ g }))
 export const fetchCulture = () => get('/api/culture')
 export const fetchFoodRegions = (kind) => get('/api/food-regions?' + qs({ kind }))
+export const fetchDark = () => get('/api/spot?' + qs({ action: 'dark' }))

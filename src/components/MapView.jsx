@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', tour: '#ff9f2e', food: '#d6402f', center: '#17261f' }
+const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', dark: '#5b4a6b', tour: '#ff9f2e', food: '#d6402f', center: '#17261f' }
 
 // 제주도 전체가 보이는 범위 (마라도·가파도·우도 포함). 지도는 이 범위 안에서만 움직인다
 const JEJU = L.latLngBounds([33.10, 126.10], [33.60, 127.05])

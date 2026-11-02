@@ -7,6 +7,7 @@ import { findOreum, findOlleRoutes, getElevation, getWikiSummary, nearbyFood } f
 import { searchSpots, searchFestivals } from './tour.js'
 import { searchNews, searchBlogs, getIssueJeju } from './news.js'
 import { SHOPS, INDOOR } from './data/curated.js'
+import { getDarkTourism } from './dark.js'
 
 const place = { type: 'string', description: '지명 (예: 제주시, 서귀포, 애월, 성산)' }
 
@@ -23,6 +24,7 @@ export const tools = [
   { name: 'search_indoor_spots', description: '비 오는 날 갈 만한 실내 명소(박물관·미술관·수족관) 목록', input_schema: { type: 'object', properties: {} } },
   { name: 'search_spots', description: 'TourAPI로 제주 관광지(12)·문화시설(14)·음식점(39)을 검색한다 (DATA_GO_KR_KEY 필요)', input_schema: { type: 'object', properties: { keyword: { type: 'string' }, contentTypeId: { type: 'string' } } } },
   { name: 'search_festivals', description: 'TourAPI로 오늘 이후 제주 축제·행사를 조회한다 (DATA_GO_KR_KEY 필요)', input_schema: { type: 'object', properties: {} } },
+  { name: 'search_dark_tourism', description: '제주 다크 투어리즘(4·3·일제강점기 등 역사 유적) 장소와 참여 프로그램(스탬프 투어 등)을 조회한다. 희생자를 기리는 태도로 차분하게 안내할 것', input_schema: { type: 'object', properties: { theme: { type: 'string', enum: ['4·3', '일제강점기'] }, region: { type: 'string', enum: ['동부권', '서부권'] } } } },
   { name: 'search_local_brands', description: '제주 로컬 브랜드(간식·옷·액세서리) 큐레이션 검색. cat: snack | fashion | acc', input_schema: { type: 'object', properties: { cat: { type: 'string', enum: ['snack', 'fashion', 'acc'] } } } },
   { name: 'search_restaurants', description: '지역 주변 식당·카페 검색 (OSM)', input_schema: { type: 'object', properties: { place, kind: { type: 'string', enum: ['restaurant', 'cafe'] } } } },
   { name: 'search_blog_reviews', description: '네이버 블로그 후기 검색 (키 필요)', input_schema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
@@ -43,6 +45,7 @@ export const runTool = {
   search_indoor_spots: async () => ({ items: INDOOR }),
   search_spots: searchSpots,
   search_festivals: async () => ({ items: (await searchFestivals({ onlyUpcoming: true })).slice(0, 15) }),
+  search_dark_tourism: async ({ theme, region } = {}) => { const d = await getDarkTourism(); return { items: d.items.filter((p) => (!theme || p.theme === theme) && (!region || p.region === region)).map(({ name, region: r, theme: t, desc, addr }) => ({ name, region: r, theme: t, desc, addr })), programs: d.programs.map(({ title, desc }) => ({ title, desc })) } },
   search_local_brands: async ({ cat } = {}) => ({ items: SHOPS.filter((s) => !cat || s.cat === cat).map(({ id, name, area, desc, cat: c }) => ({ id, name, area, desc, cat: c })) }),
   search_restaurants: async (a) => ({ items: await nearbyFood(a) }),
   search_blog_reviews: searchBlogs,

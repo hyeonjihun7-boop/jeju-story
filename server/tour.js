@@ -31,6 +31,7 @@ const shape = (p) => ({
 // search_spots: 관광지(12) · 문화시설(14) · 음식점(39) 키워드 검색
 export async function searchSpots({ keyword = '', contentTypeId = '12', page = 1, rows = 12, cat3 } = {}) {
   const extra = { contentTypeId, pageNo: String(page), numOfRows: String(rows) }
+  if (!contentTypeId) delete extra.contentTypeId // 분류 상관없이 키워드로 검색
   if (cat3) extra.cat3 = cat3
   if (keyword) extra.keyword = keyword
   return (await call(keyword ? 'searchKeyword2' : 'areaBasedList2', extra)).map(shape)

@@ -4,6 +4,7 @@ import { Col, Row } from 'react-bootstrap'
 import { fetchCulture, fetchElevation, fetchExplore, fetchFestivals, fetchWiki } from '../api/client'
 import { useAppStore } from '../store/useAppStore'
 import PlacePicker from '../components/PlacePicker'
+import DarkTour from '../components/DarkTour'
 import FavButton from '../components/FavButton'
 import Poster from '../components/Poster'
 import NaviButton from '../components/NaviButton'
@@ -13,9 +14,10 @@ import { Empty, ErrorBox, Loading } from '../components/Status'
 const TABS = [
   { key: 'indoor', label: '실내 탐험', icon: 'house-heart' },
   { key: 'outdoor', label: '야외 탐험', icon: 'tree' },
-  { key: 'auto', label: '오늘 날씨 추천', icon: 'magic' },
+  { key: 'dark', label: '다크 투어리즘', icon: 'flower2' },
   { key: 'festival', label: '축제·행사', icon: 'balloon-heart' },
   { key: 'culture', label: '문화생활', icon: 'palette' },
+  { key: 'auto', label: '오늘 날씨 추천', icon: 'magic' },
 ]
 const HEAD = {
   auto: ['오늘의', '탐험', '오늘 날씨에 맞춰 갈 곳을 골라 드려요'],
@@ -23,6 +25,7 @@ const HEAD = {
   outdoor: ['야외', '탐험', '가까운 오름과 올레길을 모았어요'],
   festival: ['제주', '축제·행사', '오늘 이후 열리는 행사를 확인하세요'],
   culture: ['제주', '문화생활', '전시·공연·문화 소식과 플레이제주 바로가기'],
+  dark: ['기억하는 여행,', '다크 투어리즘', '비극의 현장을 찾아 희생자를 기리고 교훈을 얻는 여행'],
 }
 
 // 오름 카드: 눌러서 고도(Open-Meteo)·설명(위키백과)을 불러온다
@@ -281,7 +284,7 @@ export default function Explore() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (tab === 'festival') return
+    if (['festival', 'culture', 'dark'].includes(tab)) return // 이 탭들은 각자 데이터를 불러온다
     let alive = true
     setLoading(true); setError('')
     fetchExplore(place, tab === 'auto' ? '' : tab)
@@ -306,7 +309,7 @@ export default function Explore() {
         </div>
       </div>
 
-      {tab === 'festival' ? <Festivals /> : tab === 'culture' ? <Culture /> : loading ? <Loading /> : error ? <ErrorBox error={error} /> : data && (
+      {tab === 'festival' ? <Festivals /> : tab === 'culture' ? <Culture /> : tab === 'dark' ? <DarkTour /> : loading ? <Loading /> : error ? <ErrorBox error={error} /> : data && (
         <>
           <div className="kcard mb-3" style={{ background: data.mode === 'indoor' ? '#e3eef5' : '#dcefe6' }}>
             <i className={`bi bi-${data.mode === 'indoor' ? 'umbrella' : 'sun'} me-2`} />
