@@ -145,7 +145,7 @@ function Festivals() {
           <div className="small sub mb-2">{month}월 공식 일정(포스터·기간)은 DATA_GO_KR_KEY 를 넣으면 나와요. 지금은 {month}월 축제 관련 뉴스를 보여줘요.</div>
           <div className="poster-grid">
             {state.items.map((n) => (
-              <Poster key={n.url} href={n.url} image={n.image} thumb={n.thumb} title={n.title} sub={n.press || n.date} fav={{ kind: 'news', id: n.url, title: n.title, note: n.date }} />
+              <Poster key={n.url} href={n.url} image={n.image} thumb={n.thumb} refImage={n.ref} title={n.title} sub={n.press || n.date} fav={{ kind: 'news', id: n.url, title: n.title, note: n.date }} />
             ))}
           </div>
         </>
