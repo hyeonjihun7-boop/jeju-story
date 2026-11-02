@@ -5,6 +5,10 @@ import { tools, runTool } from '../server/tools.js'
 // ANTHROPIC_API_KEY 가 있으면 Claude, 없고 GEMINI_API_KEY 가 있으면 Gemini 를 사용한다.
 const CLAUDE_MODEL = 'claude-sonnet-5-5'
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash' // 시험 결과 가장 빠르고 안정적 (flash-latest 는 혼잡 시 503)
+// 한도(429)·혼잡(503)·시간 초과일 때 차례로 넘어갈 대체 모델 (모델마다 무료 한도가 따로 있어 효과가 있다)
+const GEMINI_FALLBACKS = ['gemini-3.1-flash-lite', 'gemini-3.5-flash-lite', 'gemini-3-flash-preview']
+const GEMINI_MODELS = [...new Set([GEMINI_MODEL, ...GEMINI_FALLBACKS])]
+const RETRYABLE = new Set([404, 408, 429, 500, 502, 503, 504])
 
 const SYSTEM = `너는 "탐험 제주" 여행 비서 에이전트다. 오늘은 ${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)} (한국시간).
 - 날씨·대기질·장소·행사·뉴스는 추측하지 말고 반드시 도구로 확인한 뒤 답한다.
@@ -20,6 +24,8 @@ const SYSTEM = `너는 "탐험 제주" 여행 비서 에이전트다. 오늘은 
   마지막에 준비물·유의사항을 일반 문장 1~2줄로 덧붙인다. 도구로 확인된 날씨는 오늘·내일뿐이니, 그 이후 날짜는 '예보를 다시 확인하세요'라고 말한다.`
 
 const MAX_TURNS = 6
+const CACHE_MS = 10 * 60e3
+const answerCache = new Map()
 
 // 도구 실행 + 화면에 보여줄 기록(steps) 만들기
 async function execTool(name, input, steps) {
@@ -61,23 +67,30 @@ const geminiTools = [{
   }),
 }]
 
-async function geminiCall(body) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`
-  const r = await fetch(url, {
-    method: 'POST', signal: AbortSignal.timeout(50000),
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
-    body: JSON.stringify(body),
-  })
-  const data = await r.json().catch(() => ({}))
-  if (!r.ok) {
-    const err = new Error(data?.error?.message || `Gemini HTTP ${r.status}`)
-    err.status = r.status
-    throw err
+async function geminiCall(body, ctx) {
+  let last
+  for (const model of ctx.models) {
+    try {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: 'POST', signal: AbortSignal.timeout(40000),
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+        body: JSON.stringify(body),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (r.ok) { ctx.model = model; ctx.models = [model, ...ctx.models.filter((m) => m !== model)]; return data } // 성공한 모델을 다음 호출에도 먼저 쓴다
+      const err = new Error(data?.error?.message || `Gemini HTTP ${r.status}`)
+      err.status = r.status
+      last = err
+      if (!RETRYABLE.has(r.status)) throw err // 키 오류 등은 다른 모델로 바꿔도 소용없다
+    } catch (e) {
+      if (e.status && !RETRYABLE.has(e.status)) throw e
+      last = e.status ? e : Object.assign(new Error('Gemini 응답 시간 초과'), { status: 504 })
+    }
   }
-  return data
+  throw last
 }
 
-async function runGemini(message, history, steps) {
+async function runGemini(message, history, steps, ctx) {
   const contents = [
     ...history.slice(-10).map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content) }] })),
     { role: 'user', parts: [{ text: message }] },
@@ -86,7 +99,7 @@ async function runGemini(message, history, steps) {
     const data = await geminiCall({
       systemInstruction: { parts: [{ text: SYSTEM }] }, contents, tools: geminiTools,
       generationConfig: { maxOutputTokens: 3000, temperature: 0.4 },
-    })
+    }, ctx)
     const cand = data.candidates?.[0]
     const parts = cand?.content?.parts ?? []
     const calls = parts.filter((p) => p.functionCall)
@@ -117,10 +130,16 @@ export default async function handler(req, res) {
   const { message, history = [] } = req.body ?? {}
   if (!message || !String(message).trim()) return res.status(400).json({ error: '질문을 입력해 주세요' })
   const steps = [] // 화면에 "에이전트가 호출한 도구" 로 보여줄 기록
+  const key = !history.length ? String(message).trim().toLowerCase() : null // 첫 질문만 잠시 저장 (같은 질문 반복 시 한도 절약)
+  const hit = key && answerCache.get(key)
+  if (hit && Date.now() - hit.at < CACHE_MS) return res.status(200).json({ ...hit.body, cached: true })
+  const ctx = { models: [...GEMINI_MODELS], model: null }
 
   try {
-    const answer = useClaude ? await runClaude(message, history, steps) : await runGemini(message, history, steps)
-    res.status(200).json({ answer: answer ?? '도구 호출이 너무 많아 중단했어요. 질문을 좁혀 주세요.', steps, provider: useClaude ? 'claude' : 'gemini' })
+    const answer = useClaude ? await runClaude(message, history, steps) : await runGemini(message, history, steps, ctx)
+    const body = { answer: answer ?? '도구 호출이 너무 많아 중단했어요. 질문을 좁혀 주세요.', steps, provider: useClaude ? 'claude' : 'gemini', model: ctx.model }
+    if (key && answer) answerCache.set(key, { at: Date.now(), body })
+    res.status(200).json(body)
   } catch (e) {
     const status = e.status ?? 500
     const msg = status === 429 ? '사용량이 많아요. 1분 뒤 다시 시도하세요.'

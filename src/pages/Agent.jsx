@@ -54,7 +54,7 @@ function Message({ m, question }) {
 }
 
 export default function Agent() {
-  const { messages, chatLoading, sendMessage, clearChat } = useAppStore()
+  const { messages, chatLoading, sendMessage, clearChat, showSampleTrip } = useAppStore()
   const [input, setInput] = useState('')
   const box = useRef(null)
   useEffect(() => { box.current?.scrollTo({ top: box.current.scrollHeight, behavior: 'smooth' }) }, [messages, chatLoading])
@@ -79,11 +79,15 @@ export default function Agent() {
             <div className="d-flex flex-wrap gap-2">
               {SUGGEST.map((s) => <button key={s.q} className="chip" onClick={() => submit(s.q)}><i className={`bi bi-${s.icon}`} />{s.q}</button>)}
             </div>
+            <div className="mt-3"><button className="chip warn" onClick={showSampleTrip}><i className="bi bi-eye" />예시 일정 보기 (AI 없이)</button></div>
           </div>
         )}
         {messages.map((m, i) => (
           <Message key={i} m={m} question={[...messages].slice(0, i).reverse().find((x) => x.role === 'user')?.text} />
         ))}
+        {!chatLoading && messages.at(-1)?.role === 'assistant' && messages.at(-1).text.startsWith('⚠') && (
+          <div className="mb-2"><button className="chip warn" onClick={showSampleTrip}><i className="bi bi-eye" />AI가 바빠요 — 예시 일정 먼저 보기</button></div>
+        )}
         {chatLoading && <div className="sub small"><Spinner size="sm" className="me-2" />도구를 고르고 호출하는 중… (일정은 조금 더 걸려요)</div>}
       </div>
       <form className="d-flex gap-2" onSubmit={(e) => { e.preventDefault(); submit() }}>

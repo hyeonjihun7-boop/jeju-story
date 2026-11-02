@@ -12,3 +12,10 @@
 .trip-notes { margin: 12px 0 0; padding: 10px 14px 10px 28px; background: #fff6e5; border-radius: 12px; font-size: .88rem; color: #5b4300; display: grid; gap: 4px; }
 .trip-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -2px 0 12px; }
 .trip-saved { color: var(--forest-2); font-weight: 700; font-size: .85rem; }
+
+/* 일정 지도·길찾기 */
+.trip-day-title { flex-wrap: wrap; }
+.trip-mapbtn { margin-left: auto; border: 0; background: #e3f1f2; color: var(--sea-deep); border-radius: 999px; padding: 3px 12px; font-size: .78rem; font-weight: 700; display: inline-flex; gap: 5px; align-items: center; }
+.trip-map { margin: 4px 0 12px; }
+.trip-body .navibtn { align-self: flex-start; }
+.num-pin span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #ff8f1f; color: #fff; font: 800 14px/1 'Pretendard', sans-serif; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.35); }

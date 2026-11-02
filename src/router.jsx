@@ -7,6 +7,7 @@ import Issue from './pages/Issue'
 import Agent from './pages/Agent'
 import My from './pages/My'
 import NotFound from './pages/NotFound'
+import TripShare from './pages/TripShare'
 
 // 메뉴 한 곳에서 관리: 페이지 추가 = ① pages/ 파일 ② NAV_ITEMS 한 줄 ③ routes 한 줄
 export const NAV_ITEMS = [
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
       { path: 'issue', element: <Issue /> },
       { path: 'agent', element: <Agent /> },
       { path: 'my', element: <My /> },
+      { path: 'trip/:id', element: <TripShare /> }, // 공유 링크
     ],
   },
 ])

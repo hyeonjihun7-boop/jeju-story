@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { supabase } from '../lib/supabase'
 import { askAgent, fetchToday } from '../api/client'
+import { SAMPLE_QUESTION, SAMPLE_TRIP } from '../data/sampleTrip'
 
 // 여러 페이지가 함께 쓰는 상태: 닉네임·지역·오늘 데이터·북마크·에이전트 대화
 export const useAppStore = create(
@@ -77,6 +78,8 @@ export const useAppStore = create(
         } finally { set({ chatLoading: false }) }
       },
       clearChat: () => set({ messages: [] }),
+      // AI 없이 예시 일정을 대화에 넣는다 (한도·느림 대비 안전장치)
+      showSampleTrip: () => set({ messages: [...get().messages, { role: 'user', text: SAMPLE_QUESTION }, { role: 'assistant', text: SAMPLE_TRIP, steps: [], sample: true }] }),
 
       // 내 여행 일정 — Supabase trips 테이블
       trips: [],
