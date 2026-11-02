@@ -4,7 +4,7 @@ import { tools, runTool } from '../server/tools.js'
 // AI 비서: LLM 이 도구(날씨·오름·맛집·뉴스 등)를 스스로 골라 호출하고 결과로 답한다.
 // ANTHROPIC_API_KEY 가 있으면 Claude, 없고 GEMINI_API_KEY 가 있으면 Gemini 를 사용한다.
 const CLAUDE_MODEL = 'claude-sonnet-5-5'
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash' // 시험 결과 가장 빠르고 안정적 (flash-latest 는 혼잡 시 503)
 
 const SYSTEM = `너는 "탐험 제주" 여행 비서 에이전트다. 오늘은 ${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)} (한국시간).
 - 날씨·대기질·장소·행사·뉴스는 추측하지 말고 반드시 도구로 확인한 뒤 답한다.
