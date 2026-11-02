@@ -3,8 +3,9 @@ import { findPlace } from './geo.js'
 import { getWeather } from './weather.js'
 import { getAirQuality, getStationAir } from './air.js'
 import { getToday } from './today.js'
-import { findOreum, findOlleRoutes, getElevation, getWikiSummary, nearbyFood } from './osm.js'
+import { findOreum, findOlleRoutes, getElevation, getWikiSummary } from './osm.js'
 import { searchSpots, searchFestivals } from './tour.js'
+import { nearbyFoodForAgent } from './regionFood.js'
 import { searchNews, searchBlogs, getIssueJeju } from './news.js'
 import { SHOPS, INDOOR } from './data/curated.js'
 import { getDarkTourism } from './dark.js'
@@ -26,7 +27,7 @@ export const tools = [
   { name: 'search_festivals', description: 'TourAPI로 오늘 이후 제주 축제·행사를 조회한다 (DATA_GO_KR_KEY 필요)', input_schema: { type: 'object', properties: {} } },
   { name: 'search_dark_tourism', description: '제주 다크 투어리즘(4·3·일제강점기 등 역사 유적) 장소와 참여 프로그램(스탬프 투어 등)을 조회한다. 희생자를 기리는 태도로 차분하게 안내할 것', input_schema: { type: 'object', properties: { theme: { type: 'string', enum: ['4·3', '일제강점기'] }, region: { type: 'string', enum: ['동부권', '서부권'] } } } },
   { name: 'search_local_brands', description: '제주 로컬 브랜드(간식·옷·액세서리) 큐레이션 검색. cat: snack | fashion | acc', input_schema: { type: 'object', properties: { cat: { type: 'string', enum: ['snack', 'fashion', 'acc'] } } } },
-  { name: 'search_restaurants', description: '지역 주변 식당·카페 검색 (OSM)', input_schema: { type: 'object', properties: { place, kind: { type: 'string', enum: ['restaurant', 'cafe'] } } } },
+  { name: 'search_restaurants', description: '지역 주변 식당·카페 검색 (한국관광공사, 가까운 순)', input_schema: { type: 'object', properties: { place, kind: { type: 'string', enum: ['restaurant', 'cafe'] } } } },
   { name: 'search_blog_reviews', description: '네이버 블로그 후기 검색 (키 필요)', input_schema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
   { name: 'get_issue_jeju', description: '이슈제주(지역 언론) 최신 기사 목록(제목·요약·링크)', input_schema: { type: 'object', properties: {} } },
   { name: 'search_news', description: '제주 최신 뉴스·이슈 검색', input_schema: { type: 'object', properties: { query: { type: 'string' } } } },
@@ -47,7 +48,7 @@ export const runTool = {
   search_festivals: async () => ({ items: (await searchFestivals({ onlyUpcoming: true })).slice(0, 15) }),
   search_dark_tourism: async ({ theme, region } = {}) => { const d = await getDarkTourism(); return { items: d.items.filter((p) => (!theme || p.theme === theme) && (!region || p.region === region)).map(({ name, region: r, theme: t, desc, addr }) => ({ name, region: r, theme: t, desc, addr })), programs: d.programs.map(({ title, desc }) => ({ title, desc })) } },
   search_local_brands: async ({ cat } = {}) => ({ items: SHOPS.filter((s) => !cat || s.cat === cat).map(({ id, name, area, desc, cat: c }) => ({ id, name, area, desc, cat: c })) }),
-  search_restaurants: async (a) => ({ items: await nearbyFood(a) }),
+  search_restaurants: async (a) => ({ items: await nearbyFoodForAgent(a) }),
   search_blog_reviews: searchBlogs,
   get_issue_jeju: async () => { const r = await getIssueJeju({ limit: 10 }); return { source: r.source, items: r.items.map(({ title, summary, url, date }) => ({ title, summary: summary.slice(0, 120), url, date })) } },
   search_news: async (a) => { const r = await searchNews({ ...a, limit: 6 }); return { source: r.source, items: r.items.map(({ title, press, date }) => ({ title, press, date })) } },

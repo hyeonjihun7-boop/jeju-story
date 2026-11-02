@@ -1,6 +1,8 @@
 // 지역별 맛집·카페: 카카오 로컬(켜져 있으면 실제 가게 + 사진) → 아니면 카카오 블로그 후기(대표 사진 포함)
 import { getJson, cached } from './http.js'
 import { findPlace } from './geo.js'
+import { distKm } from './http.js'
+import { nearbyFood } from './osm.js'
 import { getImageFor } from './photos.js'
 import { listAllFood } from './tour.js'
 
@@ -56,6 +58,21 @@ async function fromTour(kind) {
   }
   // 사진이 있는 곳을 앞에 둔다
   return REGIONS.map((region) => ({ region, items: by[region].sort((a, b) => Number(!!b.image) - Number(!!a.image)) })).filter((s) => s.items.length)
+}
+
+// AI 도구용: 지역 주변 식당·카페. OSM(Overpass)은 자주 느리거나 실패해서, 한국관광공사 목록(캐시)을 먼저 쓰고 안 될 때만 OSM 으로 대체한다.
+export async function nearbyFoodForAgent({ place = '제주시', kind = 'restaurant', limit = 12 } = {}) {
+  if (process.env.DATA_GO_KR_KEY) {
+    try {
+      const p = await findPlace({ name: place })
+      const rows = await cached('rf-tour:' + kind, 6 * 3600e3, () => listAllFood({ cafe: kind === 'cafe' }))
+      const items = rows.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon))
+        .map((r) => ({ name: r.title, addr: r.addr?.replace('제주특별자치도 ', ''), tel: r.tel, lat: r.lat, lon: r.lon, distKm: Math.round(distKm(p, r) * 10) / 10 }))
+        .filter((r) => r.distKm <= 6).sort((a, b) => a.distKm - b.distKm).slice(0, limit)
+      if (items.length) return items
+    } catch { /* OSM 으로 대체 */ }
+  }
+  return nearbyFood({ place, kind, limit })
 }
 
 export async function getRegionFood({ kind = 'restaurant' } = {}) {
