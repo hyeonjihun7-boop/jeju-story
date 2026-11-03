@@ -104,3 +104,22 @@
 .q-rank-n { font-size: 1.25rem; color: var(--forest); }
 .q-rank-n small { font-size: .75rem; margin-left: 2px; }
 @media (max-width: 520px) { .q-rank-lv { display: none; } }
+
+/* ── 코스 완주 도전 ── */
+.q-trails { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 860px) { .q-trails { grid-template-columns: 1fr; } }
+.q-trail { display: flex; flex-direction: column; gap: 10px; border: 2px dashed #cfdcd6; border-radius: 18px; padding: 14px; background: #fff; min-width: 0; }
+.q-trail.done { border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 8%, #fff); }
+.q-trail-top { display: flex; gap: 12px; align-items: center; }
+.q-trail-ic { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-size: 1.3rem; background: color-mix(in srgb, var(--c) 14%, #fff); color: var(--c); }
+.q-trail.done .q-trail-ic { background: var(--c); color: #fff; transform: rotate(-8deg); box-shadow: 0 3px 10px rgba(0, 0, 0, .2); }
+.q-trail-n { font-weight: 800; color: var(--c); font-size: 1.05rem; }
+.q-trail-spots { display: flex; flex-wrap: wrap; gap: 6px; }
+.q-tspot { font-size: .76rem; padding: 3px 10px; border-radius: 999px; background: #eef2f0; color: #7d8b84; display: inline-flex; gap: 4px; align-items: center; }
+.q-tspot.on { background: var(--c); color: #fff; font-weight: 700; }
+.q-trail-ok { color: var(--c); font-weight: 700; font-size: .88rem; display: flex; gap: 6px; align-items: center; }
+
+/* ── 앱 설치 버튼 ── */
+.q-install { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; margin-bottom: 12px; }
+.q-install small { font-size: .78rem; color: var(--muted); }
+.rail .q-install { margin: 0 0 10px; }

@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { KINDS } from '../../data/spots'
 import { badgesOf, dailyMissions, distanceM, fmtDist, getPosition, levelOf, streakOf } from '../../lib/quest'
+import { newlyCompleted, trailsProgress } from '../../lib/trail'
 import { useAppStore } from '../../store/useAppStore'
 import { useQuestStore } from '../../store/useQuestStore'
 import NaviButton from '../NaviButton'
+import InstallButton from '../InstallButton'
 import ShareCard from './ShareCard'
 
 const MAX_ACC = 1000 // 이보다 오차가 크면 인증하지 않는다 (m)
@@ -28,6 +30,8 @@ export default function StampTab({ spots, goTab }) {
   const badges = badgesOf(stamps)
   const streak = streakOf(stamps, journal)
   const missions = dailyMissions({ today, spots, stamps, journal, courses })
+  const trails = trailsProgress(stamps, spots)
+  const trailsDone = trails.filter((t) => t.complete).length
   const dist = (s) => (pos ? distanceM(pos, s) : null)
   const shown = spots.filter((s) => kind === 'all' || s.kind === kind)
     .sort((a, b) => (pos ? dist(a) - dist(b) : 0))
@@ -40,9 +44,11 @@ export default function StampTab({ spots, goTab }) {
 
   async function stamp(s) {
     if (stamped.has(s.id)) return
+    const finished = () => newlyCompleted(stamps, spots, s.id)
     if (demo) { // 발표·시연용: 위치 확인 없이 찍는다 (서버 기록에는 올리지 않음)
+      const t = finished()
       await addStamp(s, true)
-      return toast(`${s.name} 스탬프 (데모)`)
+      return toast(t ? `🏅 "${t.name}" 완주! (데모)` : `${s.name} 스탬프 (데모)`)
     }
     setBusy(s.id)
     try {
@@ -51,7 +57,7 @@ export default function StampTab({ spots, goTab }) {
       if (p.acc > MAX_ACC) return toast(`GPS 정확도가 낮아요 (오차 약 ${fmtDist(p.acc)}). 하늘이 트인 곳에서 다시 시도해 주세요`, 'warn')
       const d = distanceM(p, s)
       // 기기가 알려 준 오차(최대 150m)만큼은 너그럽게 봐 준다
-      if (d <= s.r + Math.min(p.acc ?? 0, 150)) { await addStamp(s); toast(`${s.name} 스탬프 완료! 🍊`) }
+      if (d <= s.r + Math.min(p.acc ?? 0, 150)) { const t = finished(); await addStamp(s); toast(t ? `🏅 "${t.name}" 완주!` : `${s.name} 스탬프 완료! 🍊`) }
       else toast(`${s.name}까지 ${fmtDist(d)} 남았어요 (반경 ${fmtDist(s.r)} 안에서 인증)`, 'warn')
     } catch (e) { toast(e.message, 'warn') }
     setBusy('')
@@ -72,6 +78,7 @@ export default function StampTab({ spots, goTab }) {
 
   return (
     <>
+      <InstallButton />
       <div className="kcard q-level mb-3">
         <div className="q-level-top">
           <div className="q-lvbadge"><i className="bi bi-compass-fill" /><b>Lv.{lv.index + 1}</b></div>
@@ -123,6 +130,35 @@ export default function StampTab({ spots, goTab }) {
           ))}
         </div>
         <div className="src">날씨와 날짜에 맞춰 매일 바뀌어요 (자정 기준). 날씨를 불러오지 못하면 기본 미션이 나와요.</div>
+      </div>
+
+      <div className="kcard mb-3">
+        <h3><i className="bi bi-signpost-split-fill" />코스 완주 도전 <span className="chip ms-1">{trailsDone}/{trails.length} 완주</span></h3>
+        <div className="q-trails">
+          {trails.map((t) => {
+            const next = t.places.find((p) => !t.got.has(p.id))
+            return (
+              <div key={t.id} className={`q-trail ${t.complete ? 'done' : ''}`} style={{ '--c': t.color }}>
+                <div className="q-trail-top">
+                  <i className={`bi bi-${t.complete ? 'award-fill' : t.icon} q-trail-ic`} />
+                  <div className="flex-grow-1">
+                    <div className="fw-bold">{t.name}</div>
+                    <div className="small sub">{t.desc}</div>
+                  </div>
+                  <span className="q-trail-n">{t.done}/{t.total}</span>
+                </div>
+                <div className="meter"><span style={{ width: `${(t.done / t.total) * 100}%`, background: t.color }} /></div>
+                <div className="q-trail-spots">
+                  {t.places.map((p) => <span key={p.id} className={`q-tspot ${t.got.has(p.id) ? 'on' : ''}`}>{t.got.has(p.id) && <i className="bi bi-check-lg" />}{p.name}</span>)}
+                </div>
+                {t.complete
+                  ? <div className="q-trail-ok"><i className="bi bi-patch-check-fill" />{new Date(t.at).toLocaleDateString('ko-KR')} 완주 인증 · 코스 배지 획득</div>
+                  : <div className="d-flex gap-2 align-items-center flex-wrap"><span className="small sub">다음: <b>{next.name}</b></span><NaviButton name={next.name} lat={next.lat} lon={next.lon} /></div>}
+              </div>
+            )
+          })}
+        </div>
+        <div className="src">코스에 묶인 장소를 모두 인증하면 완주 배지가 붙어요. 장소마다 GPS로 인증하고, 순서는 상관없어요.</div>
       </div>
 
       <div className="kcard">

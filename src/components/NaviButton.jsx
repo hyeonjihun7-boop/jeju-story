@@ -8,7 +8,7 @@ export const naviUrl = ({ name, lat, lon }) =>
 export default function NaviButton({ name, lat, lon, label = '카카오 길찾기' }) {
   return (
     <a className="navibtn" href={naviUrl({ name, lat, lon })} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
-      <i className="bi bi-sign-turn-right-fill" />{label}
+      <i className="bi bi-geo-alt-fill" />{label}
     </a>
   )
 }
