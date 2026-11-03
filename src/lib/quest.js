@@ -8,6 +8,7 @@ export function distanceM(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h))
 }
 export const fmtDist = (m) => (m < 1000 ? `${Math.round(m / 10) * 10}m` : `${(m / 1000).toFixed(1)}km`)
+export const MAX_ACC = 1000 // GPS 오차가 이보다 크면 인증하지 않는다 (m)
 
 // 한국 날짜(yyyy-mm-dd) — 자정이 지나면 미션이 바뀐다
 export const dayKey = (d = new Date()) => new Date(d.getTime() + 9 * 3600e3).toISOString().slice(0, 10)

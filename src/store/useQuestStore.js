@@ -26,6 +26,13 @@ export const useQuestStore = create(
       stamps: [], // { spotId, kind, name, at, demo }
       journal: [], // { id, spotId, place, text, photo, lat, lon, at }
       courses: [], // { id, title, at }
+      olle: [], // 올레 시종점 인증: { pointId, at, demo } — 이 기기에만 저장 (랭킹·서버 스탬프와 분리)
+
+      addOlle: (pointId, demo = false) => {
+        if (get().olle.some((o) => o.pointId === pointId)) return false
+        set({ olle: [...get().olle, { pointId, at: new Date().toISOString(), demo }] })
+        return true
+      },
 
       addStamp: async (spot, demo = false) => {
         if (get().stamps.some((s) => s.spotId === spot.id)) return false
@@ -47,7 +54,7 @@ export const useQuestStore = create(
       },
       // 이 기기와 서버(내 닉네임) 스탬프를 모두 지운다. 서버는 delete 정책이 없으면 못 지우므로 알려 준다.
       resetStamps: async () => {
-        set({ stamps: [] })
+        set({ stamps: [], olle: [] })
         if (!supabase) return
         const { data, error } = await supabase.from('stamps').delete().eq('nickname', nick()).select('id')
         if (error) toast(error.message, 'danger')
@@ -91,7 +98,7 @@ export const useQuestStore = create(
     {
       name: 'jeju-quest-store',
       storage: safeStorage,
-      partialize: (s) => ({ stamps: s.stamps, journal: s.journal, courses: s.courses }),
+      partialize: (s) => ({ stamps: s.stamps, journal: s.journal, courses: s.courses, olle: s.olle }),
     },
   ),
 )

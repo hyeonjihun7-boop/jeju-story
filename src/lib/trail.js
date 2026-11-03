@@ -1,4 +1,23 @@
 import { TRAILS } from '../data/courses'
+import { OLLE_COURSES } from '../data/olle'
+
+// 올레 코스별 진행: 시작점·종점을 둘 다 인증하면 완주 (좌표를 확인 못 한 코스는 안내만)
+export function olleProgress(olle) {
+  const got = new Map(olle.map((o) => [o.pointId, o]))
+  return OLLE_COURSES.map((c) => {
+    const hasGps = Boolean(c.a && c.b)
+    const doneA = hasGps && got.has(c.a), doneB = hasGps && got.has(c.b)
+    const complete = doneA && doneB
+    return { ...c, hasGps, doneA, doneB, complete, at: complete ? [got.get(c.a).at, got.get(c.b).at].sort().pop() : null }
+  })
+}
+
+// 방금 인증한 지점으로 새로 완주한 올레 코스들
+export function olleNewlyCompleted(olle, pointId) {
+  const before = olleProgress(olle)
+  const after = olleProgress([...olle, { pointId, at: new Date().toISOString() }])
+  return after.filter((c, i) => c.complete && !before[i].complete)
+}
 
 // 코스별 진행: 완주한 장소 수, 완주 여부(마지막 스탬프 날짜)
 export function trailsProgress(stamps, spots) {

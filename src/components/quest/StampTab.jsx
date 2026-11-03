@@ -1,15 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { KINDS } from '../../data/spots'
-import { badgesOf, dailyMissions, distanceM, fmtDist, getPosition, levelOf, streakOf } from '../../lib/quest'
+import { badgesOf, dailyMissions, distanceM, fmtDist, getPosition, levelOf, MAX_ACC, streakOf } from '../../lib/quest'
 import { newlyCompleted, trailsProgress } from '../../lib/trail'
 import { useAppStore } from '../../store/useAppStore'
 import { useQuestStore } from '../../store/useQuestStore'
 import NaviButton from '../NaviButton'
 import InstallButton from '../InstallButton'
+import OlleCourses from './OlleCourses'
 import ShareCard from './ShareCard'
-
-const MAX_ACC = 1000 // 이보다 오차가 크면 인증하지 않는다 (m)
 
 // 레벨·칭호·오늘의 미션·스탬프판 (현재 위치가 장소 반경 안이면 스탬프 인증)
 export default function StampTab({ spots, goTab }) {
@@ -160,6 +159,8 @@ export default function StampTab({ spots, goTab }) {
         </div>
         <div className="src">코스에 묶인 장소를 모두 인증하면 완주 배지가 붙어요. 장소마다 GPS로 인증하고, 순서는 상관없어요.</div>
       </div>
+
+      <OlleCourses demo={demo} />
 
       <div className="kcard">
         <h3><i className="bi bi-patch-check-fill" />스탬프판 <span className="chip ms-1">{stamps.length}/{spots.length}</span></h3>

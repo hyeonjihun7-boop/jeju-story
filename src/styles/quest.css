@@ -123,3 +123,19 @@
 .q-install { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; margin-bottom: 12px; }
 .q-install small { font-size: .78rem; color: var(--muted); }
 .rail .q-install { margin: 0 0 10px; }
+
+/* ── 제주올레 코스 완주 ── */
+.q-oll { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 860px) { .q-oll { grid-template-columns: 1fr; } }
+.q-olle { display: flex; flex-direction: column; gap: 10px; border: 2px dashed #cfdcd6; border-radius: 18px; padding: 14px; background: #fff; min-width: 0; }
+.q-olle.done { border: 2px solid #2f7d6f; background: color-mix(in srgb, #2f7d6f 8%, #fff); }
+.q-olle-head { display: flex; gap: 12px; align-items: center; }
+.q-olle-no { min-width: 44px; height: 44px; padding: 0 6px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 1rem; background: #fff1d6; color: #b8741a; flex-shrink: 0; }
+.q-olle.done .q-olle-no { background: #2f7d6f; color: #fff; }
+.q-olle-ok { color: #2f7d6f; font-weight: 800; font-size: .88rem; display: inline-flex; gap: 4px; align-items: center; }
+.q-olle-pts { display: grid; gap: 8px; }
+.q-opt { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 12px; background: #f1f4f2; }
+.q-opt.on { background: color-mix(in srgb, #2f7d6f 12%, #fff); }
+.q-opt-l { font-size: .7rem; font-weight: 700; color: #7d8b84; letter-spacing: .04em; }
+.q-olle-info summary { cursor: pointer; font-weight: 700; font-size: .9rem; }
+.q-olle-list { margin: 8px 0 0; padding-left: 18px; font-size: .86rem; display: grid; gap: 4px; }
