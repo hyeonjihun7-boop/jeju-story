@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { KINDS } from '../../data/spots'
 import { badgesOf, dailyMissions, distanceM, fmtDist, getPosition, levelOf } from '../../lib/quest'
 import { useAppStore } from '../../store/useAppStore'
 import { useQuestStore } from '../../store/useQuestStore'
 import NaviButton from '../NaviButton'
+import ShareCard from './ShareCard'
 
 const MAX_ACC = 1000 // 이보다 오차가 크면 인증하지 않는다 (m)
 
@@ -16,6 +18,10 @@ export default function StampTab({ spots, goTab }) {
   const [busy, setBusy] = useState('')
   const [demo, setDemo] = useState(false)
   const [kind, setKind] = useState('all')
+  const [card, setCard] = useState(false)
+  const navigate = useNavigate()
+  const sendMessage = useAppStore((s) => s.sendMessage)
+  const chatLoading = useAppStore((s) => s.chatLoading)
 
   const stamped = new Map(stamps.map((s) => [s.spotId, s]))
   const lv = levelOf(stamps.length)
@@ -50,6 +56,17 @@ export default function StampTab({ spots, goTab }) {
     setBusy('')
   }
 
+  // 스탬프 기록을 질문에 담아 AI 비서에게 넘긴다 (가 본 곳은 빼고, 안 가 본 곳으로 일정)
+  function askAi(k) {
+    const label = k === 'all' ? '장소' : KINDS[k].label
+    const todo = spots.filter((s) => !stamped.has(s.id) && (k === 'all' || s.kind === k))
+    if (todo.length === 0) return toast(`안 가 본 ${label}이 없어요. 대단해요!`)
+    const seen = stamps.map((s) => s.name)
+    const q = `내가 스탬프를 찍은 곳: ${seen.length ? seen.slice(0, 15).join(', ') : '아직 없음'}. 아직 안 가 본 ${label} 후보: ${todo.slice(0, 10).map((s) => s.name).join(', ')}. 이 후보 중에서 골라 1박 2일 제주 일정을 짜줘. 가 본 곳은 빼 줘.`
+    sendMessage(q)
+    navigate('/agent')
+  }
+
   const pct = lv.next ? Math.round(((stamps.length - lv.from) / (lv.to - lv.from)) * 100) : 100
 
   return (
@@ -73,6 +90,14 @@ export default function StampTab({ spots, goTab }) {
             </div>
           ))}
         </div>
+        <div className="d-flex gap-2 flex-wrap align-items-center mt-3">
+          <button className="pillbtn ghost" onClick={() => setCard(!card)}><i className="bi bi-award me-1" />{card ? '자랑 카드 닫기' : '자랑 카드 만들기'}</button>
+          <span className="small sub ms-1">AI 비서에게 안 가 본 곳으로 1박 2일 부탁:</span>
+          {['oreum', 'sea', 'history', 'all'].map((k) => (
+            <button key={k} className="chip" disabled={chatLoading} onClick={() => askAi(k)}><i className="bi bi-stars" />{k === 'all' ? '전체' : KINDS[k].label}</button>
+          ))}
+        </div>
+        {card && <ShareCard stamps={stamps} total={spots.length} />}
       </div>
 
       <div className="kcard mb-3">

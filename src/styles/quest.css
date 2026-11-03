@@ -54,3 +54,20 @@
 .q-tl-date { font-size: .78rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
 .q-tl-card { background: var(--mint); border-radius: 14px; padding: 10px 12px; display: grid; gap: 6px; }
 .q-tl-img { width: 100%; max-width: 320px; border-radius: 12px; display: block; }
+
+/* 스탬프 자랑 카드 (사진으로 저장되므로 아이콘 글꼴 없이 글자·이모지만) */
+.q-card { background: linear-gradient(155deg, #1d4a3a 0%, #3f7a52 55%, #e0872b 140%); color: #fff; border-radius: 22px; padding: 22px 22px 16px; max-width: 420px; margin: 0 auto; text-align: center; }
+.q-card-brand { font-weight: 800; letter-spacing: .02em; opacity: .95; }
+.q-card-lv { margin: 10px auto 0; display: inline-block; background: rgba(255, 255, 255, .2); border-radius: 999px; padding: 2px 14px; font-weight: 800; }
+.q-card-name { font-size: 1.9rem; font-weight: 800; line-height: 1.2; margin-top: 6px; }
+.q-card-nick { opacity: .85; font-size: .95rem; margin-bottom: 14px; }
+.q-card-count { font-size: 1.05rem; }
+.q-card-count b { font-size: 2rem; }
+.q-card-bar { height: 10px; border-radius: 99px; background: rgba(255, 255, 255, .22); overflow: hidden; margin: 8px 0 16px; }
+.q-card-bar span { display: block; height: 100%; background: #ffc247; border-radius: 99px; }
+.q-card-badges { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.q-card-badges > div { background: rgba(255, 255, 255, .15); border-radius: 14px; padding: 8px 6px; display: flex; flex-direction: column; gap: 1px; }
+.q-card-em { font-size: 1.4rem; line-height: 1.2; }
+.q-card-badges small { opacity: .9; color: #ffd98a; }
+.q-card-recent { margin-top: 14px; font-size: .78rem; opacity: .9; }
+.q-card-foot { margin-top: 12px; font-size: .72rem; opacity: .7; }
