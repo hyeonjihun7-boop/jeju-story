@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAppStore } from '../store/useAppStore'
 import { isSupabaseReady, supabase } from '../lib/supabase'
 import { fetchPlaces } from '../api/client'
+import BookmarkTools from '../components/BookmarkTools'
 import FavButton from '../components/FavButton'
 import Itinerary, { parseItinerary } from '../components/Itinerary'
 import MapView from '../components/MapView'
@@ -111,6 +112,7 @@ export default function My() {
             </button>
           </div>
           {showMap && <FavMap items={list} />}
+          <BookmarkTools items={list} kindLabel={KIND} />
           {list.map((f) => (
             <div className="row-item" key={f.id}>
               <span className="chip">{KIND[f.kind] ?? f.kind}</span>

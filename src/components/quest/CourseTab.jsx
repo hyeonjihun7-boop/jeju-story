@@ -1,20 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { KINDS } from '../../data/spots'
+import { courseText, fmt, toMin } from '../../lib/plan'
 import { supabase } from '../../lib/supabase'
 import { useAppStore } from '../../store/useAppStore'
 import { COURSE_TAG, useQuestStore } from '../../store/useQuestStore'
 import MapView from '../MapView'
-
-const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
-const fmt = (m) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
-const clean = (t) => String(t ?? '').replace(/[|｜\n]/g, ' ').trim()
-
-// 고른 장소 → 일정 글(AI 일정과 같은 형식이라 /trip/:id 공유 화면이 그대로 읽는다)
-export function courseText(picked, start, stepMin) {
-  const t0 = toMin(start)
-  return ['## 1일차 (탐험 코스)', ...picked.map((s, i) => `- ${fmt(t0 + i * stepMin)} | ${clean(s.name)} | ${clean(s.desc)}`)].join('\n')
-}
 
 async function copyLink(id, toast) {
   const url = `${location.origin}/trip/${id}`
