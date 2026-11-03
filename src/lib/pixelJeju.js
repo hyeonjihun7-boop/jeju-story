@@ -26,14 +26,52 @@ export function createScene(cvs) {
   // ───────────── 정지 레이어 ─────────────
   const SKYL = mk(), FA = mk(), FB = mk()
 
-  // 하늘
-  g = SKYL.getContext('2d')
-  const SKY = ['#35c9d2', '#5fdbdc', '#8aeae3', '#b2f3ea', '#d6f9f0', '#eefcf6']
-  for (let y = 0; y < HOR; y++) for (let x = 0; x < W; x++) {
-    const t = Math.pow(y / HOR, 0.9) * (SKY.length - 1), i = Math.min(SKY.length - 2, Math.floor(t)), f = t - i
-    px(x, y, dith(x, y, f) ? SKY[i + 1] : SKY[i])
+  // ───────────── 날씨·시간대(mood) ─────────────
+  let mood = { kind: 'clear', phase: 'day', wind: 2, heavy: false, rain: 0, sunX: null }
+  const windK = () => Math.max(0.4, Math.min(3.2, (mood.wind ?? 2) / 3.2))
+
+  // 하늘: 날씨와 시간대에 맞춰 다시 그린다
+  const SKYS = {
+    day: ['#35c9d2', '#5fdbdc', '#8aeae3', '#b2f3ea', '#d6f9f0', '#eefcf6'],
+    dawn: ['#6c7fd2', '#9a90e2', '#d99ad0', '#f6a8b8', '#ffc4a8', '#ffe2b8'],
+    golden: ['#3f9ad6', '#6fb2e4', '#b8c0d8', '#f4c090', '#ffa868', '#ffd488'],
+    dusk: ['#262c78', '#58408f', '#b04a86', '#f0706a', '#ff9460', '#ffc27a'],
+    night: ['#080e2c', '#0f1a4a', '#18286a', '#223a84', '#2d4a98', '#3b5ba8'],
   }
-  for (const [y0, y1, c] of [[58, 62, '#7fe3e0'], [77, 80, '#a2eee6'], [114, 117, '#d2f8ef']]) for (let y = y0; y < y1; y++) for (let x = 0; x < 160; x++) if (dith(x, y, 0.55)) px(x, y, c)
+  const grayOf = (c, k, dark = 0) => { const [r, gg, b] = rgb(c), l = r * 0.3 + gg * 0.59 + b * 0.11; return mix(toHex([r + (l - r) * k, gg + (l - gg) * k, b + (l - b) * k]), '#10141c', dark) }
+  function skyColors() {
+    const base = SKYS[mood.phase] ?? SKYS.day
+    if (mood.kind === 'clear' || mood.kind === 'partly') return base
+    const k = { overcast: [0.5, 0.05], fog: [0.62, 0], drizzle: [0.58, 0.12], rain: [0.62, 0.22], storm: [0.7, 0.4], snow: [0.5, 0.08] }[mood.kind] ?? [0, 0]
+    const lift = mood.kind === 'fog' ? 0.35 : 0
+    return base.map((c) => mix(grayOf(c, k[0], k[1]), '#e8edf0', lift))
+  }
+  function buildSky() {
+    const prev = g; g = SKYL.getContext('2d'); g.clearRect(0, 0, W, H)
+    const SKY = skyColors()
+    for (let y = 0; y < HOR; y++) for (let x = 0; x < W; x++) {
+      const t = Math.pow(y / HOR, 0.9) * (SKY.length - 1), i = Math.min(SKY.length - 2, Math.floor(t)), f = t - i
+      px(x, y, dith(x, y, f) ? SKY[i + 1] : SKY[i])
+    }
+    const clearish = mood.kind === 'clear' || mood.kind === 'partly'
+    if (mood.phase === 'day' && clearish) for (const [y0, y1, c] of [[58, 62, '#7fe3e0'], [77, 80, '#a2eee6'], [114, 117, '#d2f8ef']]) for (let y = y0; y < y1; y++) for (let x = 0; x < 160; x++) if (dith(x, y, 0.55)) px(x, y, c)
+    let sd = 7; const r2 = () => ((sd = (sd * 1664525 + 1013904223) >>> 0) / 4294967296)
+    if (mood.phase === 'night' || mood.phase === 'dusk') {
+      for (let k = 0; k < (mood.phase === 'night' ? 90 : 26); k++) {
+        const x = (r2() * W) | 0, y = (r2() * HOR * (mood.phase === 'night' ? 0.8 : 0.4)) | 0
+        if (clearish || r2() < 0.2) { px(x, y, r2() < 0.7 ? '#dfe6ff' : '#ffffff'); if (r2() < 0.15) { px(x - 1, y, '#8f9fe0'); px(x + 1, y, '#8f9fe0'); px(x, y - 1, '#8f9fe0'); px(x, y + 1, '#8f9fe0') } }
+      }
+    }
+    if (mood.phase === 'night' && mood.kind !== 'rain' && mood.kind !== 'storm') { // 달
+      for (let y = -18; y <= 18; y++) for (let x = -18; x <= 18; x++) { const d = Math.hypot(x, y); if (d <= 9 && Math.hypot(x - 4, y + 2) > 8.2) px(50 + x, 36 + y, d < 6 ? '#f6f2d6' : '#e4dfb8'); else if (d > 10 && d < 17 && dith(50 + x, 36 + y, (17 - d) / 14)) px(50 + x, 36 + y, '#6f84c8') }
+    }
+    if (mood.sunX != null && mood.phase !== 'day' && mood.phase !== 'night') { // 해
+      const sx = mood.sunX, sy = mood.phase === 'golden' ? HOR - 16 : mood.phase === 'dusk' ? HOR - 5 : HOR - 9
+      const core = { golden: '#fff0b0', dusk: '#ff8a46', dawn: '#ffd9a8' }[mood.phase], glow = { golden: '#ffd070', dusk: '#ff6a50', dawn: '#ffb090' }[mood.phase]
+      for (let y = -26; y <= 26; y++) for (let x = -26; x <= 26; x++) { const d = Math.hypot(x, y); if (d <= 11) px(sx + x, sy + y, core); else if (d < 26 && dith(sx + x, sy + y, ((26 - d) / 26) * 0.7)) px(sx + x, sy + y, glow) }
+    }
+    g = prev
+  }
 
   // 구름은 하나씩 따로 그려 두고 흘려 보낸다
   function cloudSprite(rx, ry, so, pal) {
@@ -59,13 +97,30 @@ export function createScene(cvs) {
     return c
   }
   const PAL1 = ['#ffffff', '#e4e2fa', '#bcc0ee', '#979edb'], PAL2 = ['#ffffff', '#e6f4fb', '#c1e2f1', '#9ccce4']
-  const CLOUDS = [
-    { s: cloudSprite(83, 51, 1.3, PAL1), y: 18, x0: 120, v: 3.2 },
-    { s: cloudSprite(37, 23, 4.1, PAL1), y: 110, x0: 200, v: 4.4 },
-    { s: cloudSprite(35, 16, 7.2, PAL2), y: 108, x0: 60, v: 2.2 },
-    { s: cloudSprite(37, 19, 2.8, PAL2), y: 124, x0: 0, v: 1.6 },
-    { s: cloudSprite(29, 12, 5.5, ['#ffffff', '#eef7fc', '#cfe8f4', '#b0d8ec']), y: 36, x0: 40, v: 2.8 },
-  ]
+  const cloudPals = () => {
+    const wet = mood.kind === 'rain' || mood.kind === 'storm' || mood.kind === 'drizzle'
+    if (wet) return mood.phase === 'night' ? ['#6a7690', '#4a5670', '#323e58', '#222c44'] : ['#b8c0cc', '#939eae', '#707c8e', '#525e72']
+    if (mood.kind === 'overcast' || mood.kind === 'snow') return mood.phase === 'night' ? ['#8a92aa', '#6a7490', '#4a5470', '#323c58'] : ['#e2e7ec', '#bfc7d1', '#9ca6b3', '#7a8594']
+    if (mood.kind === 'fog') return ['#f4f6f8', '#e0e5ea', '#ccd3da', '#b8c0c9']
+    if (mood.phase === 'night') return ['#8a96c8', '#5a6aa0', '#3a4880', '#242e60']
+    if (mood.phase === 'dusk') return ['#ffc6b0', '#e090a4', '#a65c8c', '#5e3a74']
+    if (mood.phase === 'golden') return ['#fff0e0', '#ffd2b0', '#eea08a', '#c07a8a']
+    if (mood.phase === 'dawn') return ['#fff0f4', '#f6cce2', '#d9a2d4', '#a88ac8']
+    return null
+  }
+  let CLOUDS = []
+  function buildClouds() {
+    const P = cloudPals(), a = P ?? PAL1, b = P ?? PAL2, c3 = P ?? ['#ffffff', '#eef7fc', '#cfe8f4', '#b0d8ec']
+    const sp = 0.6 + windK() * 0.5
+    const L = {
+      clear: [[37, 23, 4.1, a, 110, 200, 4.4], [29, 12, 5.5, c3, 36, 40, 2.8]],
+      partly: [[83, 51, 1.3, a, 18, 120, 3.2], [37, 23, 4.1, a, 110, 200, 4.4], [35, 16, 7.2, b, 108, 60, 2.2], [37, 19, 2.8, b, 124, 0, 1.6], [29, 12, 5.5, c3, 36, 40, 2.8]],
+      overcast: [[83, 51, 1.3, a, 4, 100, 3.2], [83, 40, 3.7, a, 40, 220, 2.6], [70, 36, 8.1, a, 76, 10, 3.4], [60, 24, 2.2, b, 106, 150, 2.2], [66, 30, 6.6, a, 24, 250, 4], [50, 20, 9.4, b, 118, 60, 1.8]],
+      fog: [[90, 26, 3.3, a, 70, 40, 1.4], [90, 24, 6.1, a, 100, 180, 1.8], [80, 20, 8.8, a, 130, 100, 1.2]],
+    }
+    L.rain = [...L.overcast, [75, 34, 11.4, a, 62, 170, 3.8]]; L.storm = L.rain; L.drizzle = L.overcast; L.snow = L.overcast
+    CLOUDS = (L[mood.kind] ?? L.partly).map(([rx, ry, so, pal, y, x0, v]) => ({ s: cloudSprite(rx, ry, so, pal), y, x0, v: v * sp }))
+  }
 
   // 앞 레이어 A: 한라산 · 바다 바탕 · 해안 · 풀밭 · 나무 · 돌하르방
   g = FA.getContext('2d')
@@ -142,6 +197,7 @@ export function createScene(cvs) {
   for (let k = 0; k < 70; k++) SPARKS.push({ x: (rnd() * W) | 0, y: HOR + 3 + ((rnd() * 21) | 0), ph: rnd() * 6.28, r: 1.4 + rnd() * 2.2 })
   // 갈매기
   const GULLS = [[141, 27, 14], [160, 19, 10], [128, 45, 17], [200, 29, 9], [93, 75, 13], [109, 67, 15], [149, 96, 11], [60, 92, 16]].map(([x, y, v], i) => ({ x, y, v, ph: i * 1.3 }))
+  const gullCount = () => (mood.phase === 'night' || mood.rain > 0 || mood.kind === 'fog' || mood.kind === 'snow' ? 0 : mood.kind === 'overcast' ? 3 : mood.phase === 'golden' || mood.phase === 'dusk' || mood.phase === 'dawn' ? 4 : mood.kind === 'partly' ? 6 : 8)
   function drawGull(x, y, up) {
     const c = '#ffffff'
     if (up) { for (let i = 0; i < 4; i++) { px(x + i, y - i * 0.8, c); px(x + 7 - i, y - i * 0.8, c) } px(x + 3.5, y - 2.4, c) }
@@ -213,6 +269,17 @@ export function createScene(cvs) {
     for (let y = -12; y <= -6; y++) for (let x = -6; x <= 6; x++) if ((x / 5.8) ** 2 + ((y + 6) / 6.5) ** 2 <= 1) px(hx + x, hy + y, (x + y) % 3 === 0 ? '#e6c06a' : '#f2d68a')
     rect(hx - 6, hy - 8, 13, 2, '#d24a3a'); rect(hx - 6, hy - 8, 13, 1, '#ee6a58')
   }
+  function umbrella(hx, hy, c) {
+    const top = hy - 22, cl = tint(c, 0.3), cd = shade(c, 0.28)
+    for (let y = 0; y < 10; y++) {
+      const hw = Math.round(15 * Math.sqrt(1 - ((9 - y) / 10.5) ** 2))
+      for (let x = -hw; x <= hw; x++) px(hx + x, top + y, Math.floor((x + 15) / 5) % 2 ? cl : c)
+      px(hx - hw, top + y, cd); px(hx + hw, top + y, cd)
+    }
+    for (let x = -15; x <= 15; x++) if ((x + 15) % 5 < 2) px(hx + x, top + 10, cd)
+    px(hx, top - 1, '#c9a050'); px(hx, top - 2, '#c9a050')
+    rect(hx, top + 10, 1, 17, '#4a3a2a')
+  }
   function person(ox, oy, o0, wave = 0) {
     const sc = (a) => [a[0] * SC, a[1] * SC]
     const o = { ...o0 }
@@ -227,6 +294,7 @@ export function createScene(cvs) {
     const sk = o.skin, skS = warm(sk, 0.3), top = o.top, topS = shade(o.top, 0.17), topL = tint(o.top, 0.22), bot = o.bottom, botS = shade(o.bottom, 0.22), botL = tint(o.bottom, 0.14)
     const hx = ox + o.head[0], hy = oy + o.head[1]
     backHair(hx, hy, o, wave)
+    if (o.umbrella) umbrella(hx, hy, o.umbrella)
     limb(P(o.shB), P(o.elB), 3.6, 3, topS); limb(P(o.elB), P(o.haB), 3, 2.4, skS); hand(ox + o.haB[0], oy + o.haB[1], skS)
     const leg = (kn, ft, front) => {
       const b = front ? bot : botS, s = front ? (o.legs ?? sk) : (o.legs ? shade(o.legs, 0.15) : skS)
@@ -266,13 +334,13 @@ export function createScene(cvs) {
   const blink = (t, ph) => ((t + ph) % 3.6) < 0.16
   function manAt(t) {
     const b = Math.sin(t * 2) * 0.5, wv = Math.sin(t * 3.2)
-    return { skin: '#eebd92', hair: '#2a2118', top: '#fbfbf4', bottom: '#d9e3ea', hat: true, eye: blink(t, 0.4) ? 'happy' : 'squint', mouth: 'smile', brow: 1, sh: 1, part: 1,
+    return { umbrella: mood.rain > 0 ? '#3b82d8' : null, skin: '#eebd92', hair: '#2a2118', top: '#fbfbf4', bottom: '#d9e3ea', hat: true, eye: blink(t, 0.4) ? 'happy' : 'squint', mouth: 'smile', brow: 1, sh: 1, part: 1,
       hip: [1, -15 + b * 0.3], sh0: [1, -24 + b * 0.4], head: [1 + Math.sin(t * 1.4) * 0.5, -31 + b * 0.4], shF: [7, -24 + b * 0.4], elF: [13 + wv * 0.6, -29 + wv * 1], haF: [8 + wv * 0.8, -37 + wv * 1.2], shB: [-5, -23 + b * 0.4], elB: [-9, -17], haB: [-9, -10],
       kneeF: [3, -8], footF: [4, 0], kneeB: [-2, -8], footB: [-4, -1] }
   }
   function pumpAt(t) {
     const p = (Math.sin(t * 4.2) + 1) / 2, b = Math.sin(t * 2) * 0.3
-    return { skin: '#f6cfa9', hair: '#d9a03e', top: '#e8557f', bottom: '#2e4a96', eye: blink(t, 1.7) ? 'happy' : 'open', look: 1, mouth: 'soft', sh: 2, part: -1,
+    return { umbrella: mood.rain > 0 ? '#ffd93b' : null, skin: '#f6cfa9', hair: '#d9a03e', top: '#e8557f', bottom: '#2e4a96', eye: blink(t, 1.7) ? 'happy' : 'open', look: 1, mouth: 'soft', sh: 2, part: -1,
       long: [[-8, -3, 16, 4, -0.1], [4, -3, 14, 4, 0.05], [-5, 0, 18, 3, -0.15]],
       hip: [-4, -11], sh0: [2, -22 + p * 0.8], head: [8, -28 + p * 0.8 + b], shF: [6, -21 + p * 0.8], elF: [12, -14 + p * 1.5], haF: [17, -8 + p * 3], shB: [0, -21 + p * 0.8], elB: [7, -13 + p * 1.5], haB: [16, -7 + p * 3],
       kneeF: [7, -10], footF: [7, 0], kneeB: [4, -8], footB: [2, 0], pp: p,
@@ -294,7 +362,7 @@ export function createScene(cvs) {
     // 바구니를 든 앞쪽 팔: 팔꿈치를 굽힌 채 몸 옆에서 작게 흔들고, 바구니는 손잡이에 걸려 매달린다
     const sw = Math.sin(ph + Math.PI), cw = Math.cos(ph + Math.PI)
     const aF = [[11 + 2 * sw, -19 + cw], [13 + 4 * sw, -14 + 1.5 * cw]]
-    return { skin: '#f3c9a0', hair: '#7a4222', top: '#ffd93b', bottom: '#2d9a72', dress: 9, flare: 1, dsw: -0.4, eye: 'open', look: 1, mouth: 'open', sh: -2, part: 1, shoe: '#e8e8e8',
+    return { umbrella: mood.rain > 0 ? '#e8557f' : null, skin: '#f3c9a0', hair: '#7a4222', top: '#ffd93b', bottom: '#2d9a72', dress: 9, flare: 1, dsw: -0.4, eye: 'open', look: 1, mouth: 'open', sh: -2, part: 1, shoe: '#e8e8e8',
       long: [[-9, -4, 24, 5, -0.5], [-8, -2, 22, 4, -0.45], [4, -3, 10, 3, -0.2]],
       hip: [0, -15 + bob], sh0: [2, -24 + bob], head: [4, -31 + bob], shF: [7, -23 + bob], elF: aF[0], haF: aF[1], shB: [-3, -24 + bob], elB: aB[0], haB: aB[1],
       kneeF: A.knee, footF: A.foot, kneeB: B.knee, footB: B.foot, ph0: ph,
@@ -314,11 +382,12 @@ export function createScene(cvs) {
     g = main
     main.drawImage(SKYL, 0, 0)
     for (const c of CLOUDS) { const w = c.s.width, x = (((c.x0 + t * c.v) % (W + w)) + (W + w)) % (W + w) - w; main.drawImage(c.s, Math.round(x), c.y) }
-    for (const gl of GULLS) { const x = (((gl.x + t * gl.v) % (W + 20)) + W + 20) % (W + 20) - 10; drawGull(x, gl.y + Math.sin(t * 1.3 + gl.ph) * 2, Math.sin(t * 7 + gl.ph) > 0) }
+    for (const gl of GULLS.slice(0, gullCount())) { const x = (((gl.x + t * gl.v) % (W + 20)) + W + 20) % (W + 20) - 10; drawGull(x, gl.y + Math.sin(t * 1.3 + gl.ph) * 2, Math.sin(t * 7 + gl.ph) > 0) }
     main.drawImage(FA, 0, 0)
-    for (const s of STRIPES) { const x = (((s.x + t * s.v) % W) + W) % W; rect(x, s.y, s.w, 1, s.c) }
+    for (const s of STRIPES) { const x = (((s.x + t * s.v * (0.7 + 0.4 * windK())) % W) + W) % W; rect(x, s.y, s.w, 1, s.c) }
     for (const s of SPARKS) { const v = Math.sin(t * s.r + s.ph); if (v > 0.55) { px(s.x, s.y, '#ffffff'); if (v > 0.8) { px(s.x - 1, s.y, '#e8fffb'); px(s.x + 1, s.y, '#e8fffb'); px(s.x, s.y - 1, '#e8fffb'); px(s.x, s.y + 1, '#e8fffb') } } }
-    palm(160, 204, 45, Math.sin(t * 1.3) + Math.sin(t * 2.7) * 0.4)
+    if (mood.sunX != null && mood.phase !== 'day') for (let k = 0; k < 12; k++) { const w = 2 + (k % 3) * 3; rect(mood.sunX - w / 2 + Math.sin(t * 2 + k) * (3 + k * 0.5), HOR + 2 + k * 1.7, w, 1, mood.phase === 'dusk' ? '#ff9a6a' : '#ffe3a0') }
+    palm(160, 204, 45, (Math.sin(t * (1.1 + windK() * 0.5)) + Math.sin(t * 2.7) * 0.4) * windK())
     main.drawImage(FB, 0, 0)
     // 길 위의 사람들 (오른쪽→왼쪽 깊이 순서)
     const whole = (p, ox, oy, o, wv) => { person(ox, oy, o, wv); const [bx, by, bw, bh] = person.region; main.drawImage(OC.canvas, bx, by, bw, bh, bx, by, bw, bh); g = main }
@@ -336,20 +405,68 @@ export function createScene(cvs) {
     // 달리는 소녀: 길을 가로질러 달렸다가 잠깐 쉬었다 다시 온다
     const cyc = 9, u = (t % cyc) / cyc, rx = -40 + Math.min(1, u / 0.78) * 330
     if (rx < 300) whole(0, rx, 252, runnerAt(t, t * 11), t * 6)
-    // 빛줄기: 비스듬히 흘러내린다
-    const img = main.getImageData(0, 0, W, H), dd = img.data
-    const shift = t * 7
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const u2 = ((x * 0.55 + y - shift) % 93 + 93) % 93
-      let f = u2 < 12 ? 0.24 : u2 < 21 ? 0.11 : u2 > 45 && u2 < 50 ? 0.09 : 0
-      if (y > HOR - 8 && y < 219) f *= 0.7
-      f *= 0.6 + 0.6 * (x / W) * (1 - (y / H) * 0.5)
-      if (y > 214) f *= 0.8
-      if (f > 0.02) { const i = (y * W + x) * 4; for (let k = 0; k < 3; k++) dd[i + k] = dd[i + k] + (255 - dd[i + k]) * f }
+    // 비·눈
+    if (drops.length) {
+      const dt = Math.min(0.1, Math.max(0, t - (frame.last ?? t))), snow = mood.kind === 'snow', slant = 0.2 + windK() * 0.12
+      for (const d of drops) {
+        d.y += d.v * dt; d.x += snow ? Math.sin(t * 1.5 + d.ph) * 0.3 - slant * 8 * dt : -d.v * dt * slant
+        if (d.y >= d.land) {
+          if (!snow) { const sy = Math.round(d.land); px(d.x - 1, sy, '#cfe6ff'); px(d.x + 1, sy, '#cfe6ff'); px(d.x, sy - 1, '#eaf4ff') }
+          d.y = -Math.random() * 40; d.x = Math.random() * (W + 60) - 10; d.land = HOR + 8 + Math.random() * (H - HOR - 10)
+        }
+        if (snow) { px(d.x, d.y, '#ffffff'); px(d.x + 1, d.y, '#eaf2ff'); px(d.x, d.y + 1, '#eaf2ff') }
+        else { px(d.x, d.y, '#dcefff'); px(d.x + slant, d.y - 1, '#b4d4f0'); px(d.x + slant * 2, d.y - 2, '#8fb6dc') }
+      }
     }
-    for (let y = 0; y < 80; y++) for (let x = 160; x < W; x++) { const q = Math.hypot(x - 256, y) / 120; if (q < 1) { const f = (1 - q) * (0.3 + 0.06 * Math.sin(t * 0.9)), i = (y * W + x) * 4; for (let k = 0; k < 3; k++) dd[i + k] = dd[i + k] + (255 - dd[i + k]) * f } }
+    frame.last = t
+    // 빛줄기와 날씨·시간대 색 보정
+    const img = main.getImageData(0, 0, W, H), dd = img.data
+    const G = grade, shift = t * 7
+    const flash = mood.kind === 'storm' && (t * 0.9) % 7 < 0.12 ? 70 : 0
+    const hz = G.haze
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4
+      let r = dd[i], gg = dd[i + 1], b = dd[i + 2]
+      if (G.ray > 0.02) {
+        const u2 = ((x * 0.55 + y - shift) % 93 + 93) % 93
+        let f = u2 < 12 ? 0.24 : u2 < 21 ? 0.11 : u2 > 45 && u2 < 50 ? 0.09 : 0
+        if (y > HOR - 8 && y < 219) f *= 0.7
+        f *= (0.6 + 0.6 * (x / W) * (1 - (y / H) * 0.5)) * G.ray
+        if (y > 214) f *= 0.8
+        if (G.glare > 0 && y < 80 && x >= 160) { const q = Math.hypot(x - 256, y) / 120; if (q < 1) f += (1 - q) * (0.3 + 0.06 * Math.sin(t * 0.9)) * G.glare }
+        if (f > 0.02) { r += (255 - r) * f; gg += (255 - gg) * f; b += (255 - b) * f }
+      }
+      if (G.desat) { const l = r * 0.3 + gg * 0.59 + b * 0.11; r += (l - r) * G.desat; gg += (l - gg) * G.desat; b += (l - b) * G.desat }
+      if (hz) { const k = hz * (1 - Math.abs(y - HOR) / 200); r += (214 - r) * k; gg += (220 - gg) * k; b += (226 - b) * k }
+      dd[i] = Math.max(0, Math.min(255, r * G.mul[0] + G.add[0] + flash)); dd[i + 1] = Math.max(0, Math.min(255, gg * G.mul[1] + G.add[1] + flash)); dd[i + 2] = Math.max(0, Math.min(255, b * G.mul[2] + G.add[2] + flash))
+    }
     main.putImageData(img, 0, 0)
   }
 
-  return { frame }
+  // ───────────── 분위기 바꾸기 ─────────────
+  let drops = []
+  let grade = { mul: [1, 1, 1], add: [0, 0, 0], desat: 0, haze: 0, ray: 1, glare: 1 }
+  function gradeOf() {
+    const G = { mul: [1, 1, 1], add: [0, 0, 0], desat: 0, haze: 0, ray: 1, glare: 1 }
+    const ph = { golden: { mul: [1.08, 0.95, 0.84], add: [14, 6, -6], ray: 1.1, glare: 0 }, dawn: { mul: [1.02, 0.93, 1.04], add: [10, 0, 10], ray: 0.9, glare: 0 }, dusk: { mul: [0.9, 0.78, 0.86], add: [18, 0, -2], ray: 0.7, glare: 0 }, night: { mul: [0.42, 0.5, 0.82], add: [0, 4, 14], ray: 0, glare: 0 } }[mood.phase]
+    if (ph) Object.assign(G, { ...ph, mul: [...ph.mul], add: [...ph.add] })
+    const by = { partly: { ray: 0.8 }, overcast: { desat: 0.35, mulK: 0.92, ray: 0.25, glare: 0.2 }, fog: { desat: 0.5, haze: 0.32, ray: 0.3, glare: 0.3 }, drizzle: { desat: 0.4, mulK: 0.88, ray: 0.1, glare: 0 }, rain: { desat: 0.5, mulK: 0.8, ray: 0, glare: 0 }, storm: { desat: 0.6, mulK: 0.62, ray: 0, glare: 0 }, snow: { desat: 0.4, mulK: 0.97, haze: 0.15, ray: 0.2, glare: 0.1 } }[mood.kind]
+    if (by) { G.desat = by.desat ?? 0; if (by.mulK) G.mul = G.mul.map((v) => v * by.mulK); G.haze = by.haze ?? 0; G.ray = Math.min(G.ray, by.ray ?? 1); G.glare = Math.min(G.glare, by.glare ?? 1) }
+    if (mood.kind === 'rain' || mood.kind === 'storm') G.mul = [G.mul[0] * 0.95, G.mul[1], G.mul[2] * 1.05]
+    return G
+  }
+  function initPrecip() {
+    const n = mood.kind === 'storm' ? 230 : mood.kind === 'rain' ? (mood.heavy ? 200 : 120) : mood.kind === 'drizzle' ? 55 : mood.kind === 'snow' ? 90 : 0
+    drops = Array.from({ length: n }, () => ({ x: Math.random() * (W + 50) - 20, y: Math.random() * H, v: mood.kind === 'snow' ? 16 + Math.random() * 18 : 150 + Math.random() * 90, land: HOR + 8 + Math.random() * (H - HOR - 10), ph: Math.random() * 6.28 }))
+  }
+  function setMood(m) {
+    mood = { kind: 'clear', phase: 'day', wind: 2, heavy: false, ...m }
+    mood.rain = { drizzle: 0.3, rain: mood.heavy ? 1 : 0.65, storm: 1 }[mood.kind] ?? 0
+    mood.sunX = mood.kind === 'clear' || mood.kind === 'partly' ? ({ golden: 188, dusk: 188, dawn: 38 })[mood.phase] ?? null : null
+    grade = gradeOf()
+    buildSky(); buildClouds(); initPrecip()
+  }
+  setMood({})
+
+  return { frame, setMood }
 }

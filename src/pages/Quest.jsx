@@ -42,7 +42,7 @@ export default function Quest() {
             <h1 className="headline">제주 <em>탐험하기</em></h1>
             <div className="sub">가 보고, 도장 찍고, 기록하고, 코스로 나눠요</div>
           </div>
-          {tab === 'stamp' && <PixelJeju />}
+          {tab === 'stamp' && <PixelJeju spots={spots} />}
         </div>
         <div className="modebar mt-3">
           {TABS.map((t) => (

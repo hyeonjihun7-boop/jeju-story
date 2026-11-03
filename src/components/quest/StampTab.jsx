@@ -7,6 +7,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { useQuestStore } from '../../store/useQuestStore'
 import NaviButton from '../NaviButton'
 import InstallButton from '../InstallButton'
+import { useFxStore } from '../../store/useFxStore'
 import OlleCourses from './OlleCourses'
 import ShareCard from './ShareCard'
 
@@ -21,6 +22,7 @@ export default function StampTab({ spots, goTab }) {
   const [kind, setKind] = useState('all')
   const [card, setCard] = useState(false)
   const navigate = useNavigate()
+  const fire = useFxStore((s) => s.fire)
   const sendMessage = useAppStore((s) => s.sendMessage)
   const chatLoading = useAppStore((s) => s.chatLoading)
 
@@ -44,9 +46,17 @@ export default function StampTab({ spots, goTab }) {
   async function stamp(s) {
     if (stamped.has(s.id)) return
     const finished = () => newlyCompleted(stamps, spots, s.id)
+    // 도장 연출: 레벨이 오르면 레벨업, 코스를 마치면 완주, 아니면 도장
+    const celebrate = (t) => {
+      const before = levelOf(stamps.length), after = levelOf(stamps.length + 1)
+      if (after.index > before.index) fire('levelup', { title: 'LEVEL UP!', sub: `Lv.${after.index + 1} ${after.name}` })
+      else if (t) fire('badge', { title: '코스 완주!', sub: t.name })
+      else fire('stamp', { title: '스탬프 완료!', sub: s.name })
+    }
     if (demo) { // 발표·시연용: 위치 확인 없이 찍는다 (서버 기록에는 올리지 않음)
       const t = finished()
       await addStamp(s, true)
+      celebrate(t)
       return toast(t ? `🏅 "${t.name}" 완주! (데모)` : `${s.name} 스탬프 (데모)`)
     }
     setBusy(s.id)
@@ -56,7 +66,7 @@ export default function StampTab({ spots, goTab }) {
       if (p.acc > MAX_ACC) return toast(`GPS 정확도가 낮아요 (오차 약 ${fmtDist(p.acc)}). 하늘이 트인 곳에서 다시 시도해 주세요`, 'warn')
       const d = distanceM(p, s)
       // 기기가 알려 준 오차(최대 150m)만큼은 너그럽게 봐 준다
-      if (d <= s.r + Math.min(p.acc ?? 0, 150)) { const t = finished(); await addStamp(s); toast(t ? `🏅 "${t.name}" 완주!` : `${s.name} 스탬프 완료! 🍊`) }
+      if (d <= s.r + Math.min(p.acc ?? 0, 150)) { const t = finished(); await addStamp(s); celebrate(t); toast(t ? `🏅 "${t.name}" 완주!` : `${s.name} 스탬프 완료! 🍊`) }
       else toast(`${s.name}까지 ${fmtDist(d)} 남았어요 (반경 ${fmtDist(s.r)} 안에서 인증)`, 'warn')
     } catch (e) { toast(e.message, 'warn') }
     setBusy('')

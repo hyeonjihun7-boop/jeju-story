@@ -4,6 +4,7 @@ import { NAV_ITEMS } from '../router'
 import { useAppStore } from '../store/useAppStore'
 import Logo from '../components/Logo'
 import InstallButton from '../components/InstallButton'
+import FxLayer from '../components/FxLayer'
 
 export default function AppLayout() {
   const toasts = useAppStore((s) => s.toasts)
@@ -29,6 +30,7 @@ export default function AppLayout() {
       </aside>
       <main className="main"><Outlet /></main>
       <nav className="tabbar">{links}</nav>
+      <FxLayer />
       <div className="toastbox">{toasts.map((t) => <div key={t.id} className={t.variant}>{t.message}</div>)}</div>
     </div>
   )

@@ -5,12 +5,14 @@ import { olleNewlyCompleted, olleProgress } from '../../lib/trail'
 import { useAppStore } from '../../store/useAppStore'
 import { useQuestStore } from '../../store/useQuestStore'
 import NaviButton from '../NaviButton'
+import { useFxStore } from '../../store/useFxStore'
 
 // 제주올레 공식 코스(공공데이터) 완주 도전: 코스의 시작점과 종점을 GPS로 인증하면 완주
 export default function OlleCourses({ demo }) {
   const olle = useQuestStore((s) => s.olle)
   const addOlle = useQuestStore((s) => s.addOlle)
   const toast = useAppStore((s) => s.toast)
+  const fire = useFxStore((s) => s.fire)
   const [busy, setBusy] = useState('')
 
   const courses = olleProgress(olle)
@@ -24,6 +26,8 @@ export default function OlleCourses({ demo }) {
     const done = () => {
       const finished = olleNewlyCompleted(olle, id)
       addOlle(id, demo)
+      if (finished.length) fire('badge', { title: '올레 완주!', sub: `올레 ${finished.map((c) => c.no).join('·')}코스` })
+      else fire('stamp', { title: '인증 완료!', sub: pt.name })
       toast(finished.length ? `🏅 올레 ${finished.map((c) => c.no + '코스').join('·')} 완주!${demo ? ' (데모)' : ''}` : `${pt.name} 인증${demo ? ' (데모)' : ' 완료!'}`)
     }
     if (demo) return done()
