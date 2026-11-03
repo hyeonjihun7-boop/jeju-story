@@ -132,7 +132,7 @@
 .q-olle-head { display: flex; gap: 12px; align-items: center; }
 .q-olle-no { min-width: 44px; height: 44px; padding: 0 6px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 1rem; background: #fff1d6; color: #b8741a; flex-shrink: 0; }
 .q-olle.done .q-olle-no { background: #2f7d6f; color: #fff; }
-.q-olle-ok { color: #2f7d6f; font-weight: 800; font-size: .88rem; display: inline-flex; gap: 4px; align-items: center; }
+.q-olle-ok { white-space: nowrap; color: #2f7d6f; font-weight: 800; font-size: .88rem; display: inline-flex; gap: 4px; align-items: center; }
 .q-olle-pts { display: grid; gap: 8px; }
 .q-opt { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 12px; background: #f1f4f2; }
 .q-opt.on { background: color-mix(in srgb, #2f7d6f 12%, #fff); }
