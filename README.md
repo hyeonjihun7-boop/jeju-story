@@ -26,7 +26,8 @@
 | 🛍 **먹거리·쇼핑** | 로컬 브랜드(간식·디저트 / 의류 / 액세서리·소품), 지역별 맛집·카페, 실제 사진 | TourAPI · 카카오 이미지·블로그 |
 | 📰 **이슈** | 이슈제주 최신 기사 + 주제별 뉴스 | 이슈제주 RSS · Google 뉴스 RSS |
 | ✨ **AI 비서** | 질문하면 AI가 **스스로 도구를 골라** 호출하고 답변, *호출한 도구 목록* 표시. “1박 2일 일정 짜줘” → **시간표**로 보여주고 저장 | 위 모든 API를 도구(18개)로 사용 |
-| 🔖 **북마크** | 담은 곳을 종류별로 거르고 **지도에서 한꺼번에 보기**, 저장한 일정 목록, **공유 링크**, AI 대화 기록 | Supabase |
+| 🚩 **탐험하기** | **스탬프**(GPS 현장 인증) · **레벨·칭호·연속 탐험일** · **오늘의 미션** · **안개 지도** · **코스 만들기·공유** · **탐험 일지** · **탐험가 랭킹** | Supabase · 내 위치(GPS) |
+| 🔖 **북마크** | 담은 곳을 종류별로 거르고 **지도에서 한꺼번에 보기**, **카드 이미지 저장**, **북마크로 여행 계획 만들기·공유 링크**, 저장한 일정 목록, AI 대화 기록 | Supabase |
 
 ### 🗓 AI 여행 일정
 - AI가 날씨·장소 API를 호출해 `## N일차` + `시간 | 장소 | 설명` 형식으로 일정을 만들면, 화면에서 **시간표**로 바꿔 보여줍니다.
@@ -34,6 +35,18 @@
 - **내 일정에 저장**(Supabase `trips`) → 북마크 탭에서 다시 보기 → **공유 링크**(`/trip/:id`)를 복사해 누구에게나 보여주기.
 - 장소 이름 → 좌표는 TourAPI 키워드 검색으로 찾되, 이름이 거의 같을 때만 받아들입니다. 못 찾으면 엉뚱한 곳에 찍지 않고 핀을 생략합니다.
 - AI가 바쁠 때(무료 한도)를 위해 **예시 일정 보기(AI 없이)** 버튼, 모델 폴백, 같은 질문 10분 캐시를 둡니다.
+
+### 🚩 탐험하기
+가 보고, 도장 찍고, 기록하는 칸입니다. (`src/pages/Quest.jsx`, `src/components/quest/`)
+- **스탬프**: 오름·바다·숲·폭포·역사·맛집 40여 곳. 내 위치(GPS)가 장소 반경 안이면 인증되고, 기기가 알려 주는 오차(최대 150m)만큼은 반경에 더해 줍니다. 오차가 1km를 넘으면 인증하지 않습니다. 장소 좌표는 한국관광공사·OpenStreetMap 두 곳으로 대조했습니다.
+- **데모 모드**: 현장에 없어도 스탬프를 찍어 볼 수 있는 시연용 스위치. 데모 스탬프는 "데모"로 표시되고 서버·랭킹에는 올라가지 않습니다.
+- **레벨·칭호·연속 탐험일**: 스탬프 수로 레벨, 종류별 1·3·5곳에서 칭호(오름 마스터 등), 스탬프나 일지를 남긴 날이 이어지면 보너스 칭호.
+- **오늘의 미션**: 날씨에 맞춰 매일 바뀌는 3개(장소 스탬프 · 한 줄 일지 · 코스 만들기).
+- **안개 지도**: 안 가 본 곳은 물음표 핀, 스탬프를 찍으면 색이 켜집니다(3D·2D 모두).
+- **코스 만들기·공유**: 핀을 골라 시간표 코스로 저장하면 `/trip/:id` 공유 링크와 코스 갤러리에 올라갑니다.
+- **탐험 일지**: 장소마다 사진 한 장과 한 줄 메모, 타임라인과 지도. `journal` 테이블이 있으면 서버에도 저장됩니다.
+- **탐험가 랭킹**: 서버에 올라온 스탬프를 닉네임별로 세어 순위를 냅니다.
+- **자랑 카드 · AI 연결**: 레벨·칭호를 이미지 한 장으로 저장하고, 가 본 곳을 뺀 안 가 본 곳으로 AI에게 1박 2일 일정을 부탁합니다.
 
 ### 🕯 다크 투어리즘
 4·3 유적 등 제주의 아픈 역사를 기억하는 장소 12곳과 프로그램(모바일 스탬프 투어, (사)제주다크투어)을 소개합니다. 사진은 TourAPI 우선, 없으면 카카오 이미지로 채웁니다.
@@ -72,7 +85,8 @@
  한국관광공사 TourAPI · 카카오 (키가 있으면) · Gemini / Claude
 ```
 
-- **store** — 여러 페이지가 함께 쓰는 값(지역, 오늘 데이터, 북마크, 일정, 대화)
+- **store** — 여러 페이지가 함께 쓰는 값(지역, 오늘 데이터, 북마크, 일정, 대화). 탐험하기의 스탬프·일지·코스는 `useQuestStore`(이 기기에 저장 + Supabase 동기화)
+- **Supabase 테이블** — `favorites` · `chat_logs` · `trips` · `stamps` · `journal`
 - **router** — 이동 경로(`NAV_ITEMS`) 한 곳에서 관리, 공유 일정은 `/trip/:id`
 - **server vs client** — 키가 필요하거나 CORS가 막힌 호출은 모두 서버 함수 경유
 
@@ -101,7 +115,8 @@
 | **축제·행사·관광지·맛집 (TourAPI)**, 일정 장소 좌표 | `DATA_GO_KR_KEY` | 안내 메시지 표시 |
 | 옷차림·브랜드·다크투어 **실제 사진**, 블로그 후기 | `KAKAO_REST_KEY` | 일러스트·카테고리 배너 |
 | **AI 비서** | `GEMINI_API_KEY` 또는 `ANTHROPIC_API_KEY` | 안내 메시지 + 예시 일정 |
-| 북마크·일정 저장 | `VITE_SUPABASE_URL` · `VITE_SUPABASE_ANON_KEY` | 저장 기능 꺼짐 |
+| 북마크·일정·스탬프·일지 저장 | `VITE_SUPABASE_URL` · `VITE_SUPABASE_ANON_KEY` | 저장 기능 꺼짐 (스탬프·일지는 이 기기에만 저장) |
+| 스탬프 현장 인증 | 없음 (브라우저 위치 권한, HTTPS 필요) | 데모 모드로 대신 |
 
 > ⚠ TourAPI는 **KorService2**, 제주 필터는 `lDongRegnCd=50`을 써야 합니다. 예전 `KorService1`은 폐기되었고, `areaCode=39`는 일부 데이터만 돌려줍니다.
 
@@ -117,7 +132,7 @@ npm run dev                     # http://localhost:5173  (화면 + /api 함께 �
 
 ### Supabase 준비
 1. [supabase.com](https://supabase.com)에서 프로젝트 생성 → Project URL과 anon key를 `.env.local`에 입력
-2. SQL Editor에 [`supabase/schema.sql`](supabase/schema.sql) 붙여넣고 Run (`favorites`, `chat_logs`, `trips`)
+2. SQL Editor에 [`supabase/schema.sql`](supabase/schema.sql) 붙여넣고 Run (`favorites`, `chat_logs`, `trips`, `stamps`, `journal`)
 3. 북마크·일정을 저장하고 새로고침해도 남는지 확인
 
 ### Vercel 배포
@@ -132,13 +147,15 @@ npm run dev                     # http://localhost:5173  (화면 + /api 함께 �
 api/        Vercel 서버 함수 11개 — Hobby 한도(12개) 이하
 server/     외부 API 호출·규칙 로직 (weather, air, outfit, tour, places, dark, daily, news, tools …) ← 화면·에이전트 공용
 src/
-  pages/      Home · Explore · Eat · Issue · Agent · My · TripShare
-  components/ Itinerary · MapView · DarkTour · DailyPicks · NaviButton · FavButton …
+  pages/      Home · Explore · Quest · Eat · Issue · Agent · My · TripShare
+  components/ Itinerary · MapView · DarkTour · DailyPicks · BookmarkTools · NaviButton · FavButton …
+    quest/    StampTab · QuestMap · CourseTab · JournalTab · RankTab · ShareCard
   layouts/    AppLayout (좌측 레일 / 하단 탭바)
   store/      Zustand 전역 상태
   api/        화면 → /api 호출 함수
-  lib/        supabase 연결
-  styles/     theme · jeju · cursor · dark · trip
+  lib/        supabase 연결 · quest(레벨·미션·연속일) · plan(시간표 글) · shareImage(이미지 저장)
+  data/       spots(스탬프 장소) · sampleTrip
+  styles/     theme · jeju · cursor · dark · trip · quest
 supabase/   테이블 생성 SQL
 ```
 

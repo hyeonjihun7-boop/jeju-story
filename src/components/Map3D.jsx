@@ -11,7 +11,7 @@ const BOUNDS = { s: 33.10, n: 33.60, w: 126.10, e: 127.05 }
 const S = 10 // 타일 한 장의 가로 길이(화면 단위)
 const EXAG = 4 // 높이 과장 배수
 const M_PER_UNIT = (40075016 * Math.cos((33.4 * Math.PI) / 180)) / 2 ** Z_H / S // 화면 1단위가 실제 몇 m 인가
-const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', dark: '#5b4a6b', tour: '#ff9f2e', food: '#d6402f', sea: '#3a8fb7', history: '#5b4a6b' }
+const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', dark: '#5b4a6b', tour: '#ff9f2e', food: '#d6402f', sea: '#3a8fb7', history: '#5b4a6b', nature: '#4c8a3c' }
 
 const tx = (lon, z) => ((lon + 180) / 360) * 2 ** z
 const ty = (lat, z) => {

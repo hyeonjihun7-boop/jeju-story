@@ -27,6 +27,7 @@ function shrink(file, max = 560) {
 export default function JournalTab({ spots }) {
   const toast = useAppStore((s) => s.toast)
   const { journal, stamps, addJournal, removeJournal } = useQuestStore()
+  const cloud = useQuestStore((s) => s.journalCloud)
   const [spotId, setSpotId] = useState('')
   const [place, setPlace] = useState('')
   const [text, setText] = useState('')
@@ -86,7 +87,7 @@ export default function JournalTab({ spots }) {
           {photo && <><img className="q-thumb" src={photo} alt="선택한 사진" /><button className="btn btn-link small p-0" onClick={() => setPhoto('')}>사진 빼기</button></>}
           <button className="pillbtn ms-auto" onClick={save}><i className="bi bi-pencil-fill me-1" />일지에 남기기</button>
         </div>
-        <div className="src">일지와 사진은 이 기기(브라우저)에만 저장돼요. 사진은 작게 줄여서 저장해요.</div>
+        <div className="src">{cloud ? '일지와 사진은 내 닉네임으로 서버에도 저장돼서 다른 기기에서도 이어 볼 수 있어요.' : '일지와 사진은 이 기기(브라우저)에만 저장돼요.'} 사진은 작게 줄여서 저장해요.</div>
       </div>
 
       {points.length > 0 && (

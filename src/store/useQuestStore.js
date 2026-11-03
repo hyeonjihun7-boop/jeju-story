@@ -15,6 +15,10 @@ const safeStorage = createJSONStorage(() => ({
   removeItem: (k) => { try { localStorage.removeItem(k) } catch { /* 무시 */ } },
 }))
 
+const pushJournal = (j) => supabase.from('journal').upsert({
+  id: j.id, nickname: nick(), spot_id: j.spotId ?? null, place: j.place, text: j.text ?? '', photo: j.photo ?? '', lat: j.lat ?? null, lon: j.lon ?? null, created_at: j.at,
+}).then(({ error }) => { if (error) useQuestStore.setState({ journalCloud: false }) })
+
 // 탐험하기 상태: 스탬프·일지·내가 만든 코스. 이 기기에 먼저 저장하고, Supabase 가 있으면 스탬프·코스는 함께 올린다.
 export const useQuestStore = create(
   persist(
@@ -51,8 +55,28 @@ export const useQuestStore = create(
         else toast('스탬프를 모두 지웠어요')
       },
 
-      addJournal: (entry) => set({ journal: [{ id: crypto.randomUUID(), at: new Date().toISOString(), ...entry }, ...get().journal] }),
-      removeJournal: (id) => set({ journal: get().journal.filter((j) => j.id !== id) }),
+      // 일지: 이 기기에 먼저 저장하고, journal 테이블이 있으면 사진까지 서버에도 올린다(기기를 바꿔도 이어 쓰기)
+      journalCloud: null, // null = 아직 모름 · true = 서버 저장 중 · false = 테이블이 없거나 설정이 없음
+      addJournal: (entry) => {
+        const row = { id: crypto.randomUUID(), at: new Date().toISOString(), ...entry }
+        set({ journal: [row, ...get().journal] })
+        if (supabase && get().journalCloud !== false) pushJournal(row)
+      },
+      removeJournal: (id) => {
+        set({ journal: get().journal.filter((j) => j.id !== id) })
+        if (supabase && get().journalCloud !== false) supabase.from('journal').delete().eq('id', id).eq('nickname', nick()).then(() => {})
+      },
+      // 서버의 내 일지를 합치고, 서버에 없는 기기 안 일지는 올린다 (journal 테이블이 없으면 조용히 건너뜀)
+      syncJournal: async () => {
+        if (!supabase) return set({ journalCloud: false })
+        const { data, error } = await supabase.from('journal').select('id,spot_id,place,text,photo,lat,lon,created_at').eq('nickname', nick())
+        if (error) return set({ journalCloud: false })
+        const have = new Set(get().journal.map((j) => j.id))
+        const add = data.filter((r) => !have.has(r.id)).map((r) => ({ id: r.id, spotId: r.spot_id, place: r.place, text: r.text ?? '', photo: r.photo ?? '', lat: r.lat, lon: r.lon, at: r.created_at }))
+        const onServer = new Set(data.map((r) => r.id))
+        set({ journalCloud: true, journal: [...get().journal, ...add].sort((a, b) => b.at.localeCompare(a.at)) })
+        for (const j of get().journal) if (!onServer.has(j.id)) await pushJournal(j)
+      },
 
       // 내 코스를 trips 테이블에 저장 → /trip/:id 공유 링크가 그대로 동작한다
       saveCourse: async ({ title, content }) => {

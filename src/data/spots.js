@@ -7,6 +7,7 @@ export const KINDS = {
   sea: { label: '바다', icon: 'water', color: '#3a8fb7' },
   history: { label: '역사', icon: 'flower2', color: '#5b4a6b' },
   food: { label: '맛집', icon: 'cup-hot-fill', color: '#d6402f' },
+  nature: { label: '숲·폭포', icon: 'tree-fill', color: '#4c8a3c' },
 }
 
 export const SPOTS = [
@@ -33,6 +34,16 @@ export const SPOTS = [
   { id: 'ihotewoo', kind: 'sea', name: '이호테우해변', lat: 33.4974, lon: 126.4531, r: 600, desc: '말 모양 등대가 있는 도심 가까운 해변.' },
   { id: 'gwakji', kind: 'sea', name: '곽지해수욕장', lat: 33.4485, lon: 126.3031, r: 600, desc: '일몰이 아름다운 애월의 해변.' },
   { id: 'udo', kind: 'sea', name: '우도 서빈백사', lat: 33.5040, lon: 126.9550, r: 1000, desc: '홍조단괴로 이뤄진 하얀 모래 해변.' },
+  { id: 'eoseungsaeng', kind: 'oreum', name: '어승생악', lat: 33.3966, lon: 126.4893, r: 900, ele: 1169, desc: '한라산 어리목 입구 앞 오름. 정상에서 한라산 전망이 열려요.' },
+  { id: 'oedolgae', kind: 'sea', name: '외돌개', lat: 33.2409, lon: 126.5472, r: 600, desc: '바다 한가운데 홀로 선 바위. 올레 7코스가 지나가요.' },
+  // ── 숲·폭포 (TourAPI·OSM 두 곳의 평균 좌표, 넓은 곳은 반경을 크게) ──
+  { id: 'jeongbang', kind: 'nature', name: '정방폭포', lat: 33.2448, lon: 126.5723, r: 600, desc: '바다로 곧장 떨어지는 동양 유일의 해안 폭포.' },
+  { id: 'cheonjiyeon', kind: 'nature', name: '천지연폭포', lat: 33.2458, lon: 126.5570, r: 800, desc: '울창한 난대림 사이로 쏟아지는 서귀포의 대표 폭포.' },
+  { id: 'cheonjeyeon', kind: 'nature', name: '천제연폭포', lat: 33.2514, lon: 126.4175, r: 700, desc: '중문관광단지 안, 3단으로 떨어지는 폭포.' },
+  { id: 'bijarim', kind: 'nature', name: '비자림', lat: 33.4846, lon: 126.8068, r: 700, desc: '수백 년 된 비자나무가 모인 숲길.' },
+  { id: 'arboretum', kind: 'nature', name: '한라수목원', lat: 33.4695, lon: 126.4930, r: 600, desc: '도심 가까이에서 제주 식물을 만나는 수목원.' },
+  { id: 'gotjawal', kind: 'nature', name: '곶자왈도립공원', lat: 33.2860, lon: 126.2692, r: 1200, desc: '화산 암괴와 숲이 뒤엉킨 제주 고유의 숲.' },
+  { id: 'jeolmul', kind: 'nature', name: '절물자연휴양림', lat: 33.4360, lon: 126.6227, r: 1200, desc: '삼나무 숲길을 걷는 휴양림. 장생의 숲길이 유명해요.' },
   // ── 맛집·시장 ──
   { id: 'dongmun', kind: 'food', name: '동문시장', lat: 33.5122, lon: 126.5276, r: 350, desc: '제주시의 대표 재래시장. 먹거리 가득.' },
   { id: 'olle-market', kind: 'food', name: '서귀포매일올레시장', lat: 33.2502, lon: 126.5632, r: 350, desc: '서귀포의 아케이드 시장.' },

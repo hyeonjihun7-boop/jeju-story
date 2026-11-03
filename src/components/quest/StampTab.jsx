@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { KINDS } from '../../data/spots'
-import { badgesOf, dailyMissions, distanceM, fmtDist, getPosition, levelOf } from '../../lib/quest'
+import { badgesOf, dailyMissions, distanceM, fmtDist, getPosition, levelOf, streakOf } from '../../lib/quest'
 import { useAppStore } from '../../store/useAppStore'
 import { useQuestStore } from '../../store/useQuestStore'
 import NaviButton from '../NaviButton'
@@ -26,6 +26,7 @@ export default function StampTab({ spots, goTab }) {
   const stamped = new Map(stamps.map((s) => [s.spotId, s]))
   const lv = levelOf(stamps.length)
   const badges = badgesOf(stamps)
+  const streak = streakOf(stamps, journal)
   const missions = dailyMissions({ today, spots, stamps, journal, courses })
   const dist = (s) => (pos ? distanceM(pos, s) : null)
   const shown = spots.filter((s) => kind === 'all' || s.kind === kind)
@@ -78,6 +79,11 @@ export default function StampTab({ spots, goTab }) {
             <div className="q-lvname">{lv.name}</div>
             <div className="small sub">스탬프 {stamps.length}개{lv.next ? ` · 다음 "${lv.next}"까지 ${lv.need}개` : ' · 최고 레벨!'}</div>
             <div className="meter mt-2"><span style={{ width: `${pct}%`, background: 'var(--citrus)' }} /></div>
+            <div className="q-streak">
+              <i className="bi bi-fire" />{streak.days > 0 ? `${streak.days}일 연속 탐험` : '오늘 첫 기록을 남겨 보세요'}
+              {streak.title && <span className="chip">{streak.title}</span>}
+              {streak.next && <small>{streak.days > 0 ? `${streak.need}일 더 이어 가면 "${streak.next}"` : `3일 연속이면 "${streak.next}"`}{streak.days > 0 && !streak.activeToday ? ' · 오늘 기록하면 이어져요' : ''}</small>}
+            </div>
           </div>
         </div>
         <div className="q-badges">

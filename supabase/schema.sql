@@ -55,3 +55,21 @@ create policy "stamps insert" on stamps for insert with check (true);
 create policy "stamps update" on stamps for update using (true);
 create policy "stamps delete" on stamps for delete using (true);
 -- 탐험 코스는 trips 테이블을 그대로 쓴다 (tools 에 'explorer-course' 가 들어간 행 = 탐험가들이 만든 코스)
+
+-- 탐험하기: 탐험 일지 (사진은 작게 줄인 글자 데이터로 함께 저장)
+create table if not exists journal (
+  id uuid primary key,
+  nickname text not null,
+  spot_id text,
+  place text not null,
+  text text,
+  photo text,
+  lat double precision,
+  lon double precision,
+  created_at timestamptz default now()
+);
+alter table journal enable row level security;
+create policy "journal read"   on journal for select using (true);
+create policy "journal insert" on journal for insert with check (true);
+create policy "journal update" on journal for update using (true);
+create policy "journal delete" on journal for delete using (true);

@@ -43,6 +43,7 @@ const TITLES = {
   sea: ['바다 초보', '해안 탐험가', '바다 마스터'],
   history: ['기억 지킴이', '역사 탐방가', '역사 마스터'],
   food: ['맛 초보', '맛 탐험가', '맛 마스터'],
+  nature: ['숲 초보', '폭포 탐험가', '숲 마스터'],
 }
 const TIERS = [1, 3, 5]
 export function badgesOf(stamps) {
@@ -95,4 +96,21 @@ export function dailyMissions({ today, spots, stamps, journal, courses }) {
     { id: 'course', icon: 'signpost-split', title: '나만의 탐험 코스 만들기', detail: '핀을 골라 코스를 만들고 링크로 공유해 보세요.', tab: 'course', done: courses.some((c) => isToday(c.at)) },
   ]
   return { key, list, doneCount: list.filter((m) => m.done).length }
+}
+
+// ── 연속 탐험일: 스탬프나 일지를 남긴 날(한국 날짜)이 이어진 일수. 오늘 아직 안 했어도 어제까지 이어졌으면 유지 ──
+const STREAK_TITLES = [{ at: 3, name: '사흘 탐험가' }, { at: 7, name: '일주일 탐험가' }, { at: 14, name: '열나흘 탐험대장' }]
+const shiftDay = (key, d) => dayKey(new Date(new Date(`${key}T12:00:00Z`).getTime() + d * 86400e3))
+
+export function streakOf(stamps, journal) {
+  const days = new Set([...stamps, ...journal].filter((x) => x.at).map((x) => dayKey(new Date(x.at))))
+  let cur = dayKey()
+  if (!days.has(cur)) cur = shiftDay(cur, -1)
+  let now = 0
+  while (days.has(cur)) { now++; cur = shiftDay(cur, -1) }
+  let best = 0, run = 0, prev = null
+  for (const k of [...days].sort()) { run = prev && shiftDay(prev, 1) === k ? run + 1 : 1; best = Math.max(best, run); prev = k }
+  const earned = [...STREAK_TITLES].reverse().find((t) => best >= t.at)
+  const next = STREAK_TITLES.find((t) => now < t.at)
+  return { days: now, best, title: earned?.name ?? null, next: next?.name ?? null, need: next ? next.at - now : 0, activeToday: days.has(dayKey()) }
 }

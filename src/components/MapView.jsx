@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css'
 
 const Map3D = lazy(() => import('./Map3D')) // three.js 는 3D 지도를 열 때만 내려받는다
 
-const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', dark: '#5b4a6b', tour: '#ff9f2e', food: '#d6402f', sea: '#3a8fb7', history: '#5b4a6b', center: '#17261f' }
+const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', dark: '#5b4a6b', tour: '#ff9f2e', food: '#d6402f', sea: '#3a8fb7', history: '#5b4a6b', nature: '#4c8a3c', center: '#17261f' }
 
 // 제주도 전체가 보이는 범위 (마라도·가파도·우도 포함). 지도는 이 범위 안에서만 움직인다
 const JEJU = L.latLngBounds([33.10, 126.10], [33.60, 127.05])

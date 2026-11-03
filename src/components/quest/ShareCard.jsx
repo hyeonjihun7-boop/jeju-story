@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
 import { KINDS } from '../../data/spots'
-import { badgesOf, levelOf } from '../../lib/quest'
+import { badgesOf, levelOf, streakOf } from '../../lib/quest'
+import { useQuestStore } from '../../store/useQuestStore'
 import { shareNodeAsImage } from '../../lib/shareImage'
 import { useAppStore } from '../../store/useAppStore'
 
-const EMOJI = { oreum: '⛰️', sea: '🌊', history: '🕯️', food: '🍊' }
+const EMOJI = { oreum: '⛰️', sea: '🌊', history: '🕯️', food: '🍊', nature: '🌲' }
 const stars = (n) => '★'.repeat(n) + '☆'.repeat(3 - n)
 
 // 스탬프 자랑 카드: 레벨·칭호·스탬프 수를 한 장 사진으로. 아이콘 글꼴은 사진에 안 들어가므로 이모지·글자만 쓴다.
@@ -15,6 +16,8 @@ export default function ShareCard({ stamps, total }) {
   const [busy, setBusy] = useState(false)
   const lv = levelOf(stamps.length)
   const badges = badgesOf(stamps)
+  const journal = useQuestStore((s) => s.journal)
+  const streak = streakOf(stamps, journal)
   const recent = [...stamps].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 5)
   const pct = total ? Math.round((stamps.length / total) * 100) : 0
 
@@ -32,6 +35,7 @@ export default function ShareCard({ stamps, total }) {
         <div className="q-card-lv">Lv.{lv.index + 1}</div>
         <div className="q-card-name">{lv.name}</div>
         <div className="q-card-nick">{nickname}</div>
+        {streak.days > 0 && <div className="q-card-streak">🔥 {streak.days}일 연속 탐험{streak.title ? ` · ${streak.title}` : ''}</div>}
         <div className="q-card-count"><b>{stamps.length}</b> / {total}곳 탐험 · {pct}%</div>
         <div className="q-card-bar"><span style={{ width: `${pct}%` }} /></div>
         <div className="q-card-badges">
