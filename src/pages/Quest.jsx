@@ -9,6 +9,7 @@ import QuestMap from '../components/quest/QuestMap'
 import CourseTab from '../components/quest/CourseTab'
 import JournalTab from '../components/quest/JournalTab'
 import RankTab from '../components/quest/RankTab'
+import PixelJeju from '../components/quest/PixelJeju'
 
 const TABS = [
   { key: 'stamp', label: '스탬프·미션', icon: 'patch-check-fill' },
@@ -36,9 +37,14 @@ export default function Quest() {
   return (
     <>
       <div className="mb-3">
-        <h1 className="headline">제주 <em>탐험하기</em></h1>
-        <div className="sub mb-3">가 보고, 도장 찍고, 기록하고, 코스로 나눠요</div>
-        <div className="modebar">
+        <div className="q-hero">
+          <div className="q-hero-text">
+            <h1 className="headline">제주 <em>탐험하기</em></h1>
+            <div className="sub">가 보고, 도장 찍고, 기록하고, 코스로 나눠요</div>
+          </div>
+          {tab === 'stamp' && <PixelJeju />}
+        </div>
+        <div className="modebar mt-3">
           {TABS.map((t) => (
             <button key={t.key} className={`modebtn ${tab === t.key ? 'on' : ''}`} onClick={() => setTab(t.key)}>
               <i className={`bi bi-${t.icon}`} />{t.label}
