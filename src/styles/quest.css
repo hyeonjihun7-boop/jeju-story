@@ -171,3 +171,12 @@
 @keyframes fxveil { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fxpop { from { transform: translateY(14px) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .fx-label { animation: none; } .fx::before { animation: none; } }
+
+/* ── 레벨별 도트 캐릭터 ── */
+.q-avatar { position: relative; width: 128px; height: 112px; flex-shrink: 0; border-radius: 22px; overflow: hidden; background: linear-gradient(to bottom, var(--sky, #bfeee6) 0 70%, #9fd48a 70% 100%); box-shadow: 0 4px 14px rgba(29, 74, 58, .22); }
+.q-avatar canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.q-avatar b { position: absolute; left: 6px; bottom: 5px; padding: 1px 8px; border-radius: 999px; background: rgba(29, 74, 58, .85); color: #fff; font-size: .72rem; line-height: 1.5; }
+.q-card-avatar { margin: 10px auto 0; box-shadow: none; }
+@media (max-width: 420px) { .q-level-top { align-items: flex-start; } }
+.fx-levelup .fx-label { top: 74%; }
+.q-card-avatar b { display: none; }

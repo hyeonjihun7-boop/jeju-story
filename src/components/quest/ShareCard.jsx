@@ -4,6 +4,7 @@ import { badgesOf, levelOf, streakOf } from '../../lib/quest'
 import { useQuestStore } from '../../store/useQuestStore'
 import { shareNodeAsImage } from '../../lib/shareImage'
 import { useAppStore } from '../../store/useAppStore'
+import Avatar from './Avatar'
 
 const EMOJI = { oreum: '⛰️', sea: '🌊', history: '🕯️', food: '🍊', nature: '🌲' }
 const stars = (n) => '★'.repeat(n) + '☆'.repeat(3 - n)
@@ -32,6 +33,7 @@ export default function ShareCard({ stamps, total }) {
     <div className="mt-3">
       <div className="q-card" ref={box}>
         <div className="q-card-brand">🍊 탐험 제주</div>
+        <Avatar level={lv.index} animate={false} className="q-card-avatar" />
         <div className="q-card-lv">Lv.{lv.index + 1}</div>
         <div className="q-card-name">{lv.name}</div>
         <div className="q-card-nick">{nickname}</div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { drawAvatar } from '../lib/avatar'
 import { useFxStore } from '../store/useFxStore'
 
 // 스탬프를 찍을 때 도장이 쾅 찍히고 감귤이 터지는 연출, 레벨업·코스 완주는 더 크게.
@@ -29,17 +30,6 @@ function medalSprite() {
   for (const [x, y] of [[6, 5], [7, 4], [8, 4]]) px(x, y, '#fff7c2')
   return c
 }
-// 해녀: 레벨업에 깡충 뛰는 인물
-function drawHaenyeo(g, x, y, up) {
-  const r = (a, b, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x + a), Math.round(y + b), w, h) }
-  r(-3, -19, 7, 3, '#ffffff'); r(-3, -17, 1, 2, '#ffffff')                         // 수건
-  r(-2, -16, 5, 4, '#e2ae82'); r(-1, -14, 1, 1, '#3a2a30'); r(2, -14, 1, 1, '#3a2a30'); r(0, -12, 2, 1, '#c4584f') // 얼굴
-  r(-3, -11, 7, 7, '#262a35')                                                      // 물옷
-  if (up) { r(-5, -18, 2, 7, '#262a35'); r(4, -18, 2, 7, '#262a35'); r(-5, -20, 2, 2, '#e2ae82'); r(4, -20, 2, 2, '#e2ae82') }
-  else { r(-5, -11, 2, 6, '#262a35'); r(4, -11, 2, 6, '#262a35') }
-  r(-2, -4, 2, 4, '#262a35'); r(1, -4, 2, 4, '#262a35'); r(-3, 0, 3, 1, '#15161c'); r(1, 0, 3, 1, '#15161c')
-  for (let b = -3; b <= 3; b++) for (let a = -3; a <= 3; a++) if (a * a + b * b <= 9) r(8 + a, -4 + b, 1, 1, a + b < -1 ? '#ffb064' : '#ff8a3d')  // 테왁
-}
 const orange = (g, x, y) => { g.fillStyle = C.orangeD; g.fillRect(Math.round(x) - 1, Math.round(y) - 1, 4, 4); g.fillStyle = C.orange; g.fillRect(Math.round(x), Math.round(y), 2, 2); g.fillStyle = C.orangeL; g.fillRect(Math.round(x), Math.round(y), 1, 1); g.fillStyle = C.leaf; g.fillRect(Math.round(x) + 1, Math.round(y) - 2, 2, 1) }
 const spark = (g, x, y, col = C.spark) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y) - 1, 1, 3); g.fillRect(Math.round(x) - 1, Math.round(y), 3, 1) }
 
@@ -55,7 +45,7 @@ export default function FxLayer() {
     const timer = setTimeout(() => useFxStore.getState().clear(seq), dur * 1000)
     const canvas = ref.current
     if (!canvas || reduce) return () => clearTimeout(timer)
-    const LW = 128, LH = Math.max(64, Math.round(LW * (window.innerHeight / window.innerWidth)))
+    const LW = window.innerWidth > window.innerHeight * 1.2 ? 176 : 128, LH = Math.max(64, Math.round(LW * (window.innerHeight / window.innerWidth)))
     canvas.width = LW; canvas.height = LH
     const g = canvas.getContext('2d'); g.imageSmoothingEnabled = false
     const seal = sealSprite(), medal = medalSprite()
@@ -85,12 +75,15 @@ export default function FxLayer() {
         g.globalAlpha = 1
       } else { // levelup
         if (t < 0.9 && Math.floor(t * 30) % 3 === 0) for (let i = 0; i < 18; i++) { const a = (i / 18) * 6.28 + t * 2; spark(g, cx + Math.cos(a) * (10 + t * 55), cy + Math.sin(a) * (8 + t * 40), '#ffe9a0') }
-        if (!burst1 && t > 0.05) { burst1 = true; burst(24, 80, ['o', 's']) }
-        if (!burst2 && t > 1.2) { burst2 = true; burst(18, 70, ['o', 's', 'o']) }
-        const jumping = t > 0.2 && t < 2.4, jy = jumping ? Math.abs(Math.sin((t - 0.2) * 5.2)) * 16 : 0
+        if (!burst1 && t > 0.72) { burst1 = true; burst(24, 80, ['o', 's']) }
+        if (!burst2 && t > 1.8) { burst2 = true; burst(18, 70, ['o', 's', 'o']) }
+        // 이전 모습으로 서 있다가 번쩍하고 새 모습으로 바뀌어 깡충 뛴다 (진화)
+        const lvNew = fx.level ?? 1, lvOld = Math.max(0, lvNew - 1), evolved = t >= 0.7
+        const jumping = t > 0.9 && t < 2.5, jy = jumping ? Math.abs(Math.sin((t - 0.9) * 5.2)) * 12 : 0
         g.globalAlpha = t > DUR.levelup - 0.4 ? Math.max(0, (DUR.levelup - t) / 0.4) : 1
-        drawHaenyeo(g, cx - 4, LH * 0.62 - jy, jumping)
+        drawAvatar(g, Math.round(cx - 4 + (evolved ? 0 : (Math.random() - 0.5) * 2 * Math.min(1, t / 0.6))), Math.round(LH * 0.68), evolved ? lvNew : lvOld, t, jy)
         g.globalAlpha = 1
+        if (t > 0.5 && t < 0.95) { g.fillStyle = 'rgba(255,255,255,' + (1 - Math.abs(t - 0.72) / 0.23).toFixed(2) + ')'; g.fillRect(0, 0, LW, LH) }
       }
       for (const p of parts) {
         p.age += dt; if (p.age > p.life) continue

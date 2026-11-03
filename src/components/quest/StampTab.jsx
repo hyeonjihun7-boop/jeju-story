@@ -9,6 +9,7 @@ import NaviButton from '../NaviButton'
 import InstallButton from '../InstallButton'
 import { useFxStore } from '../../store/useFxStore'
 import OlleCourses from './OlleCourses'
+import Avatar from './Avatar'
 import ShareCard from './ShareCard'
 
 // 레벨·칭호·오늘의 미션·스탬프판 (현재 위치가 장소 반경 안이면 스탬프 인증)
@@ -49,7 +50,7 @@ export default function StampTab({ spots, goTab }) {
     // 도장 연출: 레벨이 오르면 레벨업, 코스를 마치면 완주, 아니면 도장
     const celebrate = (t) => {
       const before = levelOf(stamps.length), after = levelOf(stamps.length + 1)
-      if (after.index > before.index) fire('levelup', { title: 'LEVEL UP!', sub: `Lv.${after.index + 1} ${after.name}` })
+      if (after.index > before.index) fire('levelup', { title: 'LEVEL UP!', sub: `Lv.${after.index + 1} ${after.name}`, level: after.index })
       else if (t) fire('badge', { title: '코스 완주!', sub: t.name })
       else fire('stamp', { title: '스탬프 완료!', sub: s.name })
     }
@@ -90,7 +91,7 @@ export default function StampTab({ spots, goTab }) {
       <InstallButton />
       <div className="kcard q-level mb-3">
         <div className="q-level-top">
-          <div className="q-lvbadge"><i className="bi bi-compass-fill" /><b>Lv.{lv.index + 1}</b></div>
+          <Avatar level={lv.index} />
           <div className="flex-grow-1">
             <div className="q-lvname">{lv.name}</div>
             <div className="small sub">스탬프 {stamps.length}개{lv.next ? ` · 다음 "${lv.next}"까지 ${lv.need}개` : ' · 최고 레벨!'}</div>
