@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css'
 
 const Map3D = lazy(() => import('./Map3D')) // three.js 는 3D 지도를 열 때만 내려받는다
 
-const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', dark: '#5b4a6b', tour: '#ff9f2e', food: '#d6402f', center: '#17261f' }
+const COLORS = { oreum: '#2c6b55', olle: '#3a8fb7', indoor: '#7a5fb0', indoorAll: '#9b7fd1', outdoorAll: '#e0762f', dark: '#5b4a6b', tour: '#ff9f2e', food: '#d6402f', sea: '#3a8fb7', history: '#5b4a6b', center: '#17261f' }
 
 // 제주도 전체가 보이는 범위 (마라도·가파도·우도 포함). 지도는 이 범위 안에서만 움직인다
 const JEJU = L.latLngBounds([33.10, 126.10], [33.60, 127.05])
@@ -37,7 +37,7 @@ function MapLeaflet({ points, center, height = 340, route = false, fit = false }
     // 핀을 누르면 사진·주소·설명이 보이는 카드 (글은 모두 이스케이프)
     const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
     const card = (p) => `${(p.img ?? '').startsWith('https://') ? `<img class="pin-img" src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy"/>` : ''}${p.addr ? `<div class="pin-addr">${esc(p.addr)}</div>` : ''}${p.desc ? `<div class="pin-desc">${esc(p.desc)}</div>` : ''}`
-    const popup = (p) => `<b>${p.n ? p.n + '. ' : ''}${esc(p.name)}</b>${p.note ? `<br/>${esc(p.note)}` : ''}${card(p)}${p.approx ? '<br/><small>정확한 위치를 못 찾아 대략 표시했어요</small>' : ''}<br/><a href="${p.approx ? `https://map.kakao.com/link/search/${encodeURIComponent('제주 ' + p.name)}` : `https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lon}`}" target="_blank" rel="noreferrer">카카오 길찾기</a> · <a href="https://map.naver.com/p/search/${encodeURIComponent(p.name)}" target="_blank" rel="noreferrer">네이버 지도</a>`
+    const popup = (p) => p.locked ? `<b>${esc(p.name)}</b>${p.note ? `<br/>${esc(p.note)}` : ''}` : `<b>${p.n ? p.n + '. ' : ''}${esc(p.name)}</b>${p.note ? `<br/>${esc(p.note)}` : ''}${card(p)}${p.approx ? '<br/><small>정확한 위치를 못 찾아 대략 표시했어요</small>' : ''}<br/><a href="${p.approx ? `https://map.kakao.com/link/search/${encodeURIComponent('제주 ' + p.name)}` : `https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lon}`}" target="_blank" rel="noreferrer">카카오 길찾기</a> · <a href="https://map.naver.com/p/search/${encodeURIComponent(p.name)}" target="_blank" rel="noreferrer">네이버 지도</a>`
 
     if (route) {
       const line = valid.filter((p) => p.n).sort((a, b) => a.n - b.n).map((p) => [p.lat, p.lon])
@@ -48,7 +48,7 @@ function MapLeaflet({ points, center, height = 340, route = false, fit = false }
         const icon = L.divIcon({ className: p.approx ? 'num-pin approx' : 'num-pin', html: `<span>${p.n}</span>`, iconSize: [30, 30], iconAnchor: [15, 15] })
         L.marker([p.lat, p.lon], { icon }).bindPopup(popup(p), { minWidth: 200, maxWidth: 260 }).addTo(layer.current)
       } else {
-        L.circleMarker([p.lat, p.lon], { radius: many ? 5 : 9, color: '#fff', weight: many ? 1 : 2, fillColor: COLORS[p.kind] ?? COLORS.tour, fillOpacity: 0.9 })
+        L.circleMarker([p.lat, p.lon], { radius: many ? 5 : 9, color: '#fff', weight: many ? 1 : 2, fillColor: p.locked ? '#6f7f8a' : COLORS[p.kind] ?? COLORS.tour, fillOpacity: p.locked ? 0.6 : 0.9, dashArray: p.locked ? '3 3' : undefined })
           .bindPopup(popup(p), { minWidth: 200, maxWidth: 260 }).addTo(layer.current)
       }
     }

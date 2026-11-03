@@ -38,3 +38,20 @@ alter table trips enable row level security;
 create policy "trips read"   on trips for select using (true);
 create policy "trips insert" on trips for insert with check (true);
 create policy "trips delete" on trips for delete using (true);
+
+-- 탐험하기: 스탬프 기록 (같은 장소는 한 번만)
+create table if not exists stamps (
+  id bigint generated always as identity primary key,
+  nickname text not null,
+  spot_id text not null,
+  kind text not null,          -- oreum | sea | history | food
+  name text not null,
+  created_at timestamptz default now(),
+  unique (nickname, spot_id)
+);
+alter table stamps enable row level security;
+create policy "stamps read"   on stamps for select using (true);
+create policy "stamps insert" on stamps for insert with check (true);
+create policy "stamps update" on stamps for update using (true);
+create policy "stamps delete" on stamps for delete using (true);
+-- 탐험 코스는 trips 테이블을 그대로 쓴다 (tools 에 'explorer-course' 가 들어간 행 = 탐험가들이 만든 코스)

@@ -9,6 +9,7 @@ import './styles/jeju.css'
 import './styles/cursor.css'
 import './styles/dark.css'
 import './styles/trip.css'
+import './styles/quest.css'
 import { router } from './router'
 
 createRoot(document.getElementById('root')).render(

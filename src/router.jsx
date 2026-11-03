@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import AppLayout from './layouts/AppLayout'
 import Home from './pages/Home'
 import Explore from './pages/Explore'
+import Quest from './pages/Quest'
 import Eat from './pages/Eat'
 import Issue from './pages/Issue'
 import Agent from './pages/Agent'
@@ -13,6 +14,7 @@ import TripShare from './pages/TripShare'
 export const NAV_ITEMS = [
   { to: '/', label: '오늘', icon: 'sun' },
   { to: '/explore', label: '탐험', icon: 'compass' },
+  { to: '/quest', label: '탐험하기', icon: 'flag-fill' },
   { to: '/eat', label: '먹거리·쇼핑', icon: 'bag-heart' },
   { to: '/issue', label: '이슈', icon: 'newspaper' },
   { to: '/agent', label: 'AI 비서', icon: 'stars' },
@@ -27,6 +29,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'explore', element: <Explore /> },
+      { path: 'quest', element: <Quest /> },
       { path: 'eat', element: <Eat /> },
       { path: 'issue', element: <Issue /> },
       { path: 'agent', element: <Agent /> },
